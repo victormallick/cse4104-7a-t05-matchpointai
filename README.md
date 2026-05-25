@@ -15,8 +15,8 @@
 | SL | Member Name | Student ID | Role |
 | --- | --- | --- | --- |
 | 1 | Junnatul Farhana | 11230121088 | Team Leader |
-| 2 | Farhana Azgar Orin | 11230121070 | Backend Developer |
-| 3 | Victor Mallick | 11210320676 | Frontend Developer |
+| 2 | Farhana Azgar Orin | 11230121070 | Frontend Developer |
+| 3 | Victor Mallick | 11210320676 | Backend Developer |
 | 4 | Easin Mohammad Rayhan | 11220120789 | AI Integration Engineer |
 
 ## Project Description
