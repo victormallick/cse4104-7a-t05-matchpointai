@@ -1,4 +1,4 @@
-# MatchPoint AI - AI Resume Analyzer & Interview Preparation Platform.
+# MatchPoint AI - AI Resume Analyzer & Interview Preparation Platform
 
 ## Team Information
 
