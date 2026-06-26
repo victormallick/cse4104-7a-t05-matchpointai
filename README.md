@@ -8,7 +8,7 @@
 | Section | 7A |
 | Project Title | MatchPoint AI - AI Resume Analyzer & Interview Preparation Platform |
 | Team Leader | Junnatul Farhana |
-| GitHub Repository Link | [https://github.com/wizzzzzzzz255/cse4104-7a-t05-matchpointai](https://github.com/victormallick/cse4104-7a-t05-matchpointai) |
+| GitHub Repository Link | [https://github.com/victormallick/cse4104-7a-t05-matchpointai](https://github.com/victormallick/cse4104-7a-t05-matchpointai) |
 
 ## Team Members and Student IDs
 
