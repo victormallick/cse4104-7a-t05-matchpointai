@@ -1,61 +1,76 @@
-const { supabase } = require('../config/supabase');
+const { randomUUID } = require('crypto');
+const { supabase, isSupabaseConfigured } = require('../config/supabase');
+const { DEMO_USER_ID, now, store } = require('../data/demoData');
 const ParserService = require('../services/parserService');
 
-/**
- * Controller to handle file upload and resume text extraction
- */
 const uploadResume = async (req, res) => {
   try {
     const file = req.file;
-    // Extract user_id from body or headers (fallback to headers for API flexibility)
-    const userId = req.body.user_id || req.headers['x-user-id'];
+    const userId = req.body.user_id || req.headers['x-user-id'] || req.user?.id || DEMO_USER_ID;
 
     if (!file) {
       return res.status(400).json({
         success: false,
-        error: 'No file uploaded. Please select a resume file (PDF, DOCX, TXT).'
+        message: 'Select a PDF or DOCX resume to upload.'
       });
     }
 
-    if (!userId) {
-      return res.status(400).json({
+    const parsedText = await ParserService.parseFile(
+      file.buffer,
+      file.mimetype,
+      file.originalname
+    );
+
+    if (!parsedText.trim()) {
+      return res.status(422).json({
         success: false,
-        error: 'Missing user_id. Please provide user_id in request body or X-User-Id header.'
+        message: 'The uploaded document did not contain readable text.'
       });
     }
 
-    console.log(`Received file: ${file.originalname} (${file.size} bytes) for user ${userId}`);
+    if (!isSupabaseConfigured) {
+      const resume = {
+        id: randomUUID(),
+        user_id: userId,
+        file_path: file.originalname,
+        file_type: file.mimetype,
+        parsed_text: parsedText,
+        uploaded_at: now()
+      };
+      store.resumes.set(resume.id, resume);
 
-    // Parse the file text using the parser service
-    const parsedText = await ParserService.parseFile(file.buffer, file.mimetype, file.originalname);
+      return res.status(200).json({
+        success: true,
+        message: 'Resume uploaded and parsed successfully in demo mode.',
+        data: {
+          resume_id: resume.id,
+          user_id: resume.user_id,
+          file_name: resume.file_path,
+          file_type: resume.file_type,
+          parsed_text_length: parsedText.length,
+          uploaded_at: resume.uploaded_at,
+          demo_mode: true
+        }
+      });
+    }
 
-    // Save parsing details and file path placeholder to Supabase 'resumes' table
-    // For local setup, we can use a mock path or file name as file_path
     const { data, error } = await supabase
       .from('resumes')
       .insert([
         {
           user_id: userId,
-          file_path: file.originalname, // Save filename as temporary file path
+          file_path: file.originalname,
+          file_type: file.mimetype,
           parsed_text: parsedText
         }
       ])
-      .select();
+      .select()
+      .single();
 
     if (error) {
-      console.error('Supabase save error:', error);
-      
-      // If user does not exist in 'users' table (Foreign key constraint violation)
-      if (error.code === '23503') {
-        return res.status(400).json({
-          success: false,
-          error: `Foreign key violation: User with ID ${userId} does not exist in the public.users database. Please create the user record first.`
-        });
-      }
-
       return res.status(500).json({
         success: false,
-        error: `Database insertion failed: ${error.message}`
+        message: `Resume metadata could not be saved: ${error.message}`
       });
     }
 
@@ -63,18 +78,19 @@ const uploadResume = async (req, res) => {
       success: true,
       message: 'Resume uploaded and parsed successfully.',
       data: {
-        resume_id: data[0].id,
-        user_id: data[0].user_id,
-        file_name: data[0].file_path,
+        resume_id: data.id,
+        user_id: data.user_id,
+        file_name: data.file_path,
+        file_type: data.file_type,
         parsed_text_length: parsedText.length,
-        uploaded_at: data[0].uploaded_at
+        uploaded_at: data.uploaded_at
       }
     });
   } catch (error) {
     console.error('Upload controller error:', error);
-    return res.status(500).json({
+    return res.status(422).json({
       success: false,
-      error: error.message || 'Internal server error during resume upload.'
+      message: error.message || 'The resume could not be parsed.'
     });
   }
 };

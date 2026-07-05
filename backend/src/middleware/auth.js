@@ -1,4 +1,5 @@
-const { supabase } = require('../config/supabase');
+const { supabase, isSupabaseConfigured } = require('../config/supabase');
+const { demoUser, adminUser, store } = require('../data/demoData');
 
 /**
  * Authentication middleware that verifies the Supabase JWT token.
@@ -8,10 +9,28 @@ const requireAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
+    if (!isSupabaseConfigured) {
+      const token = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice('Bearer '.length)
+        : '';
+      const wantsAdmin = authHeader?.toLowerCase().includes('admin') ||
+        req.headers['x-demo-role'] === 'admin';
+      const registeredUserId = token.startsWith('demo-user-')
+        ? token.slice('demo-user-'.length)
+        : '';
+      const registeredUser = store.profiles.get(registeredUserId);
+
+      req.user = wantsAdmin
+        ? { ...adminUser }
+        : { ...(registeredUser || demoUser) };
+      req.isDemoMode = true;
+      return next();
+    }
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        error: 'Access denied. Missing or malformed authorization header (expected Bearer token).'
+        message: 'Access denied. Use an Authorization: Bearer <token> header.'
       });
     }
 
@@ -20,7 +39,7 @@ const requireAuth = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        error: 'Access denied. Bearer token value is empty.'
+        message: 'Access denied. The bearer token is empty.'
       });
     }
 
@@ -31,7 +50,7 @@ const requireAuth = async (req, res, next) => {
       console.error('JWT verification error:', error);
       return res.status(401).json({
         success: false,
-        error: 'Access denied. The provided authentication token is invalid or has expired.'
+        message: 'Access denied. The authentication token is invalid or expired.'
       });
     }
 
@@ -42,11 +61,41 @@ const requireAuth = async (req, res, next) => {
     console.error('Authentication middleware exception:', error);
     return res.status(500).json({
       success: false,
-      error: 'An internal error occurred during authentication processing.'
+      message: 'Authentication could not be completed.'
     });
   }
 };
 
+const requireAdmin = async (req, res, next) => {
+  if (req.isDemoMode) {
+    return next();
+  }
+
+  const metadataRole = req.user?.role ||
+    req.user?.user_metadata?.role ||
+    req.user?.app_metadata?.role;
+
+  if (metadataRole === 'admin') {
+    return next();
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', req.user.id)
+    .single();
+
+  if (error || data?.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Administrator access is required.'
+    });
+  }
+
+  return next();
+};
+
 module.exports = {
-  requireAuth
+  requireAuth,
+  requireAdmin
 };

@@ -7,7 +7,7 @@ const router = express.Router();
 // Configure multer memory storage
 const storage = multer.memoryStorage();
 
-// Limit file size to 10MB and restrict to PDF, DOCX, and TXT
+// TXT is retained as a convenient API-testing format.
 const upload = multer({
   storage,
   limits: {
@@ -40,13 +40,13 @@ router.post('/', (req, res, next) => {
       // Multer specific errors
       return res.status(400).json({
         success: false,
-        error: `File upload error: ${err.message}`
+        message: `File upload error: ${err.message}`
       });
     } else if (err) {
       // Other errors (e.g. file type restriction)
       return res.status(400).json({
         success: false,
-        error: err.message
+        message: err.message
       });
     }
     next();

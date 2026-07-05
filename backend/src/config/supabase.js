@@ -3,14 +3,29 @@ require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const forceDemoMode = String(process.env.DEMO_MODE).toLowerCase() === 'true';
 
-if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
-  console.warn(
-    'WARNING: Supabase URL or Anon Key is not properly configured. Supabase operations will fail. Check your .env file.'
-  );
+const isSupabaseConfigured = Boolean(
+  !forceDemoMode &&
+  supabaseUrl &&
+  supabaseAnonKey &&
+  /^https:\/\/.+\.supabase\.co$/i.test(supabaseUrl)
+);
+
+if (!isSupabaseConfigured) {
+  console.warn('Supabase is not configured. MatchPoint AI is running in local demo mode.');
 }
 
-// Create Supabase admin/anon client
-const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder');
+const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    })
+  : null;
 
-module.exports = { supabase };
+module.exports = {
+  supabase,
+  isSupabaseConfigured
+};

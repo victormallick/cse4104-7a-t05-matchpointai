@@ -1,170 +1,226 @@
-# MatchPoint AI - AI Resume Analyzer & Interview Preparation Platform.
+# MatchPoint AI
 
-## Team Information
+AI Resume Analyzer & Interview Preparation Platform
+Official project: **CSE4104-7A-T05**
 
-| Field | Information |
-| --- | --- |
-| Official Team Name | CSE4104-7A-T05 |
-| Section | 7A |
-| Project Title | MatchPoint AI - AI Resume Analyzer & Interview Preparation Platform |
-| Team Leader | Junnatul Farhana |
-| GitHub Repository Link | [https://github.com/victormallick/cse4104-7a-t05-matchpointai](https://github.com/victormallick/cse4104-7a-t05-matchpointai) |
+MatchPoint AI helps candidates compare a PDF/DOCX resume with a target job description, review an ATS score and skill gaps, improve weak resume content, prepare for interviews, explore matched jobs, and revisit previous analyses. Administrators can monitor users, platform analytics, AI usage, service status, and logs.
 
-## Team Members and Student IDs
+The implementation follows the T05 Proposal, SRS, Use Case Diagram, ER Diagram, System Architecture, System Design, UI/Wireframe Design, User Flow, Development Roadmap, and Backend Progress documents.
 
-| SL | Member Name | Student ID | Role |
-| --- | --- | --- | --- |
-| 1 | Junnatul Farhana | 11230121088 | Team Leader |
-| 2 | Farhana Azgar Orin | 11230121070 | Frontend Developer |
-| 3 | Victor Mallick | 11210320676 | Backend Developer |
-| 4 | Easin Mohammad Rayhan | 11220120789 | AI Integration Engineer |
+## Team
 
-## Project Description
-
-MatchPoint AI is an AI-powered smart career preparation system designed to help users optimize their resumes and prepare for technical interviews. Users can upload their resume alongside a target job description, and the system will evaluate them using advanced semantic analysis. 
-
-The platform acts as a strict Applicant Tracking System (ATS) and technical recruiter, providing a detailed gap analysis, missing keywords detection, and an overall ATS match score. Furthermore, the system dynamically generates custom mock interview questions targeting the candidate's specific weaknesses and suggests professional rewrites for weak experience bullet points.
-
-## Proposed Features
-
-* Secure User Authentication System (via Supabase).
-* Resume Upload (PDF/DOCX) and structured text parsing.
-* AI semantically compares the resume with the target job description.
-* System provides targeted Gap Analysis & ATS Match Scoring.
-* System identifies missing technical skills and keywords.
-* AI Resume Improvement Generator provides professional rewriting suggestions for weak bullet points.
-* Custom Mock Interview Generator creates personalized technical and behavioral questions based on detected skill gaps.
-* Smart Job Match Recommendations.
-* User can view previous analysis history on their dashboard.
-
-## Technology Stack
-
-| Area | Technology |
-| --- | --- |
-| Frontend | React.js, Tailwind CSS, ShadCN UI |
-| Backend | Node.js, Express.js |
-| Database & Auth | Supabase (PostgreSQL & Authentication) |
-| AI / Machine Learning | OpenAI API / Gemini API |
-| API and Tools | PDF Parser, Mammoth DOCX parser |
-
-## Project Folder Structure
-
-```text
-CSE4104-7A-T05_MatchPoint/
-├── README.md
-├── .gitignore
-├── .env.example
-├── docs/
-│   ├── project_overview.md
-│   ├── team_info.md
-│   └── database_design.md
-├── frontend/
-│   ├── package.json
-│   ├── index.html
-│   ├── tailwind.config.js
-│   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── components/
-│       ├── pages/
-│       ├── services/
-│       └── styles/
-├── backend/
-│   ├── package.json
-│   ├── server.js
-│   ├── controllers/
-│   ├── routes/
-│   ├── middlewares/
-│   └── utils/
-│       └── parsers/
-└── tests/
-```
-
-## How the System Works
-
-1. User authenticates and uploads a resume (PDF/DOCX) along with a target job description from the frontend.
-2. The documents are sent to the Node.js backend.
-3. Backend parsers extract clean text from the uploaded files.
-4. The extracted text is sent to the AI API with strict prompt instructions.
-5. AI performs semantic gap analysis to find missing keywords and calculates the ATS score.
-6. AI generates personalized mock interview questions based on the candidate's missing skills.
-7. System saves the analysis results to the Supabase PostgreSQL database.
-8. Result is displayed on the user's dashboard.
-
-## Installation and Setup
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Backend Setup
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-### Environment Variables (.env)
-You will need to create a `.env` file in your backend directory with the following keys:
-```text
-PORT=5000
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
-AI_API_KEY=your_openai_or_gemini_key
-```
-
-## API Endpoints Draft
-
-| Method | Endpoint | Description |
+| Member | Student ID | Role |
 | --- | --- | --- |
-| POST | `/upload-resume` | Upload and parse PDF/DOCX files |
-| POST | `/analyze-resume` | Compare resume with JD and get ATS score |
-| POST | `/generate-interview` | Generate custom mock interview questions |
-| POST | `/improve-resume` | Get AI rewriting suggestions for weak bullet points |
-| GET | `/analysis-history` | Fetch previous ATS analyses for the user |
+| Junnatul Farhana | 11230121088 | Team Leader |
+| Farhana Azgar Orin | 11230121070 | Frontend / UI Design |
+| Victor Mallick | 11210320676 | Backend Development |
+| Easin Mohammad Rayhan | 11220120789 | Database / AI Integration |
 
-## Expected Output Example
+## Features
+
+- Email/password registration, login, logout, and role-aware navigation
+- PDF/DOCX resume upload and text parsing
+- Job title, company, and job-description input
+- ATS score, matched/missing keywords, missing skills, and improvement guidance
+- Resume bullet rewrite examples
+- Technical, behavioral, and HR interview question generation
+- Job recommendations with match scores and bookmark interaction
+- Analysis history and editable candidate profile
+- Admin dashboard, user monitoring, analytics, AI usage, service health, and logs
+- Fully runnable local demo mode with no Supabase or paid AI key
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, Vite, React Router DOM, Axios, lucide-react, CSS |
+| Backend | Node.js 18+, Express, Multer |
+| Parsing | pdf-parse, Mammoth DOCX parser |
+| Database/Auth | Supabase Auth and PostgreSQL |
+| AI-ready integration | OpenAI API or Gemini API environment slots |
+| API testing | Postman collection and Node test runner |
+
+## Folder structure
+
+```text
+root/
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── data/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── server.js
+│   ├── test/
+│   ├── .env.example
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   └── styles.css
+│   ├── .env.example
+│   └── package.json
+├── database/
+│   └── schema.sql
+├── postman/
+│   └── MatchPoint_AI_APIs.postman_collection.json
+├── .gitignore
+└── README.md
+```
+
+## Local setup
+
+Prerequisites: Node.js 18 or newer and npm.
+
+### 1. Start the backend
+
+```powershell
+cd backend
+Copy-Item .env.example .env
+npm.cmd install
+npm.cmd run dev
+```
+
+The backend runs at `http://localhost:5000`.
+
+### 2. Start the frontend
+
+Open a second terminal:
+
+```powershell
+cd frontend
+Copy-Item .env.example .env
+npm.cmd install
+npm.cmd run dev
+```
+
+Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
+
+### 3. Run verification
+
+```powershell
+cd backend
+npm.cmd test
+
+cd ..\frontend
+npm.cmd run build
+```
+
+## Environment variables
+
+`backend/.env`:
+
+```dotenv
+PORT=5000
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENAI_API_KEY=
+GEMINI_API_KEY=
+DEMO_MODE=true
+```
+
+`frontend/.env`:
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+Never commit real credentials. Set `DEMO_MODE=false` and fill the relevant credentials only when connecting a prepared Supabase project.
+
+## Demo/mock mode
+
+Demo mode is enabled automatically when Supabase credentials are absent, or explicitly with `DEMO_MODE=true`. It provides realistic in-memory profiles, ATS analyses, interview questions, jobs, history, admin users, analytics, AI usage, service health, and logs.
+
+Demo login:
+
+- Candidate: `amina.rahman@example.com` / `password123`
+- Administrator: `admin@matchpoint.ai` / `password123`
+- In demo mode, any valid email and non-empty password also works.
+
+Data created in backend demo mode resets when the backend process restarts. Resume text is parsed locally; no paid AI service is called.
+
+## API endpoints
+
+All successful endpoints use:
 
 ```json
 {
-  "ats_score": "74%",
-  "missing_keywords": ["Docker", "CI/CD", "Redis"],
-  "weak_points": [
-    {
-      "original": "Worked on backend systems.",
-      "suggestion": "Developed scalable REST APIs using Node.js and PostgreSQL, improving response efficiency by 30%."
-    }
-  ],
-  "interview_questions": [
-    {
-      "topic": "Docker",
-      "question": "How would you containerize a Node.js application using Docker?"
-    },
-    {
-      "topic": "Database",
-      "question": "Explain indexing in PostgreSQL and when you would use composite indexes."
-    }
-  ]
+  "success": true,
+  "message": "Human-readable result",
+  "data": {}
 }
 ```
 
-## File Naming Convention
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/health` | API and integration mode health |
+| POST | `/api/auth/register` | Register candidate |
+| POST | `/api/auth/login` | Login candidate/admin |
+| POST | `/api/auth/logout` | End client session |
+| GET | `/api/user/profile` | Load profile |
+| PUT | `/api/user/profile` | Update profile |
+| POST | `/api/upload` | Upload and parse resume |
+| POST | `/api/analysis/gap-analysis` | Generate ATS/gap analysis |
+| POST | `/api/interview/generate` | Generate interview questions |
+| GET | `/api/user/history` | Load analysis history |
+| GET | `/api/jobs/recommendations` | Load matched jobs |
+| GET | `/api/admin/analytics` | Admin overview and trends |
+| GET | `/api/admin/users` | Admin user monitoring |
+| GET | `/api/admin/ai-usage` | AI usage and endpoint health |
+| GET | `/api/admin/logs` | Admin/system logs |
 
-Official files should follow the required naming convention.
+Import the collection in `postman/` for ready-made requests. The login, upload, and analysis requests save their returned IDs into collection variables.
 
-Examples:
+## Frontend pages
 
-```text
-CSE4104-7A-T05_Proposal.pdf
-CSE4104-7A-T05_Week01.pdf
-CSE4104-7A-T05_InitialProjectStructure.zip
-```
+| Route | Page |
+| --- | --- |
+| `/` | Landing page |
+| `/login` | Candidate/admin login |
+| `/register` | Registration |
+| `/dashboard` | Candidate dashboard |
+| `/analyze` | Resume upload and job input |
+| `/result` | ATS and gap-analysis result |
+| `/interview` | Technical, behavioral, and HR practice |
+| `/jobs` | Job recommendations |
+| `/history` | Analysis history |
+| `/profile` | Candidate profile |
+| `/admin` | Admin dashboard |
+| `/admin/users` | Manage users |
+| `/admin/analytics` | System analytics |
+| `/admin/ai-usage` | AI usage monitoring |
+| `/admin/logs` | Admin logs |
 
-## Current Status
+## Database notes
 
-Initial project structure and team details finalized. Next steps are setting up the Supabase database schema, configuring the Node.js/Express backend, building the React UI, and implementing the core document parsing logic.
+Run `database/schema.sql` in the Supabase SQL Editor when using real persistence. It keeps the Week 6 backend names:
+
+- `analysis_records` implements the ER diagram's conceptual `analysis_results`.
+- `interview_sessions.questions_json` groups the ER diagram's `interview_questions` into generated practice sessions.
+
+This preserves the existing backend while adding the documented job recommendation, admin log, AI usage, profile, job-title, company, missing-skill, indexing, trigger, and Row Level Security fields.
+
+## Final lab demonstration flow
+
+1. Start backend and frontend with demo mode enabled.
+2. Show the landing page and register or use the candidate demo login.
+3. Review dashboard cards and recent analyses.
+4. Open **Analyze Resume**, upload a real PDF/DOCX resume, and confirm the target job details.
+5. Click **Analyze with AI** and explain the parsing/loading feedback.
+6. Review ATS score, missing keywords, missing skills, suggestions, and rewrite example.
+7. Open interview questions and demonstrate Practice/Save interaction.
+8. Show job recommendations, bookmarks, history search, and profile update.
+9. Log out, use the administrator demo login, and show users, analytics, AI usage, service status, and logs.
+10. Optionally run the Postman health, login, upload, analysis, interview, jobs, and admin requests.
+
+## Optional production setup
+
+Local lab demonstration needs no additional setup. Real persistence requires creating a Supabase project, running `database/schema.sql`, configuring the backend credentials, and setting `DEMO_MODE=false`. The project currently exposes AI-ready environment slots but intentionally uses the deterministic local analysis engine so the lab demo never depends on paid keys.
