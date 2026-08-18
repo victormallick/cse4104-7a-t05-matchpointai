@@ -1,226 +1,155 @@
-# MatchPoint AI
+# MatchPoint AI 🎯
 
-AI Resume Analyzer & Interview Preparation Platform
-Official project: **CSE4104-7A-T05**
+> **AI-Powered ATS Resume Analyzer, Tailored Interview Preparation & Career Matching Platform**  
+> Official Project: **CSE4104-7A-T05**
 
-MatchPoint AI helps candidates compare a PDF/DOCX resume with a target job description, review an ATS score and skill gaps, improve weak resume content, prepare for interviews, explore matched jobs, and revisit previous analyses. Administrators can monitor users, platform analytics, AI usage, service status, and logs.
+MatchPoint AI helps candidates optimize their PDF/DOCX resumes against target job descriptions, discover high-value keyword gaps, explore AI-powered bullet rewrites, prepare with tailored mock interview questions, and discover high-alignment job opportunities in **Bangladesh** and **Abroad**.
 
-The implementation follows the T05 Proposal, SRS, Use Case Diagram, ER Diagram, System Architecture, System Design, UI/Wireframe Design, User Flow, Development Roadmap, and Backend Progress documents.
+---
 
-## Team
+## 👥 Project Team (T05)
 
 | Member | Student ID | Role |
-| --- | --- | --- |
-| Junnatul Farhana | 11230121088 | Team Leader |
-| Farhana Azgar Orin | 11230121070 | Frontend / UI Design |
-| Victor Mallick | 11210320676 | Backend Development |
-| Easin Mohammad Rayhan | 11220120789 | Database / AI Integration |
+| :--- | :--- | :--- |
+| **Junnatul Farhana** | 11230121088 | Team Leader |
+| **Farhana Azgar Orin** | 11230121070 | Frontend / UI & UX Design |
+| **Victor Mallick** | 11210320676 | Backend & Full-Stack Development |
+| **Easin Mohammad Rayhan** | 11220120789 | Database & AI Integration |
 
-## Features
+---
 
-- Email/password registration, login, logout, and role-aware navigation
-- PDF/DOCX resume upload and text parsing
-- Job title, company, and job-description input
-- ATS score, matched/missing keywords, missing skills, and improvement guidance
-- Resume bullet rewrite examples
-- Technical, behavioral, and HR interview question generation
-- Job recommendations with match scores and bookmark interaction
-- Analysis history and editable candidate profile
-- Admin dashboard, user monitoring, analytics, AI usage, service health, and logs
-- Fully runnable local demo mode with no Supabase or paid AI key
+## ✨ Key Features & Upgrades
 
-## Tech stack
+* 📄 **Multi-Format Resume Parser**: In-memory parsing for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero disk leakage.
+* 🎯 **Dynamic Radial "Target HUD" ATS Gauge**: Animated circular gauge providing multi-tier score classification (*e.g. Top 5% Applicant, Strong Match*).
+* 🔍 **Comprehensive Keyword & Skill Gap Matrix**: Identifies matched competencies vs. high-impact missing industry terms.
+* ✍️ **Interactive "Before vs. After" Bullet Point Optimizer**: Side-by-side comparison of unquantified drafts vs. STAR-backed achievement bullets with 1-click clipboard copy.
+* 🎙️ **Custom Mock Interview Question Bank**:
+  * Categorized into **Technical**, **Behavioral**, **HR & Culture**, and **Saved Questions**.
+  * Recruiter intent breakdowns, target keywords, and recommended STAR answering strategies.
+* 💼 **AI Job Recommendation Engine**:
+  * Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** roles.
+  * Live search by target role with direct 1-click LinkedIn application links.
+* 🌓 **Modern UI with Light / Dark Mode**: Custom brand theme built with Tailwind CSS v4, Radix UI primitives, Lucide icons, and official neural knot branding.
+* 🛡️ **Multi-Key Gemini Failover Pool**: Automatic fallback rotation across `GEMINI_API_KEY_1..3` + deterministic local analyzer for 100% uptime.
+* 🔐 **Secure Authentication**: Clean Login & Registration with password visibility eye toggles and Supabase session management.
+* 📊 **Administrator Operations Panel**: User monitoring, system analytics, AI token tracking, service health, and audit logs.
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
-| --- | --- |
-| Frontend | React, Vite, React Router DOM, Axios, lucide-react, CSS |
-| Backend | Node.js 18+, Express, Multer |
-| Parsing | pdf-parse, Mammoth DOCX parser |
-| Database/Auth | Supabase Auth and PostgreSQL |
-| AI-ready integration | OpenAI API or Gemini API environment slots |
-| API testing | Postman collection and Node test runner |
+| :--- | :--- |
+| **Frontend** | React 19 / 18, Vite 8.1, Tailwind CSS v4, Radix UI, Lucide React, Axios |
+| **Backend** | Node.js 18+, Express 4.19, Multer (Memory Storage) |
+| **Document Parsers** | `pdfjs-dist` (PDF extraction), `mammoth` (DOCX extraction) |
+| **Database & Auth** | Supabase Auth & PostgreSQL (with in-memory fallback engine) |
+| **AI Intelligence** | Google Gemini API (`gemini-3.6-flash`) with Multi-Key Pool & OpenAI support |
+| **Testing** | Node test runner, Postman API Collection, automated diagnostic suites |
 
-## Folder structure
+---
+
+## 📂 Project Structure
 
 ```text
-root/
+Matchpoint AI/
 ├── backend/
 │   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── data/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   └── server.js
-│   ├── test/
+│   │   ├── config/          # Supabase & Database configuration
+│   │   ├── controllers/     # Analysis, Interview, Jobs, Auth & User controllers
+│   │   ├── data/            # Demo fixtures and seed data
+│   │   ├── middleware/      # Auth, error handling & upload validation
+│   │   ├── routes/          # REST API route handlers
+│   │   ├── services/        # AI service (Gemini multi-key pool) & Parser service
+│   │   └── server.js        # Express application entrypoint
+│   ├── test/                # API integration test suite
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
+│   ├── public/              # Favicon, SVG logos & static web assets
 │   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── data/
-│   │   ├── pages/
-│   │   ├── services/
+│   │   ├── components/      # UI components (PageHeader, LoadingState, Brand, etc.)
+│   │   ├── context/         # AuthContext & ThemeContext
+│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Dashboard, etc.
+│   │   ├── services/        # Axios API client
 │   │   ├── App.jsx
-│   │   └── styles.css
+│   │   └── main.jsx
 │   ├── .env.example
 │   └── package.json
+├── sample_resumes/          # PDF test resumes for quick evaluation
 ├── database/
-│   └── schema.sql
+│   └── schema.sql           # Supabase PostgreSQL schema with RLS policies
 ├── postman/
 │   └── MatchPoint_AI_APIs.postman_collection.json
 ├── .gitignore
 └── README.md
 ```
 
-## Local setup
+---
 
-Prerequisites: Node.js 18 or newer and npm.
+## 🚀 Quick Start Guide
 
-### 1. Start the backend
+### Prerequisites
+* **Node.js 18+** and **npm** installed.
 
+### 1. Start the Backend API
 ```powershell
 cd backend
-Copy-Item .env.example .env
 npm.cmd install
 npm.cmd run dev
 ```
+*Backend runs on `http://localhost:5000`.*
 
-The backend runs at `http://localhost:5000`.
-
-### 2. Start the frontend
-
-Open a second terminal:
-
+### 2. Start the Frontend App
+Open a second terminal window:
 ```powershell
 cd frontend
-Copy-Item .env.example .env
 npm.cmd install
 npm.cmd run dev
 ```
+*Frontend runs on `http://localhost:5173`.*
 
-Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
+---
 
-### 3. Run verification
+## ⚙️ Environment Configuration
 
-```powershell
-cd backend
-npm.cmd test
-
-cd ..\frontend
-npm.cmd run build
-```
-
-## Environment variables
-
-`backend/.env`:
-
+### `backend/.env`
 ```dotenv
 PORT=5000
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-DEMO_MODE=true
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Google Gemini Multi-Key Failover Pool
+GEMINI_API_KEY_1=your-gemini-key-1
+GEMINI_API_KEY_2=your-gemini-key-2
+GEMINI_API_KEY_3=your-gemini-key-3
+
+DEMO_MODE=false
 ```
 
-`frontend/.env`:
-
+### `frontend/.env`
 ```dotenv
 VITE_API_BASE_URL=http://localhost:5000
 ```
 
-Never commit real credentials. Set `DEMO_MODE=false` and fill the relevant credentials only when connecting a prepared Supabase project.
+---
 
-## Demo/mock mode
+## 🧪 Verification & Health Checks
 
-Demo mode is enabled automatically when Supabase credentials are absent, or explicitly with `DEMO_MODE=true`. It provides realistic in-memory profiles, ATS analyses, interview questions, jobs, history, admin users, analytics, AI usage, service health, and logs.
+Run the automated test suites:
+```powershell
+# Test Backend APIs
+cd backend
+npm.cmd test
 
-Demo login:
-
-- Candidate: `amina.rahman@example.com` / `password123`
-- Administrator: `admin@matchpoint.ai` / `password123`
-- In demo mode, any valid email and non-empty password also works.
-
-Data created in backend demo mode resets when the backend process restarts. Resume text is parsed locally; no paid AI service is called.
-
-## API endpoints
-
-All successful endpoints use:
-
-```json
-{
-  "success": true,
-  "message": "Human-readable result",
-  "data": {}
-}
+# Verify Frontend Production Build
+cd ..\frontend
+npm.cmd run build
 ```
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| GET | `/api/health` | API and integration mode health |
-| POST | `/api/auth/register` | Register candidate |
-| POST | `/api/auth/login` | Login candidate/admin |
-| POST | `/api/auth/logout` | End client session |
-| GET | `/api/user/profile` | Load profile |
-| PUT | `/api/user/profile` | Update profile |
-| POST | `/api/upload` | Upload and parse resume |
-| POST | `/api/analysis/gap-analysis` | Generate ATS/gap analysis |
-| POST | `/api/interview/generate` | Generate interview questions |
-| GET | `/api/user/history` | Load analysis history |
-| GET | `/api/jobs/recommendations` | Load matched jobs |
-| GET | `/api/admin/analytics` | Admin overview and trends |
-| GET | `/api/admin/users` | Admin user monitoring |
-| GET | `/api/admin/ai-usage` | AI usage and endpoint health |
-| GET | `/api/admin/logs` | Admin/system logs |
+---
 
-Import the collection in `postman/` for ready-made requests. The login, upload, and analysis requests save their returned IDs into collection variables.
-
-## Frontend pages
-
-| Route | Page |
-| --- | --- |
-| `/` | Landing page |
-| `/login` | Candidate/admin login |
-| `/register` | Registration |
-| `/dashboard` | Candidate dashboard |
-| `/analyze` | Resume upload and job input |
-| `/result` | ATS and gap-analysis result |
-| `/interview` | Technical, behavioral, and HR practice |
-| `/jobs` | Job recommendations |
-| `/history` | Analysis history |
-| `/profile` | Candidate profile |
-| `/admin` | Admin dashboard |
-| `/admin/users` | Manage users |
-| `/admin/analytics` | System analytics |
-| `/admin/ai-usage` | AI usage monitoring |
-| `/admin/logs` | Admin logs |
-
-## Database notes
-
-Run `database/schema.sql` in the Supabase SQL Editor when using real persistence. It keeps the Week 6 backend names:
-
-- `analysis_records` implements the ER diagram's conceptual `analysis_results`.
-- `interview_sessions.questions_json` groups the ER diagram's `interview_questions` into generated practice sessions.
-
-This preserves the existing backend while adding the documented job recommendation, admin log, AI usage, profile, job-title, company, missing-skill, indexing, trigger, and Row Level Security fields.
-
-## Final lab demonstration flow
-
-1. Start backend and frontend with demo mode enabled.
-2. Show the landing page and register or use the candidate demo login.
-3. Review dashboard cards and recent analyses.
-4. Open **Analyze Resume**, upload a real PDF/DOCX resume, and confirm the target job details.
-5. Click **Analyze with AI** and explain the parsing/loading feedback.
-6. Review ATS score, missing keywords, missing skills, suggestions, and rewrite example.
-7. Open interview questions and demonstrate Practice/Save interaction.
-8. Show job recommendations, bookmarks, history search, and profile update.
-9. Log out, use the administrator demo login, and show users, analytics, AI usage, service status, and logs.
-10. Optionally run the Postman health, login, upload, analysis, interview, jobs, and admin requests.
-
-## Optional production setup
-
-Local lab demonstration needs no additional setup. Real persistence requires creating a Supabase project, running `database/schema.sql`, configuring the backend credentials, and setting `DEMO_MODE=false`. The project currently exposes AI-ready environment slots but intentionally uses the deterministic local analysis engine so the lab demo never depends on paid keys.
+## 📄 License
+CSE4104 Academic Project — Group T05. All rights reserved.
