@@ -52,33 +52,35 @@ export default function DashboardPage() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.8fr)]">
-        <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80">
+        <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-[#0f172a] dark:ring-slate-800">
           <CardHeader className="flex-row items-center justify-between p-6 pb-2 sm:p-7">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">Your progress</span>
-              <CardTitle className="mt-2 text-2xl font-bold text-slate-950">Recent analyses</CardTitle>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600 dark:text-violet-400">Your progress</span>
+              <CardTitle className="mt-2 text-2xl font-bold text-slate-950 dark:text-slate-100">Recent analyses</CardTitle>
             </div>
-            <Button render={<Link to="/history" />} variant="ghost" className="text-blue-600">
+            <Button render={<Link to="/history" />} variant="ghost" className="text-blue-600 dark:text-blue-400">
               View all <ArrowRight />
             </Button>
           </CardHeader>
           <CardContent className="grid gap-2 p-6 pt-3 sm:p-7 sm:pt-3">
             {history.slice(0, 4).map((item) => (
               <Link
-                className="grid min-h-18 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-slate-50 p-3 transition hover:bg-blue-50"
+                className="grid min-h-18 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-slate-50 dark:bg-[#131d35] p-3 transition hover:bg-blue-50 dark:hover:bg-blue-950/40"
                 to="/history"
-                key={item.analysis_id}
+                key={item.analysis_id || item.id}
               >
-                <span className="grid size-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+                <span className="grid size-10 place-items-center rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400">
                   <FileText className="size-4.5" />
                 </span>
                 <span className="grid min-w-0 gap-1">
-                  <strong className="truncate text-sm text-slate-950">{item.job_title}</strong>
-                  <small className="truncate text-xs text-slate-500">
-                    {item.company || 'Target company'} · {new Date(item.analyzed_at).toLocaleDateString()}
+                  <strong className="truncate text-sm text-slate-950 dark:text-slate-100">{item.job_title}</strong>
+                  <small className="truncate text-xs text-slate-500 dark:text-slate-400">
+                    {item.company || 'Direct Submission'} · {item.analyzed_at ? new Date(item.analyzed_at).toLocaleDateString() : 'Today'}
                   </small>
                 </span>
-                <Badge className="bg-emerald-100 text-emerald-800">{item.ats_score}%</Badge>
+                <Badge className={item.ats_score >= 75 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300" : "bg-violet-100 text-violet-800 dark:bg-violet-950/70 dark:text-violet-300"}>
+                  {item.ats_score}%
+                </Badge>
               </Link>
             ))}
           </CardContent>

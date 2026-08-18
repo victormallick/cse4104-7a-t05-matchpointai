@@ -2,7 +2,6 @@ import {
   BarChart3,
   BrainCircuit,
   BriefcaseBusiness,
-  ChevronUp,
   FileClock,
   FileSearch,
   Gauge,
@@ -20,14 +19,6 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -37,6 +28,7 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import Brand from './Brand';
+import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
 const candidateLinks = [
@@ -87,30 +79,26 @@ function Navigation({ links, onNavigate }) {
 function SidebarContent({ admin, links, user, onNavigate, onLogout }) {
   return (
     <div className="flex h-full flex-col bg-[#030a20] p-5 text-white">
-      <Brand light className="mb-9 px-1" />
+      <Brand light className="mb-7 px-1" />
       <Navigation links={links} onNavigate={onNavigate} />
-      <div className="mt-auto grid gap-2 border-t border-white/10 pt-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger type="button" className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/8">
-            <Avatar className="size-10 rounded-xl">
-              <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
-                {initialsFor(user?.full_name)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="min-w-0 flex-1">
-              <strong className="block truncate text-sm">{user?.full_name}</strong>
-              <small className="block text-xs text-slate-500">{admin ? 'Administrator' : 'Candidate'}</small>
-            </span>
-            <ChevronUp className="size-4 text-slate-500" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-56">
-            <DropdownMenuLabel>{user?.email || 'MatchPoint AI account'}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onLogout} className="text-red-600">
-              <LogOut /> Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="mt-auto grid gap-3 border-t border-white/10 pt-4">
+        <ThemeToggle mode="segmented" />
+        <NavLink
+          to={admin ? '/admin' : '/profile'}
+          onClick={onNavigate}
+          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/8 group"
+        >
+          <Avatar className="size-10 rounded-xl ring-2 ring-blue-500/30">
+            <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
+              {initialsFor(user?.full_name)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="min-w-0 flex-1">
+            <strong className="block truncate text-sm text-slate-100 group-hover:text-white">{user?.full_name || 'User Account'}</strong>
+            <small className="block text-xs text-slate-400">{admin ? 'Administrator' : 'Candidate'}</small>
+          </span>
+          <UserRound className="size-4 text-slate-500 transition group-hover:text-slate-300" />
+        </NavLink>
         <Button
           type="button"
           variant="ghost"
@@ -137,16 +125,19 @@ export default function AppLayout({ admin = false }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:grid lg:grid-cols-[270px_minmax(0,1fr)]">
+    <div className="min-h-screen bg-slate-50 text-slate-950 transition-colors duration-200 dark:bg-[#070d1e] dark:text-slate-100 lg:grid lg:grid-cols-[270px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-screen lg:block">
         <SidebarContent admin={admin} links={links} user={user} onLogout={handleLogout} />
       </aside>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger type="button" className="fixed right-4 top-4 z-40 grid size-11 place-items-center rounded-xl bg-[#030a20] text-white shadow-lg lg:hidden">
-          <Menu className="size-5" />
-          <span className="sr-only">Open navigation</span>
-        </SheetTrigger>
+        <div className="fixed right-4 top-4 z-40 flex items-center gap-2 lg:hidden">
+          <ThemeToggle />
+          <SheetTrigger type="button" className="grid size-11 place-items-center rounded-xl bg-[#030a20] text-white shadow-lg">
+            <Menu className="size-5" />
+            <span className="sr-only">Open navigation</span>
+          </SheetTrigger>
+        </div>
         <SheetContent side="left" showCloseButton className="w-[285px] border-0 bg-[#030a20] p-0">
           <SheetHeader className="sr-only">
             <SheetTitle>MatchPoint AI navigation</SheetTitle>

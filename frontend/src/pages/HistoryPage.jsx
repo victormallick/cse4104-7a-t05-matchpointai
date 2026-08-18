@@ -15,19 +15,39 @@ import {
 } from '@/components/ui/table';
 import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
-import { demoHistory, demoResult } from '../data/demoData';
 import { userApi } from '../services/api';
 
+const readLocalHistory = () => {
+  try {
+    return JSON.parse(localStorage.getItem('matchpoint_history') || '[]');
+  } catch {
+    return [];
+  }
+};
+
 export default function HistoryPage() {
-  const [history, setHistory] = useState(demoHistory);
+  const [history, setHistory] = useState(readLocalHistory);
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     userApi.history()
-      .then((response) => setHistory(response.data))
-      .finally(() => setLoading(false));
+      .then((response) => {
+        const apiRecords = response?.data || [];
+        const local = readLocalHistory();
+        const merged = [...local];
+        for (const item of apiRecords) {
+          const id = item.analysis_id || item.id;
+          if (!merged.some((m) => (m.analysis_id || m.id) === id)) {
+            merged.push(item);
+          }
+        }
+        setHistory(merged);
+      })
+      .catch((err) => {
+        console.warn('API history fetch notice:', err);
+      });
   }, []);
 
   const filtered = useMemo(() => {
@@ -39,11 +59,10 @@ export default function HistoryPage() {
 
   const viewResult = (item) => {
     const result = {
-      ...demoResult,
       ...item,
-      missing_keywords: item.missing_keywords || demoResult.missing_keywords,
-      missing_skills: item.missing_skills || demoResult.missing_skills,
-      improvement_suggestions: item.improvement_suggestions || demoResult.improvement_suggestions
+      missing_keywords: item.missing_keywords || [],
+      missing_skills: item.missing_skills || [],
+      improvement_suggestions: item.improvement_suggestions || []
     };
     localStorage.setItem('matchpoint_latest_result', JSON.stringify(result));
     navigate('/result', { state: { result } });
@@ -89,19 +108,23 @@ export default function HistoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((item) => (
-                  <TableRow key={item.analysis_id}>
+                {filtered.map((item, idx) => (
+                  <TableRow key={item.analysis_id || item.id || idx}>
                     <TableCell>
-                      <strong className="block text-slate-950">{item.job_title}</strong>
-                      <small className="text-slate-500">{item.company || 'Target company'}</small>
+                      <strong className="block text-slate-950">{item.job_title || 'Target Role'}</strong>
+                      <small className="text-slate-500">{item.company || 'Direct Submission'}</small>
                     </TableCell>
                     <TableCell>
                       <span className="flex items-center gap-2 text-slate-600">
                         <CalendarDays className="size-4" />
-                        {new Date(item.analyzed_at).toLocaleDateString()}
+                        {item.analyzed_at ? new Date(item.analyzed_at).toLocaleDateString() : 'Today'}
                       </span>
                     </TableCell>
-                    <TableCell><Badge className="bg-emerald-100 text-emerald-800">{item.ats_score}%</Badge></TableCell>
+                    <TableCell>
+                      <Badge className={item.ats_score >= 75 ? "bg-emerald-100 text-emerald-800" : item.ats_score >= 40 ? "bg-violet-100 text-violet-800" : "bg-rose-100 text-rose-800"}>
+                        {item.ats_score}%
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" onClick={() => viewResult(item)}>
                         View result <ArrowRight />

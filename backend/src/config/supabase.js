@@ -16,8 +16,10 @@ if (!isSupabaseConfigured) {
   console.warn('Supabase is not configured. MatchPoint AI is running in local demo mode.');
 }
 
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
+
 const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+  ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false

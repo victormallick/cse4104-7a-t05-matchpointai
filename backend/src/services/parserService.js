@@ -1,3 +1,10 @@
+let pdfjsLib = null;
+try {
+  pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
+} catch (e) {
+  // pdfjs-dist optional load
+}
+
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 
@@ -47,16 +54,67 @@ class ParserService {
   }
 
   /**
-   * Extract text from PDF buffer
+   * Extract text from PDF buffer with multi-stage fallback
    * @param {Buffer} buffer 
    * @returns {Promise<string>}
    */
   static async parsePdf(buffer) {
-    const data = await pdfParse(buffer);
-    if (!data || !data.text) {
-      throw new Error('PDF parsed text is empty or invalid.');
+    // 1. Primary: Modern PDF.js
+    if (pdfjsLib) {
+      try {
+        const uint8Array = new Uint8Array(buffer);
+        const loadingTask = pdfjsLib.getDocument({
+          data: uint8Array,
+          useSystemFonts: true,
+          disableFontFace: true,
+          isEvalSupported: false
+        });
+        const doc = await loadingTask.promise;
+        let fullText = '';
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item) => item.str).join(' ');
+          fullText += pageText + '\n';
+        }
+        if (fullText.trim()) {
+          return fullText.trim();
+        }
+      } catch (err) {
+        console.warn('pdfjs-dist extraction notice:', err.message);
+      }
     }
-    return data.text.trim();
+
+    // 2. Secondary fallback: pdf-parse
+    try {
+      const data = await pdfParse(buffer);
+      if (data && data.text && data.text.trim()) {
+        return data.text.trim();
+      }
+    } catch (err) {
+      console.warn('pdfParse fallback notice:', err.message);
+    }
+
+    // 3. Tertiary fallback: Raw stream / text chunk regex extraction
+    try {
+      const rawString = buffer.toString('latin1');
+      const textMatches = rawString.match(/\(([^()]{2,})\)[\s]*Tj/g) || rawString.match(/BT[\s\S]*?ET/g);
+      if (textMatches && textMatches.length > 0) {
+        const extracted = textMatches
+          .join(' ')
+          .replace(/BT|ET|Tj|TD|Tm|Tf|\[|\]/g, ' ')
+          .replace(/[\\()]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (extracted.length > 20) {
+          return extracted;
+        }
+      }
+    } catch (err) {
+      console.warn('raw text stream fallback notice:', err.message);
+    }
+
+    throw new Error('PDF parsed text is empty or document structure is unreadable.');
   }
 
   /**

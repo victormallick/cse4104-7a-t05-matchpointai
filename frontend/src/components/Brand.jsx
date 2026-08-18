@@ -1,21 +1,29 @@
 import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '../context/AuthContext';
 
-export default function Brand({ light = false, className }) {
+export default function Brand({ light = false, className, to }) {
+  const { user } = useAuth();
+  const targetDestination = to || (user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/');
+
   return (
     <Link
       className={cn(
-        'inline-flex items-center gap-3 whitespace-nowrap text-xl font-bold tracking-tight',
-        light ? 'text-white' : 'text-slate-950',
+        'inline-flex items-center gap-2.5 whitespace-nowrap text-xl font-bold tracking-tight transition hover:opacity-90',
+        light ? 'text-white' : 'text-slate-950 dark:text-white',
         className
       )}
-      to="/"
+      to={targetDestination}
     >
-      <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-lg shadow-violet-500/25">
-        <Sparkles className="size-5" />
+      <img
+        src="/logo_icon.png"
+        alt="MatchPoint AI Logo"
+        className="size-9 object-contain shrink-0 drop-shadow-sm"
+      />
+      <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-indigo-300 dark:to-violet-400 font-extrabold tracking-tight">
+        MatchPoint AI
       </span>
-      <span>MatchPoint AI</span>
     </Link>
   );
 }

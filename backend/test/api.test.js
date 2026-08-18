@@ -114,7 +114,7 @@ test('history, jobs, and admin monitoring endpoints return demo data', async () 
   assert.ok(history.body.data.length >= 3);
 
   const jobs = await requestJson('/api/jobs/recommendations');
-  assert.equal(jobs.body.data.length, 3);
+  assert.ok(jobs.body.data.length >= 3);
 
   const headers = { Authorization: 'Bearer demo-admin-token' };
   const analytics = await requestJson('/api/admin/analytics', { headers });

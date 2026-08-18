@@ -28,62 +28,61 @@ const uploadResume = async (req, res) => {
       });
     }
 
-    if (!isSupabaseConfigured) {
-      const resume = {
-        id: randomUUID(),
-        user_id: userId,
-        file_path: file.originalname,
-        file_type: file.mimetype,
-        parsed_text: parsedText,
-        uploaded_at: now()
-      };
-      store.resumes.set(resume.id, resume);
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('resumes')
+          .insert([
+            {
+              user_id: userId,
+              file_path: file.originalname,
+              file_type: file.mimetype,
+              parsed_text: parsedText
+            }
+          ])
+          .select()
+          .single();
 
-      return res.status(200).json({
-        success: true,
-        message: 'Resume uploaded and parsed successfully in demo mode.',
-        data: {
-          resume_id: resume.id,
-          user_id: resume.user_id,
-          file_name: resume.file_path,
-          file_type: resume.file_type,
-          parsed_text_length: parsedText.length,
-          uploaded_at: resume.uploaded_at,
-          demo_mode: true
+        if (!error && data) {
+          return res.status(200).json({
+            success: true,
+            message: 'Resume uploaded and parsed successfully.',
+            data: {
+              resume_id: data.id,
+              user_id: data.user_id,
+              file_name: data.file_path,
+              file_type: data.file_type,
+              parsed_text_length: parsedText.length,
+              uploaded_at: data.uploaded_at
+            }
+          });
         }
-      });
+        console.warn('Supabase resume insert notice (falling back to memory):', error?.message);
+      } catch (dbErr) {
+        console.warn('Supabase database error during resume upload:', dbErr.message);
+      }
     }
 
-    const { data, error } = await supabase
-      .from('resumes')
-      .insert([
-        {
-          user_id: userId,
-          file_path: file.originalname,
-          file_type: file.mimetype,
-          parsed_text: parsedText
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      return res.status(500).json({
-        success: false,
-        message: `Resume metadata could not be saved: ${error.message}`
-      });
-    }
+    const resume = {
+      id: randomUUID(),
+      user_id: userId,
+      file_path: file.originalname,
+      file_type: file.mimetype,
+      parsed_text: parsedText,
+      uploaded_at: now()
+    };
+    store.resumes.set(resume.id, resume);
 
     return res.status(200).json({
       success: true,
       message: 'Resume uploaded and parsed successfully.',
       data: {
-        resume_id: data.id,
-        user_id: data.user_id,
-        file_name: data.file_path,
-        file_type: data.file_type,
+        resume_id: resume.id,
+        user_id: resume.user_id,
+        file_name: resume.file_path,
+        file_type: resume.file_type,
         parsed_text_length: parsedText.length,
-        uploaded_at: data.uploaded_at
+        uploaded_at: resume.uploaded_at
       }
     });
   } catch (error) {

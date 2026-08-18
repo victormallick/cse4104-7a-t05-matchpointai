@@ -9,7 +9,7 @@ import {
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
-  timeout: 15000
+  timeout: 60000
 });
 
 api.interceptors.request.use((config) => {
@@ -70,14 +70,19 @@ export const analysisApi = {
   interview: (payload) => dataOrFallback(
     () => api.post('/api/interview/generate', payload),
     { questions: demoQuestions }
-  )
+  ),
+  evaluateAnswer: (payload) => api.post('/api/interview/evaluate', payload).then((response) => response.data),
+  getReadinessReport: (payload) => api.post('/api/interview/readiness-report', payload).then((response) => response.data)
 };
 
+export const interviewApi = analysisApi;
+
 export const jobsApi = {
-  recommendations: () => dataOrFallback(
-    () => api.get('/api/jobs/recommendations'),
+  recommendations: (payload) => dataOrFallback(
+    () => api.post('/api/jobs/recommendations', payload || {}),
     demoJobs
-  )
+  ),
+  generateCoverLetter: (payload) => api.post('/api/jobs/cover-letter', payload).then((response) => response.data)
 };
 
 export const adminApi = {
