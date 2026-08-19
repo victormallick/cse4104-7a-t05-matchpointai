@@ -84,9 +84,11 @@ export default function ResultPage() {
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-md">
               Upload a resume on the Analyze page to view your live ATS score, detected skill gaps, and AI bullet rewrites.
             </p>
-            <Button render={<Link to="/analyze" />} className="mt-6 bg-blue-600 px-6 text-white hover:bg-blue-700">
-              Go to Analyze Resume <ArrowRight />
-            </Button>
+            <Link to="/analyze">
+              <Button className="mt-6 bg-blue-600 px-6 text-white hover:bg-blue-700 cursor-pointer">
+                Go to Analyze Resume <ArrowRight className="size-4 ml-1" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -148,13 +150,14 @@ export default function ResultPage() {
               {result.document_warning || 'The uploaded file does not contain standard candidate resume sections (work experience, skills, or education).'}
             </p>
             <div className="mt-4 flex items-center gap-3">
-              <Button
-                render={<Link to="/analyze" />}
-                size="sm"
-                className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-xs gap-1.5 px-4 py-2 cursor-pointer"
-              >
-                Upload Genuine Resume <ArrowRight className="size-3.5" />
-              </Button>
+              <Link to="/analyze">
+                <Button
+                  size="sm"
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-xs gap-1.5 px-4 py-2 cursor-pointer"
+                >
+                  Upload Genuine Resume <ArrowRight className="size-3.5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -500,23 +503,23 @@ export default function ResultPage() {
 
       {/* Navigation Next Step Action Bar */}
       <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <Button
-          render={<Link to="/interview" state={{ result }} />}
-          className="h-11 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 font-semibold text-xs text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer gap-2"
-        >
-          <MessageSquare className="size-4" />
-          <span>Prepare Interview Questions</span>
-          <ArrowRight className="size-3.5" />
-        </Button>
+        <Link to="/interview" state={{ result }}>
+          <Button className="h-11 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 font-semibold text-xs text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer gap-2">
+            <MessageSquare className="size-4" />
+            <span>Prepare Interview Questions</span>
+            <ArrowRight className="size-3.5" />
+          </Button>
+        </Link>
 
-        <Button
-          render={<Link to="/jobs" state={{ result }} />}
-          variant="outline"
-          className="h-11 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer gap-2"
-        >
-          <Briefcase className="size-4 text-blue-600" />
-          <span>Explore Matched Jobs (BD & Abroad)</span>
-        </Button>
+        <Link to="/jobs" state={{ result }}>
+          <Button
+            variant="outline"
+            className="h-11 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer gap-2"
+          >
+            <Briefcase className="size-4 text-blue-600" />
+            <span>Explore Matched Jobs (BD & Abroad)</span>
+          </Button>
+        </Link>
       </div>
     </div>
   );

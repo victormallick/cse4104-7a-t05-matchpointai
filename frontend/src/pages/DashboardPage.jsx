@@ -23,10 +23,17 @@ export default function DashboardPage() {
   const [history, setHistory] = useState(demoHistory);
 
   useEffect(() => {
-    userApi.history().then((response) => setHistory(response.data)).catch(() => {});
+    userApi.history()
+      .then((response) => {
+        if (response?.data && Array.isArray(response.data)) {
+          setHistory(response.data);
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const latestScore = history[0]?.ats_score || 88;
+  const historyList = Array.isArray(history) && history.length > 0 ? history : demoHistory;
+  const latestScore = historyList[0]?.ats_score || 88;
 
   return (
     <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
@@ -35,18 +42,17 @@ export default function DashboardPage() {
         title={`Welcome back, ${user?.full_name?.split(' ')[0] || 'Amina'}`}
         description="Your latest MatchPoint AI insights are ready."
         action={(
-          <Button
-            render={<Link to="/analyze" />}
-            className="h-11 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
-          >
-            <Plus /> New analysis
-          </Button>
+          <Link to="/analyze">
+            <Button className="h-11 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 cursor-pointer">
+              <Plus className="size-4" /> New analysis
+            </Button>
+          </Link>
         )}
       />
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon={Gauge} label="Latest ATS score" value={`${latestScore}%`} detail="+6 points this month" />
-        <MetricCard icon={FileText} label="Total analyses" value={history.length + 21} detail="3 completed recently" tone="purple" />
+        <MetricCard icon={FileText} label="Total analyses" value={historyList.length + 21} detail="3 completed recently" tone="purple" />
         <MetricCard icon={Bookmark} label="Saved jobs" value="12" detail="4 new matches" tone="green" />
         <MetricCard icon={MessageSquareText} label="Interview practice" value="36 Qs" detail="72% preparation progress" tone="orange" />
       </section>
@@ -58,12 +64,14 @@ export default function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600 dark:text-violet-400">Your progress</span>
               <CardTitle className="mt-2 text-2xl font-bold text-slate-950 dark:text-slate-100">Recent analyses</CardTitle>
             </div>
-            <Button render={<Link to="/history" />} variant="ghost" className="text-blue-600 dark:text-blue-400">
-              View all <ArrowRight />
-            </Button>
+            <Link to="/history">
+              <Button variant="ghost" className="text-blue-600 dark:text-blue-400 cursor-pointer">
+                View all <ArrowRight className="size-4" />
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent className="grid gap-2 p-6 pt-3 sm:p-7 sm:pt-3">
-            {history.slice(0, 4).map((item) => (
+            {historyList.slice(0, 4).map((item) => (
               <Link
                 className="grid min-h-18 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-slate-50 dark:bg-[#131d35] p-3 transition hover:bg-blue-50 dark:hover:bg-blue-950/40"
                 to="/history"
@@ -96,9 +104,11 @@ export default function DashboardPage() {
             <p className="mt-3 leading-7 text-blue-50/90">
               Compare your latest resume against a specific role and turn its gaps into a practice plan.
             </p>
-            <Button render={<Link to="/analyze" />} className="mt-5 h-11 w-fit rounded-xl bg-white px-5 text-blue-700 hover:bg-blue-50">
-              Analyze resume <ArrowRight />
-            </Button>
+            <Link to="/analyze" className="mt-5 inline-block">
+              <Button className="h-11 rounded-xl bg-white px-5 text-blue-700 hover:bg-blue-50 cursor-pointer">
+                Analyze resume <ArrowRight className="size-4 ml-1" />
+              </Button>
+            </Link>
             <small className="mt-auto pt-8 text-blue-100">
               Top recommendation: Product Frontend Engineer · 91% match
             </small>

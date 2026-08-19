@@ -45,12 +45,13 @@ export default function LandingPage() {
           <a className="hidden transition hover:text-blue-600 dark:hover:text-blue-400 md:inline" href="#workflow">How it works</a>
           <ThemeToggle />
           <Link className="transition hover:text-blue-600 dark:hover:text-blue-400" to="/login">Sign in</Link>
-          <Button
-            render={<Link to="/register" />}
-            className="hidden h-10 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 sm:inline-flex"
-          >
-            Get started
-          </Button>
+          <Link to="/register" className="hidden sm:inline-flex">
+            <Button
+              className="h-10 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 cursor-pointer"
+            >
+              Get started
+            </Button>
+          </Link>
         </nav>
       </header>
 
@@ -70,19 +71,21 @@ export default function LandingPage() {
               questions that matter.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                render={<Link to="/register" />}
-                className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6 text-white shadow-xl shadow-blue-600/20"
-              >
-                Get started <ArrowRight />
-              </Button>
-              <Button
-                render={<Link to="/login" />}
-                variant="outline"
-                className="h-12 rounded-xl border-blue-200 bg-white px-6 text-blue-700"
-              >
-                Analyze resume
-              </Button>
+              <Link to="/register">
+                <Button
+                  className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6 text-white shadow-xl shadow-blue-600/20 cursor-pointer hover:opacity-95"
+                >
+                  Get started <ArrowRight className="size-4 ml-1" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-xl border-blue-200 bg-white px-6 text-blue-700 cursor-pointer hover:bg-blue-50"
+                >
+                  Analyze resume
+                </Button>
+              </Link>
             </div>
             <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500">
               {proofItems.map((item) => (
