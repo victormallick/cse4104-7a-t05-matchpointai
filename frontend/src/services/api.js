@@ -98,34 +98,118 @@ export const userApi = {
   history: () => dataOrFallback(() => api.get('/api/user/history'), demoHistory)
 };
 
+import { analyzeWithGemini, extractTextFromFile, dynamicAnalysisFallback } from './aiClientService';
+
 export const analysisApi = {
   upload: async (file, userId) => {
+    let parsedText = '';
+    try {
+      parsedText = await extractTextFromFile(file);
+      sessionStorage.setItem('matchpoint_uploaded_text', parsedText);
+      sessionStorage.setItem('matchpoint_uploaded_name', file.name);
+    } catch (e) {
+      parsedText = `Resume: ${file.name}`;
+    }
+
     try {
       const form = new FormData();
       form.append('resume', file);
       form.append('user_id', userId);
       const response = await api.post('/api/upload', form);
+      if (response?.data?.data?.parsed_text) {
+        sessionStorage.setItem('matchpoint_uploaded_text', response.data.data.parsed_text);
+      }
       return response.data;
     } catch (error) {
       return {
         success: true,
-        message: 'Resume parsed successfully.',
+        message: 'Resume parsed successfully in browser.',
         data: {
           resume_id: 'resume-session-' + Date.now(),
-          parsed_text: 'Experienced engineer with expertise in modern web frameworks, frontend systems, backend APIs, and database engineering.',
+          parsed_text: parsedText,
           file_name: file?.name || 'resume.pdf'
         }
       };
     }
   },
-  analyze: (payload) => dataOrFallback(
-    () => api.post('/api/analysis/gap-analysis', payload),
-    demoResult
-  ),
-  interview: (payload) => dataOrFallback(
-    () => api.post('/api/interview/generate', payload),
-    { questions: demoQuestions }
-  ),
+  analyze: async (payload) => {
+    const resumeText = payload.resume_text || sessionStorage.getItem('matchpoint_uploaded_text') || 'Software Engineer Candidate Resume with React, JavaScript, Node.js, and Web Development experience.';
+    const fileName = sessionStorage.getItem('matchpoint_uploaded_name') || 'resume.pdf';
+
+    try {
+      const response = await api.post('/api/analysis/gap-analysis', {
+        ...payload,
+        resume_text: resumeText
+      });
+      if (response.data && response.data.data && response.data.data.ats_score !== undefined) {
+        return response.data;
+      }
+    } catch (e) {}
+
+    // Execute direct live Gemini AI analysis engine
+    const aiResult = await analyzeWithGemini({
+      resumeText,
+      jdText: payload.jd_text,
+      jobTitle: payload.job_title || 'Software Engineer',
+      company: payload.company,
+      fileName
+    });
+
+    return {
+      success: true,
+      message: 'AI resume analysis completed successfully.',
+      data: aiResult
+    };
+  },
+  interview: async (payload) => {
+    try {
+      const response = await api.post('/api/interview/generate', payload);
+      if (response.data && response.data.data) {
+        return response.data;
+      }
+    } catch (e) {}
+
+    const jobTitle = payload.job_title || 'Software Engineer';
+    const missing = payload.missing_skills || ['Cloud Architecture', 'Automated Testing', 'Caching'];
+    return {
+      success: true,
+      data: {
+        job_title: jobTitle,
+        questions: {
+          technical: [
+            {
+              id: 'q_tech_1',
+              question: `In your experience with ${missing[0] || 'System Architecture'}, what are the key latency and reliability trade-offs you evaluate?`,
+              context: `Assesses depth and production experience in ${missing[0] || 'System Architecture'}.`,
+              expected_keywords: [missing[0] || 'Scalability', 'Fault Tolerance', 'Latency', 'Monitoring']
+            },
+            {
+              id: 'q_tech_2',
+              question: `Walk us through the architecture of a high-concurrency application you contributed to as a ${jobTitle}.`,
+              context: 'Evaluates systematic technical reasoning, scalability patterns, and data flow.',
+              expected_keywords: ['Modular Design', 'API Performance', 'Database Indexing', 'CI/CD']
+            }
+          ],
+          behavioral: [
+            {
+              id: 'q_behav_1',
+              question: `Describe a situation where a critical deliverable faced conflicting stakeholder priorities. How did you resolve it?`,
+              context: 'Tests communication, prioritization under pressure, and cross-functional leadership.',
+              expected_keywords: ['Stakeholder Alignment', 'Risk Assessment', 'Sprint Planning']
+            }
+          ],
+          hr: [
+            {
+              id: 'q_hr_1',
+              question: `What motivated you to pursue the ${jobTitle} role, and what environment brings out your best engineering work?`,
+              context: 'Assesses career motivation, team culture compatibility, and long-term trajectory.',
+              expected_keywords: ['Continuous Growth', 'Collaborative Culture', 'Ownership']
+            }
+          ]
+        }
+      }
+    };
+  },
   evaluateAnswer: (payload) => dataOrFallback(
     () => api.post('/api/interview/evaluate', payload),
     { feedback: 'Strong structured answer applying the STAR methodology.' }
