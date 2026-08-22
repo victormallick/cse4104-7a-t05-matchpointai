@@ -83,22 +83,15 @@ export default function ProfilePage() {
   const latestResult = readLatestResult();
 
   const [profile, setProfile] = useState({
-    full_name: user?.full_name || 'Amina Rahman',
-    email: user?.email || 'amina.rahman@example.com',
-    location: 'Dhaka, Bangladesh',
-    bio: 'Performance-driven specialist passionate about growth, scalable digital solutions, and data-backed execution.',
-    target_job_role: latestResult?.job_title || 'Digital Marketing Manager',
-    portfolio_url: 'https://aminarahman.dev',
-    linkedin_url: 'https://linkedin.com/in/amina-rahman-demo',
-    github_url: 'https://github.com/amina-rahman',
-    skills: latestResult?.missing_skills ? (latestResult.skills || []) : [
-      'Search Engine Optimization (SEO)',
-      'Meta & Google Ads (PPC)',
-      'Google Analytics 4 (GA4)',
-      'Conversion Rate Optimization (CRO)',
-      'Content Strategy & Copywriting',
-      'Email Marketing & Automation'
-    ]
+    full_name: user?.full_name || '',
+    email: user?.email || '',
+    location: '',
+    bio: '',
+    target_job_role: latestResult?.job_title || '',
+    portfolio_url: '',
+    linkedin_url: '',
+    github_url: '',
+    skills: latestResult?.matched_keywords || []
   });
 
   const [newSkillInput, setNewSkillInput] = useState('');
@@ -189,9 +182,9 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = profile.full_name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'MP';
+  const initials = profile.full_name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || (user?.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'MP');
   const completeness = calculateCompleteness();
-  const bestScore = latestResult?.ats_score || latestResult?.match_score || 94;
+  const bestScore = latestResult?.ats_score ?? latestResult?.match_score ?? null;
 
   const roleLower = (profile.target_job_role || '').toLowerCase();
   const activeDomain = roleLower.includes('market') || roleLower.includes('seo') || roleLower.includes('growth') ? 'marketing'
@@ -230,8 +223,8 @@ export default function ProfilePage() {
             </span>
             <div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{bestScore}%</span>
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Top ATS</span>
+                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{bestScore !== null ? `${bestScore}%` : '--'}</span>
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{bestScore !== null ? 'Top ATS' : 'No Scan'}</span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Peak Resume Score</p>
             </div>
