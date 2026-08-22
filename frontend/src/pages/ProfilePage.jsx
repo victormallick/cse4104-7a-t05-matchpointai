@@ -109,13 +109,18 @@ export default function ProfilePage() {
           setProfile((prev) => ({
             ...prev,
             ...response.data,
-            skills: Array.isArray(response.data.skills) && response.data.skills.length ? response.data.skills : prev.skills
+            full_name: user?.full_name || response.data.full_name || prev.full_name,
+            email: user?.email || response.data.email || prev.email,
+            location: response.data.location || prev.location || '',
+            target_job_role: response.data.target_job_role || prev.target_job_role || '',
+            bio: response.data.bio || prev.bio || '',
+            skills: Array.isArray(response.data.skills) ? response.data.skills : (prev.skills || [])
           }));
         }
       })
       .catch((err) => console.warn('Profile fetch note:', err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   const calculateCompleteness = () => {
     let score = 0;

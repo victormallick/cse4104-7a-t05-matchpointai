@@ -51,7 +51,7 @@ const getUserHistory = async (req, res) => {
       }
     }
 
-    const memoryItems = store.history.filter((item) => !item.user_id || item.user_id === userId);
+    const memoryItems = store.history.filter((item) => item.user_id === userId);
     for (const mem of memoryItems) {
       if (!history.some((h) => h.analysis_id === mem.analysis_id)) {
         history.push(mem);
@@ -87,10 +87,16 @@ const createTestUser = async (req, res) => {
 
     if (!isSupabaseConfigured) {
       const user = {
-        ...demoUser,
         id: req.body.id || randomUUID(),
         email,
         full_name: fullName,
+        location: '',
+        bio: '',
+        target_job_role: '',
+        portfolio_url: '',
+        linkedin_url: '',
+        github_url: '',
+        skills: [],
         created_at: now(),
         updated_at: now()
       };
@@ -134,13 +140,28 @@ const createTestUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const userId = resolveUserId(req);
+    const userFullName = req.user?.user_metadata?.full_name || req.user?.full_name || '';
+    const userEmail = req.user?.email || req.user?.user_metadata?.email || '';
+
+    const cleanDefault = {
+      id: userId,
+      full_name: userFullName,
+      email: userEmail,
+      location: '',
+      bio: '',
+      target_job_role: '',
+      portfolio_url: '',
+      linkedin_url: '',
+      github_url: '',
+      skills: []
+    };
 
     if (!isSupabaseConfigured) {
-      const profile = store.profiles.get(userId) || store.profiles.get(DEMO_USER_ID) || demoUser;
+      const profile = store.profiles.get(userId);
       return res.status(200).json({
         success: true,
-        message: 'Profile loaded from demo data.',
-        data: profile
+        message: 'Profile loaded.',
+        data: profile || cleanDefault
       });
     }
 
@@ -151,18 +172,21 @@ const getUserProfile = async (req, res) => {
       .single();
 
     if (error || !data) {
-      const fallback = store.profiles.get(userId) || store.profiles.get(DEMO_USER_ID) || demoUser;
+      const stored = store.profiles.get(userId);
       return res.status(200).json({
         success: true,
-        message: 'Profile loaded with fallback.',
-        data: fallback
+        message: 'Profile loaded.',
+        data: stored || cleanDefault
       });
     }
 
     return res.status(200).json({
       success: true,
       message: 'Profile loaded successfully.',
-      data
+      data: {
+        ...cleanDefault,
+        ...data
+      }
     });
   } catch (error) {
     console.error('User profile controller error:', error);
