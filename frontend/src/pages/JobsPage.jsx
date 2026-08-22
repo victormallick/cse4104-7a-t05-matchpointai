@@ -355,7 +355,7 @@ export default function JobsPage() {
         </Card>
       ) : (
         /* Jobs List */
-        <section className="grid gap-5">
+        <section className="grid gap-5 animate-fade-in-up">
           {displayedJobs.map((job) => {
             const saved = isJobSaved(job.id);
             const score = job.match_score || 88;
@@ -364,7 +364,7 @@ export default function JobsPage() {
             return (
               <Card
                 key={job.id}
-                className="border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-800 hover:ring-blue-300 dark:hover:ring-blue-700/60 transition-all duration-200"
+                className="border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-800 hover:ring-blue-300 dark:hover:ring-blue-700/60 hover:-translate-y-1 hover:shadow-lg transition-all duration-200 ease-out"
               >
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">

@@ -10,6 +10,13 @@ const requireAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!isSupabaseConfigured) {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(500).json({
+          success: false,
+          message: 'Server configuration error: Authentication service is not properly configured.'
+        });
+      }
+
       const token = authHeader?.startsWith('Bearer ')
         ? authHeader.slice('Bearer '.length)
         : '';

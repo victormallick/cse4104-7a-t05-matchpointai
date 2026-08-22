@@ -539,6 +539,10 @@ const runGapAnalysis = async (req, res) => {
         company: String(company).trim(),
         fileName: String(fileName).trim()
       });
+    } else {
+      if (!result.summary && result.match_summary) {
+        result.summary = result.match_summary;
+      }
     }
     const analysisId = randomUUID();
     const analyzedAt = now();

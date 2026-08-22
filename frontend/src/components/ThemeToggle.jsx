@@ -8,15 +8,15 @@ export default function ThemeToggle({ className, variant = 'outline', mode = 'ic
 
   if (mode === 'segmented') {
     return (
-      <div className={cn('flex w-full items-center rounded-xl border border-white/15 bg-white/10 p-1 backdrop-blur-sm', className)}>
+      <div className={cn('flex w-full items-center rounded-xl border border-slate-200 bg-slate-100/90 p-1 dark:border-white/15 dark:bg-white/10 backdrop-blur-sm', className)}>
         <button
           type="button"
           onClick={() => setTheme('light')}
           className={cn(
             'flex flex-1 items-center justify-center gap-2 rounded-lg py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer',
             !isDark
-              ? 'bg-white text-slate-900 shadow-md shadow-black/20'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
+              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           )}
         >
           <Sun className={cn('size-3.5', !isDark ? 'text-amber-500' : 'text-slate-400')} />
@@ -29,7 +29,7 @@ export default function ThemeToggle({ className, variant = 'outline', mode = 'ic
             'flex flex-1 items-center justify-center gap-2 rounded-lg py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer',
             isDark
               ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md shadow-blue-600/30'
-              : 'text-slate-400 hover:text-white'
+              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           )}
         >
           <Moon className={cn('size-3.5', isDark ? 'text-violet-200' : 'text-slate-400')} />

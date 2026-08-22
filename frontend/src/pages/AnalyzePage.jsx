@@ -58,10 +58,10 @@ export default function AnalyzePage() {
     setLoading(true);
     setError('');
     try {
-      const upload = await analysisApi.upload(file, user.id);
+      const upload = await analysisApi.upload(file, user?.id || 'demo-user');
       const analysis = await analysisApi.analyze({
-        user_id: user.id,
-        resume_id: upload.data.resume_id,
+        user_id: user?.id || 'demo-user',
+        resume_id: upload.data?.resume_id,
         ...form
       });
       const analysisData = analysis.data;
@@ -98,10 +98,11 @@ export default function AnalyzePage() {
   return (
     <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
       <PageHeader
-        eyebrow="Resume analysis"
+        eyebrow="Resume Analysis"
         title="Analyze Resume"
-        description="Upload Resume → Paste Job Description → Analyze with AI"
+        description="Upload Resume → Paste Job Description → Generate ATS Score & STAR Optimizer"
       />
+
       {error && (
         <Alert variant="destructive" className="mb-5">
           <AlertCircle />
@@ -110,15 +111,15 @@ export default function AnalyzePage() {
       )}
 
       <form className="grid gap-6 xl:grid-cols-[minmax(360px,0.95fr)_minmax(460px,1.05fr)]" onSubmit={handleSubmit}>
-        <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-[#0f172a] dark:ring-slate-800">
+        <Card className="border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0f172a]">
           <CardContent className="p-5 sm:p-7">
             <div
               className={cn(
-                'grid min-h-[390px] cursor-pointer place-items-center content-center rounded-2xl border-2 border-dashed p-8 text-center transition',
-                dragging && 'border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/40',
+                'grid min-h-[390px] cursor-pointer place-items-center content-center rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200',
+                dragging && 'border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/40 scale-[1.01]',
                 file
-                  ? 'border-emerald-300 bg-emerald-50/60 dark:border-emerald-700/60 dark:bg-emerald-950/20'
-                  : 'border-blue-200 bg-blue-50/70 hover:-translate-y-0.5 hover:border-blue-500 dark:border-blue-900/60 dark:bg-blue-950/30 dark:hover:border-blue-500 dark:hover:bg-blue-950/40'
+                  ? 'border-emerald-400 bg-emerald-50/50 dark:border-emerald-700/60 dark:bg-emerald-950/20'
+                  : 'border-blue-200 bg-blue-50/60 hover:-translate-y-0.5 hover:border-blue-500 hover:bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/30 dark:hover:border-blue-500 dark:hover:bg-blue-950/40'
               )}
               onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
@@ -134,79 +135,92 @@ export default function AnalyzePage() {
               />
               {file ? (
                 <>
-                  <span className="grid size-16 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400"><FileCheck2 /></span>
+                  <div className="relative">
+                    <span className="grid size-16 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 shadow-md shadow-emerald-500/20 dark:bg-emerald-950/60 dark:text-emerald-400"><FileCheck2 className="size-8" /></span>
+                    <span className="absolute -bottom-1 -right-1 flex size-4">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex size-4 rounded-full bg-emerald-500"></span>
+                    </span>
+                  </div>
                   <h3 className="mt-5 max-w-full truncate text-lg font-bold text-slate-950 dark:text-slate-100">{file.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{(file.size / 1024).toFixed(1)} KB · Ready to analyze</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="rounded-md bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                      {file.name.endsWith('.docx') ? 'DOCX Document' : 'PDF Document'}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {(file.size / 1024).toFixed(1)} KB · Ready to Analyze
+                    </span>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-5 dark:border-slate-700 dark:hover:bg-slate-800"
-                    onClick={(event) => { event.stopPropagation(); setFile(null); }}
+                    className="mt-5 border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800 cursor-pointer"
+                    onClick={(event) => { event.stopPropagation(); setFile(null); setActivePreset(null); }}
                   >
-                    <X /> Remove
+                    <X className="size-4 mr-1" /> Remove
                   </Button>
                 </>
               ) : (
                 <>
-                  <span className="grid size-16 place-items-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"><UploadCloud /></span>
-                  <h3 className="mt-5 text-lg font-bold text-slate-950 dark:text-slate-100">Upload PDF/DOCX resume</h3>
+                  <span className="grid size-16 place-items-center rounded-2xl bg-blue-100 text-blue-600 shadow-md shadow-blue-500/20 dark:bg-blue-900/40 dark:text-blue-400"><UploadCloud className="size-8" /></span>
+                  <h3 className="mt-5 text-lg font-bold text-slate-950 dark:text-slate-100">Upload PDF or DOCX resume</h3>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Drag your file here or browse from your device</p>
-                  <Button type="button" variant="outline" className="mt-5 border-blue-200 text-blue-700 dark:border-blue-700/60 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">Browse files</Button>
+                  <Button type="button" variant="outline" className="mt-5 border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700/60 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 cursor-pointer">Browse files</Button>
                 </>
               )}
             </div>
-            <div className="mt-5 flex gap-3 rounded-xl bg-slate-50 dark:bg-[#131d35] p-4 ring-1 ring-slate-100 dark:ring-slate-800">
+            <div className="mt-5 flex gap-3 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200/80 dark:bg-[#131d35] dark:ring-slate-800">
               <FileText className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
-              <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                <strong className="text-slate-700 dark:text-slate-200">AI ATS Evaluation.</strong> Your resume is processed securely to score keyword alignment, detect skill gaps, and generate customized interview questions.
+              <p className="text-xs leading-5 text-slate-600 dark:text-slate-400">
+                <strong className="text-slate-800 dark:text-slate-200">AI ATS Evaluation:</strong> Your resume is processed securely to score keyword alignment, detect skill gaps, and generate customized interview questions.
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80">
+        <Card className="border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0f172a]">
           <CardContent className="grid gap-5 p-5 sm:p-7">
             <div className="grid gap-2">
-              <Label htmlFor="job-title">Job title</Label>
+              <Label htmlFor="job-title" className="text-slate-800 dark:text-slate-200 font-semibold">Job title</Label>
               <Input
                 id="job-title"
-                className="h-11 bg-slate-50"
-                placeholder="e.g. Full-Stack Software Engineer (or your target role)"
+                className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+                placeholder="e.g. Senior Full-Stack Software Engineer"
                 value={form.job_title}
                 onChange={(event) => setForm({ ...form, job_title: event.target.value })}
               />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="company">Company</Label>
+                <Label htmlFor="company" className="text-slate-800 dark:text-slate-200 font-semibold">Company</Label>
                 <span className="text-xs text-slate-400">Optional</span>
               </div>
               <Input
                 id="company"
-                className="h-11 bg-slate-50"
-                placeholder="e.g. NovaLabs, Google, or leave blank"
+                className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+                placeholder="e.g. CloudGrid Solutions, Google, or leave blank"
                 value={form.company}
                 onChange={(event) => setForm({ ...form, company: event.target.value })}
               />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="job-description">Job description</Label>
+                <Label htmlFor="job-description" className="text-slate-800 dark:text-slate-200 font-semibold">Job description</Label>
                 <span className="text-xs text-slate-400">Optional</span>
               </div>
               <Textarea
                 id="job-description"
-                className="min-h-56 resize-y bg-slate-50 text-sm"
+                className="min-h-48 resize-y bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100"
                 placeholder="Paste target job description to match specific keywords, or leave blank for a general ATS & resume quality audit..."
                 value={form.jd_text}
                 onChange={(event) => setForm({ ...form, jd_text: event.target.value })}
               />
             </div>
-            <p className="text-xs leading-5 text-slate-500">
-              MatchPoint AI checks formatting, impact metrics, missing skills, and ATS alignment.
-            </p>
-            <Button type="submit" className="h-11 w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-600/20">
-              Analyze with AI <Sparkles />
+            <Button
+              type="submit"
+              className="h-12 w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold shadow-lg shadow-blue-600/25 cursor-pointer hover:opacity-95 active:scale-[0.99] transition-all"
+            >
+              Analyze with AI <Sparkles className="size-4 ml-1" />
             </Button>
           </CardContent>
         </Card>

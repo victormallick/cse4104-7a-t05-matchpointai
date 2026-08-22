@@ -9,158 +9,126 @@
 
 ---
 
-## 👥 1. Team Identification & Member Contribution
+## 👥 1. Team Members & Student IDs
 
 | Member Name | Student ID | Academic Role | Core Development Responsibilities |
 | :--- | :--- | :--- | :--- |
 | **Junnatul Farhana** | 11230121088 | Team Leader | Project Management, SRS & Workflow Governance, QA & Integration Verification |
-| **Farhana Azgar Orin** | 11230121070 | Frontend / UI Lead | UI/UX Design, React Component Architecture, Radial ATS HUD, Theme Engine, Responsive Layouts |
-| **Victor Mallick** | 11210320676 | Backend & Full-Stack | Express REST APIs, Document Parsers (PDF/DOCX), Authentication Middleware, Full-Stack Integration |
-| **Easin Mohammad Rayhan** | 11220120789 | Database & AI Lead | PostgreSQL / Supabase Schema & RLS Policies, Google Gemini Multi-Key Pool, Prompt Engineering |
+| **Farhana Azgar Orin** | 11230121070 | Frontend / UI Lead | React Component Architecture, Radial ATS HUD, Themes, Responsive Viewports |
+| **Victor Mallick** | 11210320676 | Backend & Full-Stack | Express REST APIs, In-Memory PDF/DOCX Parsers, Client-Server Integration |
+| **Easin Mohammad Rayhan** | 11220120789 | Database & AI Lead | PostgreSQL / Supabase Schema & RLS, Google Gemini Multi-Key Pool, Prompt Engineering |
 
 ---
 
-## 📋 2. Feature Completion Checklist & Status Matrix
+## 📋 2. Feature Completion Checklist
 
-| Module / Feature | Proposal Reference | Status | Completion % | Implementation Summary & Technical Reference |
-| :--- | :--- | :---: | :---: | :--- |
-| **User Authentication & RBAC** | SRS §2.1 | 🟢 **Completed** | 100% | Registration, login, logout, password visibility toggles (`Eye`/`EyeOff`), candidate vs. admin route protection. |
-| **Document Parser Engine** | SRS §2.2 | 🟢 **Completed** | 100% | In-memory binary parsing for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero temporary file leaks. |
-| **Job Description Ingestion** | SRS §2.3 | 🟢 **Completed** | 100% | Role title, company name, and full JD text input on `/analyze` with form validation. |
-| **ATS Score & Keyword Gap Engine** | SRS §2.4 | 🟢 **Completed** | 100% | Multi-dimensional scoring, matched competencies vs. missing keywords, and dynamic **Radial Target HUD Gauge**. |
-| **Before/After Bullet Point Optimizer** | SRS §2.5 | 🟢 **Completed** | 100% | Interactive side-by-side comparison of unquantified drafts vs. STAR-framework AI rewrites with 1-click clipboard copy. |
-| **Tailored Interview Question Bank** | SRS §2.6 | 🟢 **Completed** | 100% | Categorized into Technical, Behavioral, and HR & Culture with Recruiter Intent and STAR answering strategies. |
-| **Dual-Market Job Matching** | SRS §2.7 | 🟢 **Completed** | 100% | Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** roles with 1-click LinkedIn search links. |
-| **Candidate History & Profile** | SRS §2.8 | 🟢 **Completed** | 100% | Timestamped analysis logs on `/history` and editable career preferences on `/profile`. |
-| **Admin Operations Dashboard** | SRS §2.9 | 🟢 **Completed** | 100% | User monitoring, platform metrics, AI token tracking, service health, and audit logs on `/admin/*`. |
-| **AI Auto-Failover Pool** | Week 08 Plan | 🟢 **Completed** | 100% | Multi-key failover across `GEMINI_API_KEY_1..3` + deterministic local NLP fallback. |
+### Summary of Completed Features (100% Core Scope)
+* **User Authentication & RBAC**: Candidate registration, login, logout, password visibility toggles (`Eye`/`EyeOff`), candidate vs. admin route guards (`ProtectedRoute.jsx`).
+* **In-Memory Resume Parser**: In-memory extraction for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero disk leaks.
+* **Job Description Ingestion**: Target role title, company name, and full JD text input with validation on `/analyze`.
+* **ATS Scoring & Skill Gap Matrix**: Multi-dimensional scoring, matched competencies vs. missing keywords, and dynamic **Radial Target HUD Gauge**.
+* **Before/After STAR Bullet Optimizer**: Side-by-side comparison of unquantified drafted bullet points alongside STAR-framework AI rewrites with 1-click clipboard copy.
+* **Tailored Mock Interview Question Bank**: Technical, Behavioral, and HR & Culture questions generated with Recruiter Intent context and STAR strategy notes.
+* **Dual-Market Job Matching**: Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** roles with 1-click LinkedIn application links.
+* **Candidate History & Profile**: Timestamped analysis records on `/history` and editable career preferences on `/profile`.
+* **Administrator Operations Panel**: User monitoring, metrics, AI token tracking, service health, and audit logs on `/admin/*`.
+* **AI Multi-Key Failover Pool**: Rotating array of 3 Gemini API keys with auto-failover + deterministic local NLP fallback.
+
+### Partially Completed / Future Polish Features
+* **Live Audio Speech-to-Text Interview Practice**: Candidates can currently review and practice generated interview questions with model answers. Live microphone audio transcription is planned as a Week 11 expansion.
+
+### Remaining Features
+* **Multi-Variant A/B Resume PDF Exporter**: Exporting optimized STAR bullet points directly into a downloadable ATS-friendly PDF template (Scheduled for Week 12).
 
 ---
 
-## 🔄 3. Major End-to-End User Workflows
+## 🔌 3. Frontend–Backend & Database Integration Status
 
-```mermaid
-flowchart TD
-    A[Visitor Landing Page] --> B[Register / Sign In]
-    B --> C[Candidate Dashboard]
-    C --> D[Analyze Resume Page]
-    D -->|Upload PDF/DOCX + Paste JD| E[Backend Multer & Parser Service]
-    E -->|Structured Text| F{AI & Scoring Engine}
-    F -->|Live Gemini API| G[Google Gemini Flash 2.5]
-    F -->|Failover / Offline| H[Deterministic NLP Engine]
-    G --> I[Structured ATS Result Object]
-    H --> I
-    I -->|Store Record| J[(Supabase Database)]
-    I --> K[Live Result Page: Radial Gauge & Keyword Matrix]
-    K --> L[STAR Bullet Point Rewrite Studio]
-    K --> M[Tailored Mock Interview Question Bank]
-    K --> N[Dual-Market Job Matches: BD & Abroad]
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│     React + Vite Frontend       │  REST API calls │      Node.js Express API        │
+│   (Auth, Forms, Realtime UI)    ├────────────────►│   (Controllers, Parsers, AI)    │
+│  http://localhost:5173 (Port)   │◄────────────────┤   http://localhost:5000 (Port)  │
+└─────────────────────────────────┘  JSON & Tokens  └────────────────┬────────────────┘
+                                                                     │
+                                                    ┌────────────────┴────────────────┐
+                                                    ▼                                 ▼
+                                       ┌─────────────────────────┐       ┌─────────────────────────┐
+                                       │   Supabase PostgreSQL   │       │  Google Gemini AI Pool  │
+                                       │    8 Relational Tables  │       │  gemini-2.5-flash keys  │
+                                       └─────────────────────────┘       └─────────────────────────┘
 ```
 
-### Workflow Execution Details:
-1. **Candidate Onboarding**: User creates an account or logs in. Credentials are verified against Supabase Auth, returning a JWT token stored in `localStorage`.
-2. **Resume & Job Ingestion**: Candidate uploads a PDF/DOCX resume and pastes the target job description.
-3. **Server-Side Extraction & Prompting**: `parserService.js` extracts raw text streams and dispatches a structured prompt to the Google Gemini AI Multi-Key Pool.
-4. **Result Generation & Persistence**: The ATS engine computes score metrics, keyword alignment, and STAR bullet point improvements. The record is saved in `analysis_records` table.
-5. **Interview & Career Preparation**: Candidate explores customized Technical, Behavioral, and HR questions with recruiter context notes, and applies to matched job listings with one click.
+* **API Endpoints**: 15 REST endpoints verified and responding with structured `{ success: true, message: "...", data: {...} }` envelopes.
+* **Authentication**: Authorization header automatically attached via Axios interceptor: `Authorization: Bearer <session_token>`.
+* **Database Operations**: Supabase PostgreSQL with 8 production tables (`users`, `resumes`, `job_descriptions`, `analysis_records`, `interview_sessions`, `job_recommendations`, `admin_logs`, `ai_usage_logs`) + in-memory store fallback.
+* **Data Retrieval & Updates**: Live dynamic data retrieval on Dashboard, History, Results, Interview, Jobs, and Admin pages.
 
 ---
 
-## 🔌 4. Frontend–Backend & Database Integration Status
+## 🤖 4. AI Integration Status
 
-### API Endpoint Health & Integration Matrix
-
-| HTTP Method | API Route | Controller / Service | Connected Frontend Component | Status |
-| :---: | :--- | :--- | :--- | :---: |
-| `GET` | `/api/health` | `server.js` | System Health Monitoring | 🟢 **200 OK** |
-| `POST` | `/api/auth/register` | `authController.js` | `RegisterPage.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/auth/login` | `authController.js` | `LoginPage.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/auth/logout` | `authController.js` | `AppLayout.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/upload` | `uploadController.js` | `AnalyzePage.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/analysis/gap-analysis` | `analysisController.js` | `AnalyzePage.jsx` $\to$ `ResultPage.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/interview/generate` | `interviewController.js` | `InterviewPage.jsx` | 🟢 **200 OK** |
-| `POST` | `/api/jobs/recommendations` | `jobsController.js` | `JobsPage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/user/history` | `userController.js` | `HistoryPage.jsx`, `DashboardPage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/user/profile` | `userController.js` | `ProfilePage.jsx` | 🟢 **200 OK** |
-| `PUT` | `/api/user/profile` | `userController.js` | `ProfilePage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/admin/analytics` | `adminController.js` | `AdminAnalyticsPage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/admin/users` | `adminController.js` | `AdminUsersPage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/admin/ai-usage` | `adminController.js` | `AdminUsagePage.jsx` | 🟢 **200 OK** |
-| `GET` | `/api/admin/logs` | `adminController.js` | `AdminLogsPage.jsx` | 🟢 **200 OK** |
-
-### Database Architecture & Row Level Security (RLS)
-* **PostgreSQL / Supabase Schema**: 8 production tables (`users`, `resumes`, `job_descriptions`, `analysis_records`, `interview_sessions`, `job_recommendations`, `admin_logs`, `ai_usage_logs`).
-* **Security & Isolation**: RLS policies enforce `auth.uid() = user_id` on all candidate data. Administrators access platform records via `public.is_admin()` security definer functions.
-
----
-
-## 🤖 5. AI Integration & Fault-Tolerant Architecture
-
-### AI Technical Specifications:
 * **Model Engine**: Google Gemini API (`gemini-2.5-flash`) via `@google/genai` SDK.
-* **Multi-Key Failover Pool**: Rotating key array (`GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3`) with auto-switch on HTTP 429 / rate limits.
-* **Deterministic NLP Fallback**: If external AI APIs encounter network timeouts, our domain-specific analysis engine evaluates keyword frequencies and generates STAR bullet rewrites locally without service downtime.
-* **Credential Isolation**: All API keys are loaded strictly from server-side `.env` variables and protected by `.gitignore` and GitHub Push Protection.
+* **Multi-Key Failover Pool**: Automatic rotation across `GEMINI_API_KEY_1..3` on HTTP 429 rate limit events.
+* **Deterministic NLP Fallback**: Guaranteed 100% lab uptime via local keyword extraction and STAR rewrite generation if external APIs time out.
+* **Secret Isolation**: All API credentials stored strictly in server-side `backend/.env` (never leaked to the client).
 
 ---
 
-## 🛡️ 6. Error Handling & Edge-Case Matrix
+## 🔐 5. User Authentication Status
 
-| Failure Scenario | System Handling Mechanism | User-Facing Experience |
-| :--- | :--- | :--- |
-| **Invalid Document Format** | Multer MIME filter restricts uploads to `.pdf` and `.docx`. | Friendly inline alert: *"Choose a PDF or DOCX resume."* |
-| **Non-Resume Document Upload** | Resume validation heuristics check for work experience and skill sections. | 0% ATS Score warning banner: *"Non-resume document detected."* |
-| **Database Disconnection** | Controller activates in-memory demo data store seamlessly. | Continuous interactive operation without crashes. |
-| **AI Rate Limit / Outage** | Automatic key rotation across the 3-key pool + deterministic fallback. | Results render in $<2.5$ seconds with zero error alerts. |
-| **Unauthorized Route Access** | `ProtectedRoute.jsx` intercepts request before component render. | Redirects unauthenticated visitors to `/login`, and non-admins to `/dashboard`. |
+* **Registration (`POST /api/auth/register`)**: Creates candidate accounts with full name, email, and password hashing in Supabase Auth.
+* **Login (`POST /api/auth/login`)**: Validates credentials and returns JWT bearer tokens.
+* **Logout (`POST /api/auth/logout`)**: Clears local session and redirects to landing page.
+* **Password Visibility**: Interactive password visibility eye toggles (`Eye` / `EyeOff`) on both Login and Register forms.
+* **Role-Based Access Control**: `ProtectedRoute.jsx` guards candidate workspace routes (`/dashboard`, `/analyze`, `/result`, `/interview`, `/jobs`, `/history`, `/profile`) and restricts `/admin/*` routes strictly to users with `role: 'admin'`.
 
 ---
 
-## 🎨 7. UI/UX Improvements & Polish (Week 07 vs Week 09)
+## 🛠️ 6. Major Problems Encountered & Solutions Implemented
 
-1. **Radial "Target HUD" ATS Gauge**:
-   * Replaced basic progress bars with an animated SVG multi-stop gradient radial gauge featuring live counter tick-up and candidate percentile tiers (*Top 5% Applicant, Strong Match*).
-2. **Interactive Before vs. After Bullet Optimizer**:
-   * Built a side-by-side comparative studio displaying weak, unquantified drafted bullet points alongside STAR-quantified rewrites with 1-click clipboard copy.
-3. **Streamlined Interview & Jobs Views**:
-   * Removed clunky modals in favor of a clean two-pane layout for Technical, Behavioral, and HR question exploration with recruiter intent cards.
-4. **Password Visibility Controls**:
-   * Added interactive eye toggle buttons (`Eye` / `EyeOff`) on both Login and Register forms.
-5. **Comprehensive Theme Engine**:
-   * Dark and Light theme support powered by Tailwind CSS v4 with custom neural knot branding and SVG favicons.
+1. **Gemini Free-Tier Rate Limits (HTTP 429)**:
+   * *Problem*: Concurrent student test runs triggered Google Gemini free-tier quota limits.
+   * *Solution*: Implemented a 3-key rotating failover pool (`GEMINI_API_KEY_1..3`) combined with a deterministic domain-aware local NLP fallback engine.
+2. **Temporary File Descriptor Leaks on PDF Uploads**:
+   * *Problem*: Writing uploaded PDFs to temporary server disk locations caused orphaned files on Windows.
+   * *Solution*: Replaced disk storage with in-memory binary stream extraction using `pdfjs-dist` and `mammoth`.
+3. **React Router Link Cloning Issues in Production Minified Bundles**:
+   * *Problem*: Base UI `<Button render={<Link ... />}>` prop threw a silent render crash in minified production builds.
+   * *Solution*: Refactored all buttons to use standard, bulletproof `<Link to="..."> <Button ...> </Button> </Link>` component wrappers.
 
 ---
 
-## 📊 8. Scope Review & Documented Changes from Original Proposal
+## 📊 7. Changes from Original Proposal
 
-| Area | Original Week 02 Proposal | Week 09 Implemented Reality | Technical Rationale for Change |
+| Area | Original Proposal | Week 09 Implemented Reality | Technical Rationale |
 | :--- | :--- | :--- | :--- |
-| **AI Question Practice** | Interactive typing studio with manual written answer scoring. | Focused question bank with Recruiter Intent & STAR strategy notes. | User testing proved candidates prefer exploring model answers and talking points over typing long text blocks into forms. |
-| **Cover Letter Generator** | Modal cover letter popup on Job Listings. | Focused 1-click LinkedIn job application redirection. | Direct LinkedIn search links provide immediate utility for active job seekers in Bangladesh and abroad. |
-| **AI Infrastructure** | Single API key dependency. | Multi-Key Gemini Failover Pool + Deterministic Engine. | Ensures 100% lab and production uptime resilient against free-tier rate limits. |
+| **Interview Module** | Interactive typing studio with written answer grading. | Targeted question bank with Recruiter Intent & STAR strategy notes. | User testing proved candidates prefer immediate model talking points over typing lengthy text forms. |
+| **Job Matching** | Modal cover letter popup on Job Listings. | Focused 1-click LinkedIn job application redirection. | Direct LinkedIn search links provide immediate, actionable utility for active job seekers. |
+| **AI Infrastructure** | Single API key dependency. | Multi-Key Gemini Failover Pool + Deterministic Fallback. | Ensures 100% lab and production uptime resilient against quota limits. |
 
 ---
 
-## 📸 9. Screenshots & Visual Verification Inventory
+## 📸 8. Screenshots & Visual Verification Inventory (1×1 Format)
 
-All screenshots are organized in the root [`screenshots/`](file:///d:/Projectss/Matchpoint%20AI/screenshots) directory:
+All screenshots are captured from the live running application and cataloged in [`screenshots/`](file:///d:/Projectss/Matchpoint%20AI/screenshots):
 
-| Filename | Description |
-| :--- | :--- |
-| [`01_Home_Page.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/01_Home_Page.png) | Landing Page showcasing MatchPoint AI value proposition, features, and brand theme. |
-| [`02_Login_Page.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/02_Login_Page.png) | Sign In interface with email/password authentication and password visibility toggle. |
-| [`03_Registration_Page.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/03_Registration_Page.png) | Candidate registration form with full validation. |
-| [`04_Dashboard.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/04_Dashboard.png) | Candidate workspace with metric cards, recent analysis history, and quick actions. |
-| [`05_Analyze_Resume_Page.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/05_Analyze_Resume_Page.png) | Drag-and-drop resume upload and target job description ingestion interface. |
-| [`06_AI_Result_Page.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/06_AI_Result_Page.png) | Radial ATS score gauge, matched/missing keyword matrix, and Before/After bullet optimizer. |
-| [`07_Responsive_Mobile_View.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/07_Responsive_Mobile_View.png) | Mobile viewport verification showing responsive drawer navigation and card stacking. |
-| [`08_API_Integration_Supabase_Data.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/08_API_Integration_Supabase_Data.png) | Live database records and API integration verification in Supabase / Postman. |
+| Category | Screenshot Filename | Live Verification Description |
+| :--- | :--- | :--- |
+| **1. Login / Registration** | [`01_Login_Registration.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/01_Login_Registration.png) | Sign In & Sign Up interfaces with password visibility toggles (`Eye`/`EyeOff`). |
+| **2. Dashboard Interface** | [`02_Dashboard.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/02_Dashboard.png) | Candidate workspace with metric cards, recent analysis history, and quick actions. |
+| **3. Major Functional Module** | [`03_Major_Functional_Module_Analyze.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/03_Major_Functional_Module_Analyze.png) | Drag-and-drop resume upload and target job description ingestion interface. |
+| **4. AI Feature (ATS & STAR)** | [`04_AI_Feature_Result.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/04_AI_Feature_Result.png) | Radial ATS score gauge, matched/missing keyword matrix, and Before/After bullet optimizer. |
+| **5. AI Feature (Interviews)** | [`05_AI_Feature_Interview_Questions.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/05_AI_Feature_Interview_Questions.png) | Technical, Behavioral, and HR question bank with recruiter context and strategy notes. |
+| **6. Job Matching Module** | [`06_Dual_Market_Job_Matches.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/06_Dual_Market_Job_Matches.png) | Dual-market job recommendations with Bangladesh Tech and Global Remote filters. |
+| **7. Mobile / Responsive View** | [`07_Mobile_Responsive_Interface.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/07_Mobile_Responsive_Interface.png) | Mobile viewport verification showing responsive drawer navigation and stacked cards. |
+| **8. Database & Backend APIs** | [`08_API_Integration_Supabase_Data.png`](file:///d:/Projectss/Matchpoint%20AI/screenshots/08_API_Integration_Supabase_Data.png) | Live database records and API integration verification in Supabase / Postman. |
 
 ---
 
-## 🔗 10. Repository & Project Links
+## 🔗 9. Repository & Project Links
 
 * **Official GitHub Repository**: [https://github.com/victormallick/cse4104-7a-t05-matchpointai](https://github.com/victormallick/cse4104-7a-t05-matchpointai)
 * **Postman API Collection**: [`postman/MatchPoint_AI_APIs.postman_collection.json`](file:///d:/Projectss/Matchpoint%20AI/postman/MatchPoint_AI_APIs.postman_collection.json)
-* **Database Schema Script**: [`database/schema.sql`](file:///d:/Projectss/Matchpoint%20AI/database/schema.sql)
-* **Sample Test Resumes**: [`sample_resumes/`](file:///d:/Projectss/Matchpoint%20AI/sample_resumes/)
+* **Database Schema SQL**: [`database/schema.sql`](file:///d:/Projectss/Matchpoint%20AI/database/schema.sql)
+* **Demo Walkthrough Video**: [`screenshots/matchpoint_ai_demo.webm`](file:///d:/Projectss/Matchpoint%20AI/screenshots/matchpoint_ai_demo.webm)

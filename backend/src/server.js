@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -14,13 +16,65 @@ const { isSupabaseConfigured } = require('./config/supabase');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-Demo-Role']
+// 1. Security Headers via Helmet
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false // Handled per-client
 }));
+
+// 2. CORS Policy: Allow local dev origins + environment FRONTEND_URL
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server) or matched origins
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS request blocked by MatchPoint AI security policy.'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-Demo-Role'],
+  credentials: true
+}));
+
+// 3. Body parsers with defensive payload size limits
 app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// 4. Rate Limiters (DDoS & Abuse Prevention)
+const isProd = process.env.NODE_ENV === 'production';
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 150 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests from this IP. Please try again later.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 30 : 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many authentication attempts. Please wait 15 minutes.' }
+});
+
+const aiAnalysisLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 45 : 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'AI evaluation quota limit reached. Please wait a few minutes before scanning again.' }
+});
+
+app.use(globalLimiter);
 
 app.use((req, res, next) => {
   if (process.env.NODE_ENV !== 'test') {
@@ -29,11 +83,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/analysis', analysisRoutes);
+// Mounted Routes with Layered Rate Limiting
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/upload', aiAnalysisLimiter, uploadRoutes);
+app.use('/api/analysis', aiAnalysisLimiter, analysisRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/interview', interviewRoutes);
+app.use('/api/interview', aiAnalysisLimiter, interviewRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/admin', adminRoutes);
 

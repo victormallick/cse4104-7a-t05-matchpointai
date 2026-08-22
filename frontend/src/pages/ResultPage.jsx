@@ -2,13 +2,16 @@ import {
   AlertTriangle,
   ArrowRight,
   Award,
+  BookOpen,
   Briefcase,
   Check,
   CheckCircle2,
   Copy,
+  Download,
   ExternalLink,
   Layers,
   Lightbulb,
+  Loader2,
   MessageSquare,
   Play,
   RotateCcw,
@@ -26,6 +29,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import PageHeader from '../components/PageHeader';
+import SkillRoadmapModal from '../components/SkillRoadmapModal';
+import { useAuth } from '../context/AuthContext';
+import { generateAtsReportPdf } from '../utils/pdfExport';
 
 const readStoredResult = () => {
   try {
@@ -36,16 +42,31 @@ const readStoredResult = () => {
 };
 
 export default function ResultPage() {
+  const { user } = useAuth();
   const location = useLocation();
   const result = location.state?.result || readStoredResult();
 
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [selectedBulletIndex, setSelectedBulletIndex] = useState(0);
   const [animatedScore, setAnimatedScore] = useState(0);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [selectedRoadmapSkill, setSelectedRoadmapSkill] = useState(null);
 
   const rawScore = result?.ats_score ?? result?.match_score ?? 0;
   const isInvalid = result?.is_valid_resume === false || rawScore === 0 || Boolean(result?.document_warning);
   const targetScore = isInvalid ? 0 : rawScore;
+
+  const handleExportPdf = async () => {
+    if (!result) return;
+    setExportingPdf(true);
+    try {
+      generateAtsReportPdf(result, user?.full_name || 'Candidate');
+    } catch (err) {
+      console.error('PDF export error:', err);
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   // Smooth score tick-up animation
   useEffect(() => {
@@ -168,7 +189,28 @@ export default function ResultPage() {
         title="AI Resume Analysis Result"
         description={result.summary || 'Your comprehensive ATS match report, keyword gap analysis, and tailored bullet point rewrites.'}
         action={(
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPdf}
+              disabled={exportingPdf}
+              className="h-10 border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 gap-1.5 text-xs font-semibold rounded-xl shadow-xs cursor-pointer active:scale-95 transition"
+              title="Download 1-page ATS Audit Report PDF"
+            >
+              {exportingPdf ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-blue-600" />
+                  <span>Generating PDF…</span>
+                </>
+              ) : (
+                <>
+                  <Download className="size-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>Download Report (PDF)</span>
+                </>
+              )}
+            </Button>
+
             <Badge
               variant="secondary"
               className={cn(
@@ -188,7 +230,7 @@ export default function ResultPage() {
       />
 
       {/* Top Hero Section: Radial HUD Score & Gap Analysis */}
-      <section className="mb-10 grid gap-6 xl:grid-cols-[minmax(380px,0.8fr)_minmax(480px,1.2fr)]">
+      <section className="mb-10 grid gap-6 xl:grid-cols-[minmax(380px,0.8fr)_minmax(480px,1.2fr)] animate-fade-in-up">
         {/* Radial HUD Score Card */}
         <Card className="border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-800 relative overflow-hidden">
           <div className="absolute top-0 right-0 -mt-8 -mr-8 size-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
@@ -251,7 +293,7 @@ export default function ResultPage() {
 
               {/* Center Counter & Badge */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-4xl font-black tracking-tight text-slate-950 dark:text-slate-100">
+                <span className="text-4xl font-black tracking-tight text-slate-950 dark:text-slate-100 tabular-nums font-mono">
                   {animatedScore}%
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -332,13 +374,20 @@ export default function ResultPage() {
             {result.missing_skills?.length > 0 && (
               <div>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                  <Sparkles className="size-3.5" /> High-Value Missing Terms (Add to Resume)
+                  <Sparkles className="size-3.5" /> High-Value Missing Terms (Click for Study Roadmap)
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
                   {result.missing_skills.map((skill) => (
-                    <Badge key={skill} variant="outline" className="text-xs border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300 font-medium">
-                      + {skill}
-                    </Badge>
+                    <button
+                      key={skill}
+                      type="button"
+                      onClick={() => setSelectedRoadmapSkill(skill)}
+                      className="group inline-flex items-center gap-1.5 text-xs border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/60 rounded-xl px-3 py-1 font-medium cursor-pointer transition shadow-xs hover:-translate-y-0.5 active:scale-95"
+                      title={`Click to inspect study roadmap and interview guide for ${skill}`}
+                    >
+                      <span>+ {skill}</span>
+                      <BookOpen className="size-3 text-amber-600 dark:text-amber-400 opacity-70 group-hover:opacity-100" />
+                    </button>
                   ))}
                 </div>
               </div>
@@ -348,7 +397,7 @@ export default function ResultPage() {
       </section>
 
       {/* Interactive Before vs. After Bullet Point Optimizer Studio */}
-      <section className="mb-10">
+      <section className="mb-10 animate-fade-in-up stagger-1">
         <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
@@ -465,7 +514,7 @@ export default function ResultPage() {
       </section>
 
       {/* AI Improvement Suggestions Grid */}
-      <section className="mb-10">
+      <section className="mb-10 animate-fade-in-up stagger-2">
         <div className="mb-4">
           <span className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-400">
             Strategic Action Plan
@@ -521,6 +570,12 @@ export default function ResultPage() {
           </Button>
         </Link>
       </div>
+
+      <SkillRoadmapModal
+        skill={selectedRoadmapSkill}
+        open={Boolean(selectedRoadmapSkill)}
+        onOpenChange={(open) => !open && setSelectedRoadmapSkill(null)}
+      />
     </div>
   );
 }

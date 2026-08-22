@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  BookOpen,
   Bookmark,
   Briefcase,
   CheckCircle2,
@@ -22,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
+import SkillRoadmapModal from '../components/SkillRoadmapModal';
 import { analysisApi } from '../services/api';
 
 const MAX_QUESTIONS_PER_SECTION = 10;
@@ -80,6 +82,7 @@ export default function InterviewPage() {
   const [activeCategory, setActiveCategory] = useState('technical');
   const [savedQuestions, setSavedQuestions] = useState(readSavedQuestions);
   const [limitWarning, setLimitWarning] = useState(null);
+  const [selectedRoadmapSkill, setSelectedRoadmapSkill] = useState(null);
 
   const jobTitle = latestResult?.job_title || 'Target Role';
   const company = latestResult?.company || '';
@@ -317,9 +320,16 @@ export default function InterviewPage() {
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1">Focus Gaps:</span>
               {focusSkills.slice(0, 4).map((skill) => (
-                <Badge key={skill} variant="secondary" className="bg-white/80 dark:bg-slate-800 dark:text-violet-300 text-violet-700 text-xs shadow-xs border-0">
-                  {skill}
-                </Badge>
+                <button
+                  key={skill}
+                  type="button"
+                  onClick={() => setSelectedRoadmapSkill(skill)}
+                  className="group inline-flex items-center gap-1 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-violet-300 text-violet-700 text-xs shadow-xs rounded-xl px-2.5 py-1 font-medium cursor-pointer transition active:scale-95"
+                  title="Click to view study roadmap"
+                >
+                  <span>{skill}</span>
+                  <BookOpen className="size-2.5 opacity-60 group-hover:opacity-100" />
+                </button>
               ))}
             </div>
           )}
@@ -413,7 +423,7 @@ export default function InterviewPage() {
       </div>
 
       {/* Main Questions Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 animate-fade-in-up">
         {/* Left Questions List (7 cols) */}
         <div className="space-y-4 lg:col-span-7">
           <div className="flex items-center justify-between">
@@ -586,6 +596,12 @@ export default function InterviewPage() {
           )}
         </div>
       </div>
+
+      <SkillRoadmapModal
+        skill={selectedRoadmapSkill}
+        open={Boolean(selectedRoadmapSkill)}
+        onOpenChange={(open) => !open && setSelectedRoadmapSkill(null)}
+      />
     </div>
   );
 }

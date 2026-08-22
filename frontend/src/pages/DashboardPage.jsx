@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import MetricCard from '../components/MetricCard';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
@@ -50,68 +51,106 @@ export default function DashboardPage() {
         )}
       />
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4 animate-fade-in-up">
         <MetricCard icon={Gauge} label="Latest ATS score" value={`${latestScore}%`} detail="+6 points this month" />
         <MetricCard icon={FileText} label="Total analyses" value={historyList.length + 21} detail="3 completed recently" tone="purple" />
         <MetricCard icon={Bookmark} label="Saved jobs" value="12" detail="4 new matches" tone="green" />
         <MetricCard icon={MessageSquareText} label="Interview practice" value="36 Qs" detail="72% preparation progress" tone="orange" />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.8fr)]">
-        <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-[#0f172a] dark:ring-slate-800">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(340px,0.85fr)] animate-fade-in-up stagger-1">
+        <Card className="border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0f172a]">
           <CardHeader className="flex-row items-center justify-between p-6 pb-2 sm:p-7">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600 dark:text-violet-400">Your progress</span>
-              <CardTitle className="mt-2 text-2xl font-bold text-slate-950 dark:text-slate-100">Recent analyses</CardTitle>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600 dark:text-violet-400">Career Trajectory</span>
+              <CardTitle className="mt-1 text-2xl font-bold text-slate-950 dark:text-slate-100">Recent Resume Analyses</CardTitle>
             </div>
             <Link to="/history">
-              <Button variant="ghost" className="text-blue-600 dark:text-blue-400 cursor-pointer">
-                View all <ArrowRight className="size-4" />
+              <Button variant="ghost" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold cursor-pointer">
+                View all <ArrowRight className="size-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
-          <CardContent className="grid gap-2 p-6 pt-3 sm:p-7 sm:pt-3">
-            {historyList.slice(0, 4).map((item) => (
-              <Link
-                className="grid min-h-18 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-slate-50 dark:bg-[#131d35] p-3 transition hover:bg-blue-50 dark:hover:bg-blue-950/40"
-                to="/history"
-                key={item.analysis_id || item.id}
-              >
-                <span className="grid size-10 place-items-center rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400">
-                  <FileText className="size-4.5" />
-                </span>
-                <span className="grid min-w-0 gap-1">
-                  <strong className="truncate text-sm text-slate-950 dark:text-slate-100">{item.job_title}</strong>
-                  <small className="truncate text-xs text-slate-500 dark:text-slate-400">
-                    {item.company || 'Direct Submission'} · {item.analyzed_at ? new Date(item.analyzed_at).toLocaleDateString() : 'Today'}
-                  </small>
-                </span>
-                <Badge className={item.ats_score >= 75 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300" : "bg-violet-100 text-violet-800 dark:bg-violet-950/70 dark:text-violet-300"}>
-                  {item.ats_score}%
-                </Badge>
-              </Link>
-            ))}
+          <CardContent className="grid gap-3 p-6 pt-3 sm:p-7 sm:pt-3">
+            {historyList.slice(0, 4).map((item) => {
+              const score = item.ats_score || 85;
+              const isTop = score >= 85;
+              const isGood = score >= 70;
+
+              return (
+                <Link
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800/80 dark:bg-[#131d35] dark:hover:border-blue-900/60 dark:hover:bg-blue-950/40 group"
+                  to="/history"
+                  key={item.analysis_id || item.id}
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-100/80 text-blue-600 shadow-xs dark:bg-blue-950/80 dark:text-blue-400">
+                      <FileText className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <strong className="block truncate text-sm font-bold text-slate-950 group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-400 transition-colors">
+                        {item.job_title}
+                      </strong>
+                      <small className="block truncate text-xs text-slate-500 dark:text-slate-400">
+                        {item.company || 'Direct Target'} · {item.analyzed_at ? new Date(item.analyzed_at).toLocaleDateString() : 'Recent'}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={cn(
+                      "hidden sm:inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border",
+                      isTop
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50"
+                        : isGood
+                          ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50"
+                          : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
+                    )}>
+                      {isTop ? '⚡ Ready to Apply' : isGood ? '✓ Competitive' : '⚠️ Gaps Detected'}
+                    </span>
+                    <Badge className={cn(
+                      "text-xs font-bold px-2.5 py-1",
+                      isTop
+                        ? "bg-emerald-600 text-white shadow-xs shadow-emerald-600/30"
+                        : "bg-blue-600 text-white shadow-xs shadow-blue-600/30"
+                    )}>
+                      {score}%
+                    </Badge>
+                  </div>
+                </Link>
+              );
+            })}
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-[radial-gradient(circle_at_100%_0,rgba(255,255,255,0.2),transparent_32%),linear-gradient(145deg,#1c65f4,#7432f8)] text-white shadow-xl shadow-violet-600/20">
-          <CardContent className="flex h-full min-h-80 flex-col p-7">
-            <span className="grid size-12 place-items-center rounded-2xl bg-white/15">
-              <TrendingUp />
-            </span>
-            <span className="mt-7 text-xs font-bold uppercase tracking-[0.16em] text-violet-100">Next best action</span>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight">Analyze a new resume</h2>
-            <p className="mt-3 leading-7 text-blue-50/90">
-              Compare your latest resume against a specific role and turn its gaps into a practice plan.
-            </p>
-            <Link to="/analyze" className="mt-5 inline-block">
-              <Button className="h-11 rounded-xl bg-white px-5 text-blue-700 hover:bg-blue-50 cursor-pointer">
-                Analyze resume <ArrowRight className="size-4 ml-1" />
-              </Button>
-            </Link>
-            <small className="mt-auto pt-8 text-blue-100">
-              Top recommendation: Product Frontend Engineer · 91% match
-            </small>
+        <Card className="border-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 text-white shadow-xl shadow-blue-600/20 flex flex-col justify-between">
+          <CardContent className="p-7 sm:p-8 flex flex-col justify-between h-full">
+            <div>
+              <span className="grid size-12 place-items-center rounded-2xl bg-white/15 backdrop-blur-sm shadow-xs">
+                <TrendingUp className="size-6" />
+              </span>
+              <span className="mt-6 inline-block text-xs font-bold uppercase tracking-[0.16em] text-blue-100">
+                Recommended Action
+              </span>
+              <h2 className="mt-2 text-2xl font-black tracking-tight leading-snug">
+                Scan Target Job Description
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-blue-50/90">
+                Instantly compute keyword match percentages, extract missing technical proficiencies, and rewrite drafted bullets into high-impact STAR accomplishments.
+              </p>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-white/15">
+              <Link to="/analyze" className="w-full block">
+                <Button className="h-12 w-full rounded-xl bg-white text-sm font-bold text-blue-700 hover:bg-blue-50 shadow-md shadow-black/10 cursor-pointer active:scale-[0.99] transition-all">
+                  Analyze Target Role <ArrowRight className="size-4 ml-1.5" />
+                </Button>
+              </Link>
+              <div className="mt-3 flex items-center justify-between text-xs text-blue-100/90">
+                <span>⚡ ATS Gap Analysis & Scoring</span>
+                <span className="font-medium">Instant AI Evaluation</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </section>
