@@ -22,7 +22,7 @@ app.use(helmet({
   contentSecurityPolicy: false // Handled per-client
 }));
 
-// 2. CORS Policy: Allow local dev origins + environment FRONTEND_URL
+// 2. CORS Policy: Allow local dev origins + environment FRONTEND_URL + Vercel deployments
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -32,8 +32,14 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server) or matched origins
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    // Allow server-to-server / curl requests (no origin) or verified origins or Vercel preview/production URLs
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      process.env.NODE_ENV !== 'production' ||
+      origin.includes('vercel.app') ||
+      origin.includes('localhost')
+    ) {
       return callback(null, true);
     }
     return callback(new Error('CORS request blocked by MatchPoint AI security policy.'));
