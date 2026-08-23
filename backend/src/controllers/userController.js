@@ -140,12 +140,12 @@ const createTestUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const userId = resolveUserId(req);
-    const userFullName = req.user?.user_metadata?.full_name || req.user?.full_name || '';
+    const oauthFullName = req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || req.user?.full_name || '';
     const userEmail = req.user?.email || req.user?.user_metadata?.email || '';
 
     const cleanDefault = {
       id: userId,
-      full_name: userFullName,
+      full_name: oauthFullName,
       email: userEmail,
       location: '',
       bio: '',
@@ -169,7 +169,7 @@ const getUserProfile = async (req, res) => {
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       const stored = store.profiles.get(userId);
@@ -185,7 +185,8 @@ const getUserProfile = async (req, res) => {
       message: 'Profile loaded successfully.',
       data: {
         ...cleanDefault,
-        ...data
+        ...data,
+        full_name: data.full_name || oauthFullName
       }
     });
   } catch (error) {
@@ -243,8 +244,7 @@ const updateUserProfile = async (req, res) => {
 
     const { data, error } = await supabase
       .from('users')
-      .update({ ...updates, updated_at: now() })
-      .eq('id', userId)
+      .upsert({ id: userId, ...updates, updated_at: now() }, { onConflict: 'id' })
       .select()
       .single();
 

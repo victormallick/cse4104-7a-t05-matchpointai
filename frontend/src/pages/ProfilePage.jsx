@@ -79,7 +79,7 @@ const domainSkillSuggestions = {
 };
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const latestResult = readLatestResult();
 
   const [profile, setProfile] = useState({
@@ -106,21 +106,26 @@ export default function ProfilePage() {
     userApi.profile()
       .then((response) => {
         if (response?.data) {
+          const dbName = response.data.full_name;
+          const effectiveName = dbName || user?.full_name || '';
           setProfile((prev) => ({
             ...prev,
             ...response.data,
-            full_name: user?.full_name || response.data.full_name || prev.full_name,
-            email: user?.email || response.data.email || prev.email,
+            full_name: effectiveName,
+            email: response.data.email || user?.email || prev.email,
             location: response.data.location || prev.location || '',
             target_job_role: response.data.target_job_role || prev.target_job_role || '',
             bio: response.data.bio || prev.bio || '',
             skills: Array.isArray(response.data.skills) ? response.data.skills : (prev.skills || [])
           }));
+          if (dbName && dbName !== user?.full_name) {
+            updateUser({ full_name: dbName });
+          }
         }
       })
       .catch((err) => console.warn('Profile fetch note:', err))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, []);
 
   const calculateCompleteness = () => {
     let score = 0;
@@ -166,9 +171,14 @@ export default function ProfilePage() {
         skills: profile.skills
       });
 
+      const nextFullName = response?.data?.full_name || profile.full_name;
       if (response?.data) {
-        setProfile((prev) => ({ ...prev, ...response.data }));
+        setProfile((prev) => ({ ...prev, ...response.data, full_name: nextFullName }));
       }
+      if (nextFullName) {
+        updateUser({ full_name: nextFullName });
+      }
+
       setMessage('Profile updated successfully!');
       setTimeout(() => setMessage(''), 4000);
     } catch (requestError) {

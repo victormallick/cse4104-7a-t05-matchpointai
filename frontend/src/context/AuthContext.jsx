@@ -94,6 +94,25 @@ export function AuthProvider({ children }) {
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
+  const updateUser = (nextUserData) => {
+    setSession((prev) => {
+      if (!prev) return prev;
+      const updated = {
+        ...prev,
+        user: {
+          ...prev.user,
+          ...nextUserData
+        }
+      };
+      try {
+        localStorage.setItem('matchpoint_session', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('Failed to save updated session', err);
+      }
+      return updated;
+    });
+  };
+
   const logout = async () => {
     try {
       await authApi.logout();
@@ -109,6 +128,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     loginWithGoogle,
+    updateUser,
     logout
   }), [session]);
 

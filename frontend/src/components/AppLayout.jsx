@@ -53,8 +53,15 @@ const adminLinks = [
   { to: '/admin/logs', label: 'Admin Logs', icon: FileClock }
 ];
 
-const initialsFor = (name = '') =>
-  name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'AR';
+const initialsFor = (name = '', email = '') => {
+  const clean = (name || email?.split('@')[0] || 'Candidate').trim();
+  return clean
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase() || 'C';
+};
 
 function Navigation({ links, isCollapsed, onNavigate }) {
   return (
@@ -169,12 +176,12 @@ function SidebarContent({
             >
               <Avatar className="size-10 rounded-xl ring-2 ring-blue-500/20 dark:ring-blue-500/30">
                 <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
-                  {initialsFor(user?.full_name)}
+                  {initialsFor(user?.full_name, user?.email)}
                 </AvatarFallback>
               </Avatar>
               <span className="min-w-0 flex-1">
                 <strong className="block truncate text-sm text-slate-900 group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-white">
-                  {user?.full_name || 'Amina Rahman'}
+                  {user?.full_name || user?.email?.split('@')[0] || 'Candidate'}
                 </strong>
                 <small className="block text-xs text-slate-500 dark:text-slate-400">
                   {admin ? 'Administrator' : 'Candidate'}
@@ -199,11 +206,11 @@ function SidebarContent({
               to={admin ? '/admin' : '/profile'}
               onClick={onNavigate}
               className="group relative"
-              title={`${user?.full_name || 'Candidate'} (Profile)`}
+              title={`${user?.full_name || user?.email?.split('@')[0] || 'Candidate'} (Profile)`}
             >
               <Avatar className="size-9 rounded-xl ring-2 ring-blue-500/20 dark:ring-blue-500/30">
                 <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-[11px] font-bold text-white">
-                  {initialsFor(user?.full_name)}
+                  {initialsFor(user?.full_name, user?.email)}
                 </AvatarFallback>
               </Avatar>
             </NavLink>
