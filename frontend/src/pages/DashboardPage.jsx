@@ -5,6 +5,7 @@ import {
   Gauge,
   MessageSquareText,
   Plus,
+  Sparkles,
   TrendingUp
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -13,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import Brand from '../components/Brand';
 import MetricCard from '../components/MetricCard';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
@@ -92,15 +94,30 @@ export default function DashboardPage() {
   const latestScore = latestItem?.ats_score ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
+    <div className="mx-auto w-full max-w-[1480px] p-4 pt-6 sm:p-8 lg:p-10 xl:p-12">
+      {/* Top MatchPoint AI Branding Bar */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div className="flex items-center gap-3">
+          <Brand className="text-2xl font-black" />
+          <Badge variant="secondary" className="hidden sm:inline-flex rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-semibold text-xs px-3 py-0.5 border border-blue-200 dark:border-blue-800/60 shadow-xs">
+            <Sparkles className="size-3 mr-1 text-blue-600 dark:text-blue-400" /> Enterprise ATS Engine
+          </Badge>
+        </div>
+
+        <div className="flex items-center gap-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 shadow-xs">
+          <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+          <span>Live Workspace Active</span>
+        </div>
+      </div>
+
       <PageHeader
-        eyebrow="Candidate workspace"
+        eyebrow="Candidate Workspace"
         title={`Welcome back, ${user?.full_name?.split(' ')[0] || 'Candidate'}`}
-        description="Your personalized MatchPoint AI career workspace."
+        description="Your personalized MatchPoint AI career analytics, ATS resume scoring, and live interview simulator."
         action={(
           <Link to="/analyze">
-            <Button className="h-11 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 cursor-pointer">
-              <Plus className="size-4" /> New analysis
+            <Button className="h-11 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 hover:shadow-indigo-600/35 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
+              <Plus className="size-4 mr-1.5" /> New Analysis
             </Button>
           </Link>
         )}

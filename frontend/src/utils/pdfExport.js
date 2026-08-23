@@ -11,26 +11,50 @@ export function generateAtsReportPdf(result, candidateName = 'Candidate') {
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 16;
   const contentWidth = pageWidth - margin * 2;
+  const verificationId = `MP-ATS-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const auditDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-  // Background Header Bar
-  doc.setFillColor(30, 64, 175); // Royal Blue
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  // Background Header Bar with Dark Navy Glass
+  doc.setFillColor(15, 23, 42); // Slate 900
+  doc.rect(0, 0, pageWidth, 32, 'F');
 
-  // Brand & Title
+  // Top Accent Gradient Line
+  doc.setFillColor(37, 99, 235); // Royal Blue
+  doc.rect(0, 0, pageWidth, 2.5, 'F');
+
+  // Brand & Certified Header Seal
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.text('MatchPoint AI — ATS Resume Audit Report', margin, 12);
+  doc.setFontSize(15);
+  doc.text('MATCHPOINT AI', margin, 12);
 
+  // Official Certification Pill
+  doc.setFillColor(30, 58, 138); // Dark Navy Blue
+  doc.setDrawColor(59, 130, 246);
+  doc.roundedRect(margin + 50, 7.5, 52, 5.5, 1.5, 1.5, 'FD');
+  doc.setFontSize(7.5);
+  doc.setTextColor(191, 219, 254);
+  doc.text('✓ CERTIFIED ATS AUDIT', margin + 53, 11.3);
+
+  // Subtitle / Verification Details
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
+  doc.setFontSize(8.5);
+  doc.setTextColor(148, 163, 184);
   doc.text(
-    `Candidate: ${candidateName}  |  Role: ${result.job_title || 'Target Role'}${result.company ? ` @ ${result.company}` : ''}  |  Date: ${new Date().toLocaleDateString()}`,
+    `Candidate: ${candidateName}  |  Target Role: ${result.job_title || 'Target Role'}${result.company ? ` @ ${result.company}` : ''}`,
     margin,
-    20
+    19
   );
 
-  let y = 36;
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    `Verification ID: ${verificationId}  |  Audit Date: ${auditDate}  |  Engine: MatchPoint Neural Core v2.4`,
+    margin,
+    26
+  );
+
+  let y = 39;
 
   // Score Highlight Card
   const score = result.ats_score ?? result.match_score ?? 85;

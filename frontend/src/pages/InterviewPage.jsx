@@ -367,15 +367,13 @@ export default function InterviewPage() {
                 : 'Upload your resume on the Analyze page to automatically synthesize behavioral STAR challenges, deep technical scenarios, and recruiter insights for your target role.'}
             </p>
 
-            <Button
-              asChild
-              className="mt-8 gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:shadow-indigo-600/35 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            <Link
+              to="/analyze"
+              className="mt-8 inline-flex flex-row items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:shadow-indigo-600/35 hover:scale-[1.02] active:scale-[0.98] cursor-pointer select-none"
             >
-              <Link to="/analyze">
-                <FileText className="size-4.5" />
-                <span>{isInvalidUpload ? 'Upload Valid Resume' : 'Upload Resume to Get Started'}</span>
-              </Link>
-            </Button>
+              <FileText className="size-4.5 shrink-0" />
+              <span>{isInvalidUpload ? 'Upload Valid Resume' : 'Upload Resume to Get Started'}</span>
+            </Link>
           </div>
         </div>
       </div>

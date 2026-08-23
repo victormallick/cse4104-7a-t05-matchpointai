@@ -1,10 +1,11 @@
 import {
   AlertTriangle,
-  Banknote,
   Briefcase,
+  Compass,
   ExternalLink,
   FileText,
   Globe,
+  MapPin,
   Play,
   Search,
   Sparkles,
@@ -175,15 +176,13 @@ export default function JobsPage() {
                 : 'Upload your resume on the Analyze page to automatically calibrate in-demand skills, benchmark market salaries, and search verified live job openings.'}
             </p>
 
-            <Button
-              asChild
-              className="mt-8 gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:shadow-indigo-600/35 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            <Link
+              to="/analyze"
+              className="mt-8 inline-flex flex-row items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:shadow-indigo-600/35 hover:scale-[1.02] active:scale-[0.98] cursor-pointer select-none"
             >
-              <Link to="/analyze">
-                <FileText className="size-4.5" />
-                <span>{isInvalidUpload ? 'Upload Valid Resume' : 'Upload Resume to Get Started'}</span>
-              </Link>
-            </Button>
+              <FileText className="size-4.5 shrink-0" />
+              <span>{isInvalidUpload ? 'Upload Valid Resume' : 'Upload Resume to Get Started'}</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -288,56 +287,78 @@ export default function JobsPage() {
 
       {/* Target Role Market Profile Overview */}
       <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Market Benchmark Card */}
-        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800">
-          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
-            <Banknote className="size-4" /> Market Compensation Benchmark
+        {/* Target Market Focus Card */}
+        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
+              <Compass className="size-4" /> Target Market & Location
+            </div>
+            <div className="flex items-center gap-2 text-lg font-bold text-slate-950 dark:text-slate-100">
+              <span>{region === 'bangladesh' ? '🇧🇩 Bangladesh Market' : '🌍 Global Remote Worldwide'}</span>
+            </div>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {region === 'bangladesh'
+                ? 'Targeting verified tech hubs (Dhaka, Chittagong, Sylhet) and nationwide on-site & hybrid openings.'
+                : 'Targeting verified international distributed teams, worldwide remote contracts, and global companies.'}
+            </p>
           </div>
-          <div className="text-2xl font-black text-slate-950 dark:text-slate-100">
-            {region === 'bangladesh' ? '৳120,000 - ৳220,000 / mo' : '$110,000 - $165,000 / yr'}
+          <div className="mt-4 flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+            <span className="size-2 rounded-full bg-emerald-500 shrink-0" />
+            <span className="truncate">Pre-filtered query active for <strong>{activeJobTitle}</strong></span>
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Estimated market median for mid-to-lead level <strong>{activeJobTitle}</strong> roles in {region === 'bangladesh' ? 'Bangladesh' : 'the global remote ecosystem'}.
-          </p>
         </div>
 
         {/* In-Demand Matched Skills */}
-        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800">
-          <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">
-            <Zap className="size-4" /> Matched Skills on Resume
-          </div>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {candidateSkills.slice(0, 5).map((skill) => (
-              <Badge key={skill} variant="outline" className="text-xs border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/50 dark:text-emerald-300 font-medium">
-                ✓ {skill}
+        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <Zap className="size-4" /> Matched Skills on Resume
+              </div>
+              <Badge variant="secondary" className="text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                {candidateSkills.length} Verified
               </Badge>
-            ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {candidateSkills.slice(0, 6).map((skill) => (
+                <Badge key={skill} variant="outline" className="text-xs border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/50 dark:text-emerald-300 font-medium">
+                  ✓ {skill}
+                </Badge>
+              ))}
+            </div>
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Hard competencies extracted from your uploaded resume.
+          <p className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400">
+            Core competencies verified and benchmarked from your uploaded profile.
           </p>
         </div>
 
         {/* Action / Prep Interview Card */}
-        <div className="rounded-3xl border border-blue-200/80 dark:border-blue-900/60 bg-gradient-to-tr from-blue-50/70 via-indigo-50/50 to-violet-50/70 dark:from-blue-950/30 dark:to-violet-950/30 p-6 shadow-sm flex flex-col justify-between">
+        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-400 mb-2">
-              <Sparkles className="size-4" /> Interview Preparation
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                <Sparkles className="size-4" /> Interview Preparation
+              </div>
+              <Badge variant="secondary" className="text-[10px] font-semibold bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300">
+                STAR Mode
+              </Badge>
             </div>
-            <h4 className="text-base font-bold text-slate-950 dark:text-slate-100">
+            <h4 className="text-lg font-bold text-slate-950 dark:text-slate-100 truncate">
               Prepare for {activeJobTitle}
             </h4>
-            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Generate custom STAR behavioral and technical interview questions tailored to this role.
             </p>
           </div>
-          <Button
-            onClick={handlePracticeForRole}
-            className="mt-4 gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white font-semibold text-xs shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer w-full py-5"
-          >
-            <Play className="size-3.5 fill-current" />
-            <span>Generate Mock Interview Questions</span>
-          </Button>
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <Button
+              onClick={handlePracticeForRole}
+              className="w-full gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-3 text-xs font-semibold text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer"
+            >
+              <Play className="size-3.5 fill-current" />
+              <span>Practice Interview Questions</span>
+            </Button>
+          </div>
         </div>
       </div>
 

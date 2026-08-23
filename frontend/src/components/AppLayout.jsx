@@ -10,17 +10,15 @@ import {
   LogOut,
   Menu,
   MessageSquareText,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Pin,
-  PinOff,
   ShieldCheck,
+  Sparkles,
   UserRound,
   UsersRound
 } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -35,22 +33,106 @@ import Brand from './Brand';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
-const candidateLinks = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/analyze', label: 'Analyze Resume', icon: FileSearch },
-  { to: '/result', label: 'AI Result', icon: Gauge },
-  { to: '/interview', label: 'Interview', icon: MessageSquareText },
-  { to: '/jobs', label: 'Jobs', icon: BriefcaseBusiness },
-  { to: '/history', label: 'History', icon: History },
-  { to: '/profile', label: 'Profile', icon: UserRound }
+const candidateSections = [
+  {
+    title: 'Workspace',
+    links: [
+      {
+        to: '/dashboard',
+        label: 'Dashboard',
+        description: 'Real-time ATS score, recent scans & career overview',
+        icon: LayoutDashboard
+      },
+      {
+        to: '/analyze',
+        label: 'Analyze Resume',
+        description: 'Upload PDF/DOCX for AI ATS scoring & gap insights',
+        icon: FileSearch,
+        badge: 'ATS'
+      },
+      {
+        to: '/result',
+        label: 'ATS Scorecard',
+        description: 'In-depth analysis report, skill match & recruiter tips',
+        icon: Gauge
+      }
+    ]
+  },
+  {
+    title: 'Career Tools',
+    links: [
+      {
+        to: '/interview',
+        label: 'Interview Prep',
+        description: 'Role-calibrated STAR behavioral & technical mock questions',
+        icon: MessageSquareText,
+        badge: 'STAR'
+      },
+      {
+        to: '/jobs',
+        label: 'Live Job Search',
+        description: '1-click filtered live search on LinkedIn & Google Jobs',
+        icon: BriefcaseBusiness,
+        badge: 'Live'
+      },
+      {
+        to: '/history',
+        label: 'Scan History',
+        description: 'Track past resume revisions, score trends & evolution',
+        icon: History
+      }
+    ]
+  },
+  {
+    title: 'Settings',
+    links: [
+      {
+        to: '/profile',
+        label: 'Candidate Profile',
+        description: 'Manage target roles, industry focus & preferences',
+        icon: UserRound
+      }
+    ]
+  }
 ];
 
-const adminLinks = [
-  { to: '/admin', label: 'Admin Dashboard', icon: ShieldCheck, end: true },
-  { to: '/admin/users', label: 'Manage Users', icon: UsersRound },
-  { to: '/admin/analytics', label: 'System Analytics', icon: BarChart3 },
-  { to: '/admin/ai-usage', label: 'AI Usage', icon: BrainCircuit },
-  { to: '/admin/logs', label: 'Admin Logs', icon: FileClock }
+const adminSections = [
+  {
+    title: 'Administration',
+    links: [
+      {
+        to: '/admin',
+        label: 'Admin Dashboard',
+        description: 'System health, global stats & quick actions',
+        icon: ShieldCheck,
+        end: true
+      },
+      {
+        to: '/admin/users',
+        label: 'Manage Users',
+        description: 'View candidates, edit permissions & monitor accounts',
+        icon: UsersRound
+      },
+      {
+        to: '/admin/analytics',
+        label: 'System Analytics',
+        description: 'Scan volume, pass rates & conversion metrics',
+        icon: BarChart3
+      },
+      {
+        to: '/admin/ai-usage',
+        label: 'AI Usage & Tokens',
+        description: 'OpenAI/Gemini token burn, latency & cost metrics',
+        icon: BrainCircuit
+      },
+      {
+        to: '/admin/logs',
+        label: 'Audit Logs',
+        description: 'Real-time security events & administrative history',
+        icon: FileClock
+      }
+    ]
+  }
 ];
 
 const initialsFor = (name = '', email = '') => {
@@ -63,118 +145,246 @@ const initialsFor = (name = '', email = '') => {
     .toUpperCase() || 'C';
 };
 
-function Navigation({ links, isCollapsed, onNavigate }) {
+/* -------------------------------------------------------------------------- */
+/* 1. SLIM DESKTOP ICON RAIL (Option 3: VS Code / Slack Style)                */
+/* -------------------------------------------------------------------------- */
+function SlimRailNavigation({ sections }) {
   return (
-    <nav className="grid gap-1.5">
-      {links.map(({ to, label, icon: Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          onClick={onNavigate}
-          title={isCollapsed ? label : undefined}
-          className={({ isActive }) => cn(
-            'group relative flex items-center transition-all duration-200 cursor-pointer',
-            isCollapsed
-              ? 'size-11 justify-center rounded-xl mx-auto'
-              : 'min-h-12 gap-3 rounded-xl px-4 text-sm font-semibold',
-            isActive
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/8 dark:hover:text-white'
-          )}
-        >
-          <Icon className="size-5 shrink-0" />
-          {!isCollapsed && <span className="truncate">{label}</span>}
+    <div className="flex flex-col items-center gap-3 py-1 w-full">
+      {sections.map((section, sIdx) => (
+        <div key={section.title} className="flex flex-col items-center gap-1.5 w-full">
+          {sIdx > 0 && <div className="h-px w-8 bg-slate-200/80 dark:bg-slate-800/80 my-1" />}
+          
+          {section.links.map(({ to, label, description, icon: Icon, end, badge }) => (
+            <div key={to} className="relative group flex items-center justify-center">
+              <NavLink
+                to={to}
+                end={end}
+                className={({ isActive }) => cn(
+                  'flex size-11 items-center justify-center rounded-2xl transition-all duration-200 cursor-pointer',
+                  isActive
+                    ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20'
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white'
+                )}
+              >
+                <Icon className="size-5 shrink-0" />
 
-          {/* Floating Tooltip in Collapsed Mode */}
-          {isCollapsed && (
-            <div className="pointer-events-none absolute left-full ml-3 hidden rounded-lg bg-slate-950 px-2.5 py-1 text-xs font-semibold text-white shadow-md group-hover:block dark:bg-white dark:text-slate-950 z-50 whitespace-nowrap">
-              {label}
+                {/* Status Dot for Live/STAR badge */}
+                {badge === 'Live' && (
+                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#030a20]" />
+                )}
+              </NavLink>
+
+              {/* Rich Floating Glassmorphic Tooltip Card on Hover */}
+              <div className="pointer-events-none absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 min-w-[230px] max-w-[270px] flex flex-col rounded-2xl border border-slate-200/90 bg-white p-3.5 text-left shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] z-[9999] ring-1 ring-black/5 dark:ring-white/5">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {section.title}
+                  </span>
+                  {badge && (
+                    <span
+                      className={cn(
+                        'rounded-full px-2 py-0.5 text-[9px] font-bold shrink-0 tracking-wide',
+                        badge === 'Live'
+                          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-500/30'
+                          : badge === 'STAR'
+                          ? 'bg-violet-500/20 text-violet-700 dark:text-violet-300 ring-1 ring-violet-500/30'
+                          : 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-500/30'
+                      )}
+                    >
+                      {badge}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm font-bold text-slate-950 dark:text-slate-100 mb-1">
+                  {label}
+                </div>
+                {description && (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
+                    {description}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
-        </NavLink>
+          ))}
+        </div>
       ))}
-    </nav>
+    </div>
   );
 }
 
-function SidebarContent({
-  admin,
-  links,
-  user,
-  isCollapsed = false,
-  isPinned = false,
-  onTogglePin,
-  onNavigate,
-  onLogout
-}) {
+/* -------------------------------------------------------------------------- */
+/* 2. FULL MOBILE DRAWER NAVIGATION                                           */
+/* -------------------------------------------------------------------------- */
+function MobileDrawerNavigation({ sections, onNavigate }) {
   return (
-    <div
-      className={cn(
-        'flex h-full flex-col border-r border-slate-200/80 bg-white text-slate-900 transition-all duration-250 dark:border-slate-800/80 dark:bg-[#030a20] dark:text-white shadow-sm',
-        isCollapsed ? 'w-[76px] p-3' : 'w-[270px] p-5'
-      )}
-    >
-      {/* Header with Logo & Pin/Collapse Button */}
-      <div className={cn('mb-6 flex items-center', isCollapsed ? 'justify-center' : 'justify-between px-1')}>
-        {!isCollapsed ? (
-          <>
-            <Brand />
-            {onTogglePin && (
-              <button
-                type="button"
-                onClick={onTogglePin}
-                className={cn(
-                  'grid size-8 place-items-center rounded-lg transition cursor-pointer',
-                  isPinned
-                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60'
-                    : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/5 dark:hover:text-slate-200'
+    <div className="space-y-5">
+      {sections.map((section) => (
+        <div key={section.title} className="space-y-1">
+          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            {section.title}
+          </p>
+          <nav className="grid gap-1">
+            {section.links.map(({ to, label, description, icon: Icon, end, badge }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                onClick={onNavigate}
+                className={({ isActive }) => cn(
+                  'group relative flex items-center justify-between min-h-11 rounded-xl px-3.5 text-sm font-semibold transition-all duration-200 cursor-pointer',
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/8 dark:hover:text-white'
                 )}
-                title={isPinned ? 'Sidebar is Pinned (Click to enable Auto-Collapse on hover)' : 'Click to Pin Sidebar open'}
               >
-                <PanelLeftClose className="size-4.5" />
-              </button>
-            )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon className="size-4.5 shrink-0" />
+                  <span className="truncate">{label}</span>
+                </div>
+
+                {badge && (
+                  <span
+                    className={cn(
+                      'ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 tracking-wide',
+                      badge === 'Live'
+                        ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-500/30'
+                        : badge === 'STAR'
+                        ? 'bg-violet-500/20 text-violet-700 dark:text-violet-300 ring-1 ring-violet-500/30'
+                        : 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-500/30'
+                    )}
+                  >
+                    {badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function AppLayout({ admin = false }) {
+  const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const sections = admin ? adminSections : candidateSections;
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-950 transition-colors duration-200 dark:bg-[#070d1e] dark:text-slate-100 lg:grid lg:grid-cols-[74px_minmax(0,1fr)]">
+      
+      {/* ========================================================================= */}
+      {/* DESKTOP SLIM ICON RAIL (OPTION 3)                                         */}
+      {/* ========================================================================= */}
+      <aside className="sticky top-0 hidden h-screen lg:flex flex-col items-center justify-between border-r border-slate-200/80 bg-white dark:border-slate-800/80 dark:bg-[#030a20] py-5 px-3 z-50 shadow-xs">
+        
+        {/* Top: Logo Icon */}
+        <div className="flex flex-col items-center gap-3 mb-2">
+          <NavLink to="/dashboard" className="cursor-pointer" title="MatchPoint AI">
             <img
               src="/logo_icon.png"
               alt="MatchPoint AI"
-              className="size-8 object-contain drop-shadow-xs cursor-pointer"
-              onClick={onTogglePin}
-              title="Expand & Pin sidebar"
+              className="size-9 object-contain drop-shadow-xs transition hover:scale-105"
             />
-            {onTogglePin && (
-              <button
-                type="button"
-                onClick={onTogglePin}
-                className="grid size-7 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/5 dark:hover:text-slate-200 transition cursor-pointer"
-                title="Click to Pin sidebar open"
-              >
-                <PanelLeftOpen className="size-4" />
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+          </NavLink>
+        </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <Navigation links={links} isCollapsed={isCollapsed} onNavigate={onNavigate} />
-      </div>
+        {/* Center: Slim Navigation Rail (no overflow hidden to allow tooltips to show) */}
+        <div className="flex-1 w-full flex flex-col items-center justify-center py-2">
+          <SlimRailNavigation sections={sections} />
+        </div>
 
-      {/* Footer Area: Theme, Profile & Logout */}
-      <div className={cn('mt-auto grid gap-3 border-t border-slate-200 pt-4 dark:border-white/10', isCollapsed && 'justify-center')}>
-        {!isCollapsed ? (
-          <>
-            <ThemeToggle mode="segmented" />
+        {/* Bottom: Theme Toggle, Profile & Logout */}
+        <div className="mt-auto flex flex-col items-center gap-3 pt-3 border-t border-slate-200/80 dark:border-slate-800/80 w-full">
+          <ThemeToggle />
+
+          {/* Profile Avatar with Popout Tooltip */}
+          <div className="relative group flex items-center justify-center">
             <NavLink
               to={admin ? '/admin' : '/profile'}
-              onClick={onNavigate}
-              className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-100 dark:hover:bg-white/8 group"
+              className="cursor-pointer"
             >
-              <Avatar className="size-10 rounded-xl ring-2 ring-blue-500/20 dark:ring-blue-500/30">
+              <Avatar className="size-10 rounded-2xl ring-2 ring-blue-500/20 dark:ring-blue-500/30 hover:scale-105 transition">
+                <AvatarFallback className="rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
+                  {initialsFor(user?.full_name, user?.email)}
+                </AvatarFallback>
+              </Avatar>
+            </NavLink>
+
+            <div className="pointer-events-none absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 min-w-[200px] flex flex-col rounded-2xl border border-slate-200/90 bg-white p-3 text-left shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] z-[9999] ring-1 ring-black/5 dark:ring-white/5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {admin ? 'Admin Account' : 'Candidate Account'}
+              </span>
+              <strong className="block text-xs font-bold text-slate-900 dark:text-slate-100 truncate mt-0.5">
+                {user?.full_name || user?.email?.split('@')[0] || 'Candidate'}
+              </strong>
+              <small className="block text-[10px] text-slate-400 truncate">
+                {user?.email || 'Logged in user'}
+              </small>
+            </div>
+          </div>
+
+          {/* Sign Out Button with Tooltip */}
+          <div className="relative group flex items-center justify-center">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="grid size-10 place-items-center rounded-2xl text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition cursor-pointer"
+            >
+              <LogOut className="size-5" />
+            </button>
+
+            <div className="pointer-events-none absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs font-bold text-red-600 shadow-xl dark:border-slate-800 dark:bg-[#0f172a] dark:text-red-400 z-[9999] whitespace-nowrap">
+              Sign Out
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* MOBILE DRAWER SHEET                                                       */}
+      {/* ========================================================================= */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <div className="fixed right-4 top-4 z-40 flex items-center gap-2 lg:hidden">
+          <ThemeToggle />
+          <SheetTrigger
+            type="button"
+            className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-900 shadow-md dark:border-slate-800 dark:bg-[#030a20] dark:text-white cursor-pointer"
+          >
+            <Menu className="size-5" />
+            <span className="sr-only">Open navigation</span>
+          </SheetTrigger>
+        </div>
+        <SheetContent side="left" showCloseButton className="w-[285px] border-r border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-[#030a20] flex flex-col justify-between">
+          <SheetHeader className="sr-only">
+            <SheetTitle>MatchPoint AI navigation</SheetTitle>
+            <SheetDescription>Navigate through your MatchPoint AI workspace.</SheetDescription>
+          </SheetHeader>
+
+          <div>
+            <div className="mb-6 px-1">
+              <Brand />
+            </div>
+            <MobileDrawerNavigation
+              sections={sections}
+              onNavigate={() => setOpen(false)}
+            />
+          </div>
+
+          <div className="mt-auto grid gap-3 border-t border-slate-200 pt-4 dark:border-white/10">
+            <NavLink
+              to={admin ? '/admin' : '/profile'}
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-100 dark:hover:bg-white/8 group cursor-pointer"
+            >
+              <Avatar className="size-10 rounded-xl ring-2 ring-blue-500/20 dark:ring-blue-500/30 shrink-0">
                 <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
                   {initialsFor(user?.full_name, user?.email)}
                 </AvatarFallback>
@@ -187,144 +397,27 @@ function SidebarContent({
                   {admin ? 'Administrator' : 'Candidate'}
                 </small>
               </span>
-              <UserRound className="size-4 text-slate-400 transition group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
+              <UserRound className="size-4 text-slate-400 transition group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300 shrink-0" />
             </NavLink>
+
             <Button
               type="button"
               variant="ghost"
               className="h-11 w-full justify-start gap-3 rounded-xl px-3 text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-300 dark:hover:bg-red-500/10 dark:hover:text-red-300 cursor-pointer"
-              onClick={onLogout}
-            >
-              <LogOut className="size-5" />
-              Logout
-            </Button>
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-2.5">
-            <ThemeToggle />
-            <NavLink
-              to={admin ? '/admin' : '/profile'}
-              onClick={onNavigate}
-              className="group relative"
-              title={`${user?.full_name || user?.email?.split('@')[0] || 'Candidate'} (Profile)`}
-            >
-              <Avatar className="size-9 rounded-xl ring-2 ring-blue-500/20 dark:ring-blue-500/30">
-                <AvatarFallback className="rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-[11px] font-bold text-white">
-                  {initialsFor(user?.full_name, user?.email)}
-                </AvatarFallback>
-              </Avatar>
-            </NavLink>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="grid size-9 place-items-center rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-300 cursor-pointer transition"
-              title="Logout"
+              onClick={handleLogout}
             >
               <LogOut className="size-4.5" />
-            </button>
+              <span>Sign Out</span>
+            </Button>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default function AppLayout({ admin = false }) {
-  const [open, setOpen] = useState(false);
-  const [isPinned, setIsPinned] = useState(() => {
-    try {
-      const stored = localStorage.getItem('matchpoint_sidebar_pinned');
-      return stored === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  const [isHovered, setIsHovered] = useState(false);
-
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const links = admin ? adminLinks : candidateLinks;
-
-  // The sidebar is expanded if it is pinned or when user hovers over it
-  const isExpanded = isPinned || isHovered;
-  const isCollapsed = !isExpanded;
-
-  const handleTogglePin = () => {
-    setIsPinned((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('matchpoint_sidebar_pinned', String(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
-
-  return (
-    <div
-      className={cn(
-        'min-h-screen bg-slate-50 text-slate-950 transition-colors duration-200 dark:bg-[#070d1e] dark:text-slate-100 lg:grid',
-        isPinned ? 'lg:grid-cols-[270px_minmax(0,1fr)]' : 'lg:grid-cols-[76px_minmax(0,1fr)]'
-      )}
-    >
-      {/* Desktop Sidebar: Slim 76px rail with hover auto-expand overlay */}
-      <aside
-        className={cn(
-          'sticky top-0 hidden h-screen lg:block z-40 transition-all duration-250',
-          !isPinned && isHovered && 'shadow-2xl'
-        )}
-        onMouseEnter={() => !isPinned && setIsHovered(true)}
-        onMouseLeave={() => !isPinned && setIsHovered(false)}
-      >
-        <SidebarContent
-          admin={admin}
-          links={links}
-          user={user}
-          isCollapsed={isCollapsed}
-          isPinned={isPinned}
-          onTogglePin={handleTogglePin}
-          onLogout={handleLogout}
-        />
-      </aside>
-
-      <Sheet open={open} onOpenChange={setOpen}>
-        <div className="fixed right-4 top-4 z-40 flex items-center gap-2 lg:hidden">
-          <ThemeToggle />
-          <SheetTrigger
-            type="button"
-            className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-900 shadow-md dark:border-slate-800 dark:bg-[#030a20] dark:text-white"
-          >
-            <Menu className="size-5" />
-            <span className="sr-only">Open navigation</span>
-          </SheetTrigger>
-        </div>
-        <SheetContent side="left" showCloseButton className="w-[285px] border-r border-slate-200 bg-white p-0 dark:border-slate-800 dark:bg-[#030a20]">
-          <SheetHeader className="sr-only">
-            <SheetTitle>MatchPoint AI navigation</SheetTitle>
-            <SheetDescription>Navigate through your MatchPoint AI workspace.</SheetDescription>
-          </SheetHeader>
-          <SidebarContent
-            admin={admin}
-            links={links}
-            user={user}
-            isCollapsed={false}
-            isPinned={true}
-            onNavigate={() => setOpen(false)}
-            onLogout={handleLogout}
-          />
         </SheetContent>
       </Sheet>
 
-      <main className="min-w-0 transition-all duration-250">
+      {/* Main Page Workspace (Maximum width utilization) */}
+      <main className="min-w-0">
         <Outlet />
       </main>
     </div>
   );
 }
+
