@@ -22,11 +22,15 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Temporary upload files
+# Temporary upload files and test resumes
 uploads/
 tmp/
+sample_resumes/
+resumes/
+*.resume.*
 
 # AI Agent Tooling & Local Skills Cache
 .agents/
 skills-lock.json
 *.local
+

@@ -115,9 +115,9 @@ Matchpoint AI/
 │   │   └── main.jsx
 │   ├── .env.example
 │   └── package.json
-├── sample_resumes/          # Sample PDF/DOCX resumes for testing
 ├── database/
 │   └── schema.sql           # PostgreSQL schema with tables & indexes
+├── screenshots/             # Application UI screenshots and preview captures
 ├── .gitignore
 └── README.md
 ```
