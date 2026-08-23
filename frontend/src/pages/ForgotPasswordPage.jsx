@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowLeft, CheckCircle2, Mail, Send } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +9,18 @@ import AuthLayout from '../components/AuthLayout';
 import { authApi } from '../services/api';
 
 export default function ForgotPasswordPage() {
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired') === 'true') {
+      setError('Your password reset link has expired or has already been used. Please enter your email below to receive a new one.');
+    }
+  }, [location.search]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

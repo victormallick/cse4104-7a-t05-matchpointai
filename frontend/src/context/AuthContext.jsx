@@ -22,11 +22,30 @@ const parseJwt = (token) => {
 const handleOAuthRedirect = () => {
   if (typeof window === 'undefined') return null;
   const hash = window.location.hash;
-  if (hash && hash.includes('access_token=')) {
+  if (hash) {
     const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const error = params.get('error') || params.get('error_code');
+    const type = params.get('type');
     const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    if (accessToken) {
+
+    // If link is expired or invalid, forward cleanly to forgot-password with friendly message
+    if (error) {
+      if (!window.location.pathname.includes('/forgot-password')) {
+        window.location.href = '/forgot-password?expired=true';
+      }
+      return null;
+    }
+
+    // If this is a password recovery link, route directly to /reset-password
+    if (type === 'recovery' && accessToken) {
+      if (!window.location.pathname.includes('/reset-password')) {
+        window.location.href = `/reset-password${hash}`;
+      }
+      return null;
+    }
+
+    if (accessToken && type !== 'recovery') {
+      const refreshToken = params.get('refresh_token');
       const payload = parseJwt(accessToken);
       if (payload) {
         const userMeta = payload.user_metadata || {};
