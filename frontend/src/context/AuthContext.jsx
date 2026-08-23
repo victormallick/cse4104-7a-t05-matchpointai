@@ -49,13 +49,21 @@ const handleOAuthRedirect = () => {
       const payload = parseJwt(accessToken);
       if (payload) {
         const userMeta = payload.user_metadata || {};
+        let initialFullName = userMeta.full_name || userMeta.name || payload.email?.split('@')[0] || 'Candidate';
+        try {
+          const cachedSession = JSON.parse(localStorage.getItem('matchpoint_session') || 'null');
+          if (cachedSession?.user?.email === payload.email && cachedSession?.user?.full_name) {
+            initialFullName = cachedSession.user.full_name;
+          }
+        } catch {}
+
         const session = {
           token: accessToken,
           refresh_token: refreshToken,
           user: {
             id: payload.sub || payload.id,
             email: payload.email || userMeta.email || '',
-            full_name: userMeta.full_name || userMeta.name || payload.email?.split('@')[0] || 'Candidate',
+            full_name: initialFullName,
             role: userMeta.role || 'candidate',
             avatar_url: userMeta.avatar_url || userMeta.picture || ''
           }

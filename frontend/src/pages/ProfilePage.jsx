@@ -87,11 +87,11 @@ export default function ProfilePage() {
     email: user?.email || '',
     location: '',
     bio: '',
-    target_job_role: latestResult?.job_title || '',
+    target_job_role: '',
     portfolio_url: '',
     linkedin_url: '',
     github_url: '',
-    skills: latestResult?.matched_keywords || []
+    skills: []
   });
 
   const [newSkillInput, setNewSkillInput] = useState('');
@@ -107,16 +107,19 @@ export default function ProfilePage() {
       .then((response) => {
         if (response?.data) {
           const dbName = response.data.full_name;
-          const effectiveName = dbName || user?.full_name || '';
+          const effectiveName = dbName !== undefined && dbName !== null ? dbName : (user?.full_name || '');
           setProfile((prev) => ({
             ...prev,
             ...response.data,
             full_name: effectiveName,
-            email: response.data.email || user?.email || prev.email,
-            location: response.data.location || prev.location || '',
-            target_job_role: response.data.target_job_role || prev.target_job_role || '',
-            bio: response.data.bio || prev.bio || '',
-            skills: Array.isArray(response.data.skills) ? response.data.skills : (prev.skills || [])
+            email: response.data.email ?? user?.email ?? prev.email,
+            location: response.data.location ?? '',
+            target_job_role: response.data.target_job_role ?? '',
+            bio: response.data.bio ?? '',
+            portfolio_url: response.data.portfolio_url ?? '',
+            linkedin_url: response.data.linkedin_url ?? '',
+            github_url: response.data.github_url ?? '',
+            skills: Array.isArray(response.data.skills) ? response.data.skills : []
           }));
           if (dbName && dbName !== user?.full_name) {
             updateUser({ full_name: dbName });

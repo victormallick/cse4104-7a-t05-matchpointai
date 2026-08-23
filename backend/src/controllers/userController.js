@@ -242,13 +242,39 @@ const updateUserProfile = async (req, res) => {
       });
     }
 
+    const userEmail = req.user?.email || req.user?.user_metadata?.email || '';
+    const userPayload = {
+      id: userId,
+      ...(userEmail ? { email: userEmail } : {}),
+      ...updates,
+      updated_at: now()
+    };
+
+    // Also update Supabase Auth user_metadata so future OAuth tokens reflect the updated name
+    if (updates.full_name) {
+      try {
+        if (supabase.auth?.admin?.updateUserById) {
+          await supabase.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              ...(req.user?.user_metadata || {}),
+              full_name: updates.full_name,
+              name: updates.full_name
+            }
+          });
+        }
+      } catch (authMetaErr) {
+        console.warn('Could not sync user_metadata in Supabase Auth:', authMetaErr?.message || authMetaErr);
+      }
+    }
+
     const { data, error } = await supabase
       .from('users')
-      .upsert({ id: userId, ...updates, updated_at: now() }, { onConflict: 'id' })
+      .upsert(userPayload, { onConflict: 'id' })
       .select()
       .single();
 
     if (error || !data) {
+      console.warn('Supabase profile upsert note:', error?.message);
       const current = store.profiles.get(userId) || store.profiles.get(DEMO_USER_ID) || demoUser;
       const updated = { ...current, ...updates, updated_at: now() };
       store.profiles.set(current.id, updated);
