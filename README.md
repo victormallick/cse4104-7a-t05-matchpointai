@@ -66,6 +66,7 @@
 
 ### 7. 🛡️ Enterprise Security & Hardening
 * **JWT Cryptographic Verification**: Supabase Auth verification with RBAC protection.
+* **Self-Service Password Recovery**: Secure email magic reset link workflow powered by Supabase Auth (`/forgot-password` and `/reset-password`).
 * **Prompt Injection Defenses**: XML tag demarcation (`<security_directive>`) treats all candidate inputs strictly as untrusted raw document data.
 * **Multi-Tier Rate Limiting**: Layered `express-rate-limit` guards against DDoS and credential scraping.
 * **Dependency Auditing**: Patched against known vulnerabilities with `npm audit`.
