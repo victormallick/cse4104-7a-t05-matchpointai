@@ -6,8 +6,8 @@ import ThemeToggle from './ThemeToggle';
 
 export default function AuthLayout({ children }) {
   return (
-    <div className="grid min-h-screen bg-slate-50 transition-colors duration-200 dark:bg-[#070d1e] lg:grid-cols-[minmax(360px,0.85fr)_minmax(520px,1.15fr)]">
-      <section className="relative flex min-h-[420px] flex-col justify-between overflow-hidden bg-[#030a20] p-7 text-white sm:p-10 lg:min-h-screen lg:p-14">
+    <div className="grid min-h-screen bg-slate-100/70 transition-colors duration-200 dark:bg-[#070d1e] lg:grid-cols-[minmax(360px,0.85fr)_minmax(520px,1.15fr)]">
+      <section className="relative flex min-h-[420px] flex-col justify-between overflow-hidden bg-gradient-to-br from-[#060c22] via-[#09153a] to-[#04091a] p-7 text-white shadow-2xl lg:min-h-screen lg:p-14 lg:border-r lg:border-slate-800/60">
         <div className="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-blue-600/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-24 size-80 rounded-full bg-violet-600/20 blur-3xl" />
         <Brand light className="relative z-10" />
@@ -15,7 +15,7 @@ export default function AuthLayout({ children }) {
           <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">
             Career preparation, made focused
           </span>
-          <h1 className="mt-4 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl xl:text-6xl">
+          <h1 className="mt-4 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl xl:text-6xl text-white">
             AI-guided applications without guesswork.
           </h1>
           <p className="mt-5 max-w-lg leading-7 text-slate-300">
@@ -48,7 +48,7 @@ export default function AuthLayout({ children }) {
       </section>
 
       <section className="grid place-items-center p-4 sm:p-8">
-        <Card className="w-full max-w-xl border-0 bg-white shadow-xl shadow-slate-900/5 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+        <Card className="w-full max-w-xl rounded-3xl border border-slate-200/90 bg-white shadow-xl shadow-slate-300/40 dark:border-slate-800 dark:bg-[#0f172a] dark:shadow-none transition-all">
           <CardContent className="p-6 sm:p-9">
             <div className="mb-8 flex items-center justify-between">
               <Link

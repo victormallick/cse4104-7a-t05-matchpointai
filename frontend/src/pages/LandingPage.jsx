@@ -156,13 +156,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="workflow" className="bg-[#030a20] text-white">
+        <section id="workflow" className="border-y border-slate-200/80 bg-gradient-to-b from-slate-100/80 via-slate-50 to-slate-100/80 text-slate-900 transition-colors duration-200 dark:border-slate-800/80 dark:bg-[#030a20] dark:text-white">
           <div className="mx-auto grid w-[min(1180px,calc(100%-2rem))] gap-12 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-24">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
                 A clean three-step flow
               </span>
-              <h2 className="mt-3 max-w-md text-4xl font-bold tracking-tight sm:text-5xl">
+              <h2 className="mt-3 max-w-md text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl dark:text-white">
                 From document to interview room.
               </h2>
             </div>
@@ -172,13 +172,13 @@ export default function LandingPage() {
                 ['02', 'Analyze', 'Review your score, missing skills, keywords, and improvements.'],
                 ['03', 'Practice', 'Prepare with focused questions and explore matched roles.']
               ].map(([number, title, text]) => (
-                <li className="grid grid-cols-[48px_1fr] gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5" key={number}>
-                  <span className="grid size-12 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-sm font-bold">
+                <li className="grid grid-cols-[48px_1fr] gap-4 rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-xs transition-colors duration-200 dark:border-white/10 dark:bg-white/[0.04]" key={number}>
+                  <span className="grid size-12 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-sm font-bold text-white shadow-xs">
                     {number}
                   </span>
                   <div>
-                    <strong>{title}</strong>
-                    <p className="mt-1 text-sm leading-6 text-slate-400">{text}</p>
+                    <strong className="text-slate-950 dark:text-white">{title}</strong>
+                    <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{text}</p>
                   </div>
                 </li>
               ))}
