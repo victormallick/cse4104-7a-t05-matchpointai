@@ -140,9 +140,32 @@ app.use((err, req, res, next) => {
 });
 
 if (require.main === module) {
+  // Auto Keep-Alive Heartbeat for Free-Tier Cloud Hosting (Render / Railway)
+  const keepAliveUrl = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || (process.env.NODE_ENV === 'production' ? 'https://matchpointsai.onrender.com' : null);
+  if (keepAliveUrl) {
+    const https = require('https');
+    const http = require('http');
+    const client = keepAliveUrl.startsWith('https') ? https : http;
+    const pingInterval = 12 * 60 * 1000; // Ping every 12 minutes (Render sleeps after 15m)
+
+    setInterval(() => {
+      try {
+        const pingEndpoint = `${keepAliveUrl.replace(/\/$/, '')}/api/health`;
+        client.get(pingEndpoint, (res) => {
+          console.log(`[Keep-Alive] Heartbeat ping sent to ${pingEndpoint} (HTTP ${res.statusCode})`);
+        }).on('error', (err) => {
+          console.warn('[Keep-Alive] Heartbeat notice:', err.message);
+        });
+      } catch (err) {
+        console.warn('[Keep-Alive] Heartbeat error:', err.message);
+      }
+    }, pingInterval);
+    console.log(`[Keep-Alive] Self-ping heartbeat worker active for ${keepAliveUrl}`);
+  }
+
   const server = app.listen(PORT, () => {
     console.log('=================================================');
-    console.log(`MatchPoint AI Backend running on http://localhost:${PORT}`);
+    console.log(`MatchPoint AI Backend running on port ${PORT}`);
     console.log(`Data mode: ${isSupabaseConfigured ? 'Supabase' : 'Demo / in-memory'}`);
     console.log('=================================================');
   });

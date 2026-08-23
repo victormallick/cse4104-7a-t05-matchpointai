@@ -37,6 +37,17 @@ const dataOrFallback = async (request, fallback) => {
   }
 };
 
+export const warmUpBackend = () => {
+  try {
+    api.get('/api/health').catch(() => {});
+  } catch {}
+};
+
+// Immediately pre-warm server in background on app load
+if (typeof window !== 'undefined') {
+  warmUpBackend();
+}
+
 export const authApi = {
   login: (payload) => api.post('/api/auth/login', payload).then((response) => response.data),
   register: (payload) => api.post('/api/auth/register', payload).then((response) => response.data),
@@ -44,19 +55,27 @@ export const authApi = {
 };
 
 export const userApi = {
-  profile: () => dataOrFallback(
-    () => api.get('/api/user/profile'),
-    {
-      id: '11111111-1111-4111-8111-111111111111',
-      full_name: 'Amina Rahman',
-      email: 'amina.rahman@example.com',
-      role: 'candidate',
-      target_job_role: 'Frontend Software Engineer',
-      portfolio_url: 'https://portfolio.example.com'
-    }
-  ),
+  profile: () => api.get('/api/user/profile').then((r) => r.data).catch(() => {
+    const session = JSON.parse(localStorage.getItem('matchpoint_session') || 'null');
+    return {
+      success: true,
+      data: {
+        id: session?.user?.id || 'demo-user',
+        full_name: session?.user?.full_name || '',
+        email: session?.user?.email || '',
+        role: session?.user?.role || 'candidate',
+        target_job_role: '',
+        location: '',
+        bio: '',
+        portfolio_url: '',
+        linkedin_url: '',
+        github_url: '',
+        skills: []
+      }
+    };
+  }),
   updateProfile: (payload) => api.put('/api/user/profile', payload).then((response) => response.data),
-  history: () => dataOrFallback(() => api.get('/api/user/history'), demoHistory)
+  history: () => dataOrFallback(() => api.get('/api/user/history'), [])
 };
 
 export const analysisApi = {
