@@ -25,3 +25,8 @@ Thumbs.db
 # Temporary upload files
 uploads/
 tmp/
+
+# AI Agent Tooling & Local Skills Cache
+.agents/
+skills-lock.json
+*.local
