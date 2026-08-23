@@ -51,7 +51,7 @@ export default function JobsPage() {
   const navigate = useNavigate();
   const latestResult = location.state?.result || readLatestResult();
 
-  const initialJobTitle = latestResult?.job_title || 'Software Engineer';
+  const initialJobTitle = latestResult?.job_title || '';
   const [activeJobTitle, setActiveJobTitle] = useState(initialJobTitle);
   const [roleSearchInput, setRoleSearchInput] = useState(initialJobTitle);
 
@@ -175,9 +175,9 @@ export default function JobsPage() {
         <PageHeader
           eyebrow="AI Career Engine"
           title={region === 'abroad' ? "Searching Jobs Abroad" : "Searching Jobs in Bangladesh"}
-          description={`Scanning LinkedIn for ${activeJobTitle} opportunities matching your profile…`}
+          description={activeJobTitle ? `Scanning LinkedIn for ${activeJobTitle} opportunities matching your profile…` : `Scanning top opportunities matching your profile…`}
         />
-        <LoadingState message={`Finding 5-10 tailored opportunities for "${activeJobTitle}" on LinkedIn…`} />
+        <LoadingState message={activeJobTitle ? `Finding tailored opportunities for "${activeJobTitle}" on LinkedIn…` : `Finding tailored career opportunities on LinkedIn…`} />
       </div>
     );
   }
@@ -204,8 +204,14 @@ export default function JobsPage() {
                 <Sparkles className="size-3.5" /> AI Job Search Engine
               </div>
               <h3 className="mt-1 text-xl font-bold text-slate-950 dark:text-slate-100">
-                {region === 'abroad' ? '🌍 International Opportunities for: ' : '🇧🇩 Bangladesh Tech Opportunities for: '}
-                <span className="text-blue-700 dark:text-blue-400">{activeJobTitle}</span>
+                {activeJobTitle ? (
+                  <>
+                    {region === 'abroad' ? '🌍 International Opportunities for: ' : '🇧🇩 Bangladesh Tech Opportunities for: '}
+                    <span className="text-blue-700 dark:text-blue-400">{activeJobTitle}</span>
+                  </>
+                ) : (
+                  <span>{region === 'abroad' ? '🌍 Explore Global Career Opportunities' : '🇧🇩 Explore Bangladesh Tech & Industry Opportunities'}</span>
+                )}
               </h3>
             </div>
 
@@ -247,7 +253,7 @@ export default function JobsPage() {
                 type="text"
                 value={roleSearchInput}
                 onChange={(e) => setRoleSearchInput(e.target.value)}
-                placeholder="Search jobs for any title (e.g. Digital Marketing Manager, AI Engineer, Financial Analyst)..."
+                placeholder="Search jobs for any title (e.g. Frontend Developer, Product Manager, Data Analyst)..."
                 className="w-full pl-10 pr-4 py-2.5 text-sm rounded-2xl border border-blue-200/80 dark:border-blue-900/60 bg-white dark:bg-[#070d1a] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 shadow-xs font-medium"
               />
             </div>
@@ -276,7 +282,7 @@ export default function JobsPage() {
       <PageHeader
         eyebrow="Targeted opportunities"
         title="Job Recommendations"
-        description={`AI recommendations matching "${activeJobTitle}" in ${region === 'abroad' ? 'the international / remote market' : 'Bangladesh'} with direct LinkedIn searches.`}
+        description={activeJobTitle ? `AI recommendations matching "${activeJobTitle}" in ${region === 'abroad' ? 'the international / remote market' : 'Bangladesh'} with direct LinkedIn searches.` : `Explore top opportunities in ${region === 'abroad' ? 'international / global markets' : 'Bangladesh'} or search above for any custom job title.`}
         action={(
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="gap-1.5 bg-violet-100 dark:bg-violet-950/80 dark:text-violet-300 px-3 py-2 text-violet-700 font-semibold text-xs">
