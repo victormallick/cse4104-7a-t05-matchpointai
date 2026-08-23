@@ -20,6 +20,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const customMessage =
+      error.response?.data?.message ||
+      (error.response?.status === 401 ? 'Invalid email or password. Please check your credentials.' : null) ||
+      error.message ||
+      'An unexpected error occurred.';
+    return Promise.reject(new Error(customMessage));
+  }
+);
+
 const dataOrFallback = async (request, fallback) => {
   try {
     const response = await request();

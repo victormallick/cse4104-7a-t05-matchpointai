@@ -88,6 +88,7 @@ const globalLimiter = rateLimit({
   max: isProd ? 300 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many requests from this IP. Please try again later.' }
 });
 
@@ -96,6 +97,7 @@ const authLimiter = rateLimit({
   max: isProd ? 60 : 200,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many authentication attempts. Please wait 15 minutes.' }
 });
 
@@ -104,6 +106,7 @@ const aiAnalysisLimiter = rateLimit({
   max: isProd ? 60 : 300,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'AI evaluation quota limit reached. Please wait a few minutes before scanning again.' }
 });
 
