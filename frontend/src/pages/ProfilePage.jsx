@@ -197,7 +197,13 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = profile.full_name?.split(' ').map((part) => part[0]).join('').slice(0, 2) || (user?.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'MP');
+  const initials = (profile.full_name || user?.full_name || user?.email?.split('@')[0] || 'User')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => (part[0] ? part[0].toUpperCase() : ''))
+    .join('') || 'U';
   const completeness = calculateCompleteness();
   const bestScore = latestResult?.ats_score ?? latestResult?.match_score ?? null;
 

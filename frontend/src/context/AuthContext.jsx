@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { authApi } from '../services/api';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { authApi, userApi } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -82,12 +82,44 @@ const readSession = () => {
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(readSession);
 
+  const updateUser = useCallback((nextUserData) => {
+    setSession((prev) => {
+      if (!prev) return prev;
+      const updated = {
+        ...prev,
+        user: {
+          ...prev.user,
+          ...nextUserData
+        }
+      };
+      try {
+        localStorage.setItem('matchpoint_session', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('Failed to save updated session', err);
+      }
+      return updated;
+    });
+  }, []);
+
   useEffect(() => {
     const oauthSession = handleOAuthRedirect();
     if (oauthSession) {
       setSession(oauthSession);
     }
   }, []);
+
+  // Synchronize latest custom saved full_name from database if user edited it previously
+  useEffect(() => {
+    if (session?.token) {
+      userApi.profile()
+        .then((res) => {
+          if (res?.data?.full_name && res.data.full_name !== session.user?.full_name) {
+            updateUser({ full_name: res.data.full_name });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [session?.token, updateUser]);
 
   const saveResponse = (response) => {
     const nextSession = {
@@ -113,25 +145,6 @@ export function AuthProvider({ children }) {
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
-  const updateUser = (nextUserData) => {
-    setSession((prev) => {
-      if (!prev) return prev;
-      const updated = {
-        ...prev,
-        user: {
-          ...prev.user,
-          ...nextUserData
-        }
-      };
-      try {
-        localStorage.setItem('matchpoint_session', JSON.stringify(updated));
-      } catch (err) {
-        console.warn('Failed to save updated session', err);
-      }
-      return updated;
-    });
-  };
-
   const logout = async () => {
     try {
       await authApi.logout();
@@ -149,7 +162,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     updateUser,
     logout
-  }), [session]);
+  }), [session, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

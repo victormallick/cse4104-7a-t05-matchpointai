@@ -169,6 +169,26 @@ const login = async (req, res) => {
       });
     }
 
+    let finalFullName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || '';
+    let finalRole = data.user.user_metadata?.role || 'candidate';
+
+    try {
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('full_name, role')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (dbUser?.full_name) {
+        finalFullName = dbUser.full_name;
+      }
+      if (dbUser?.role) {
+        finalRole = dbUser.role;
+      }
+    } catch (dbErr) {
+      console.warn('Could not query users table during login:', dbErr.message);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Login successful.',
@@ -176,8 +196,8 @@ const login = async (req, res) => {
         {
           id: data.user.id,
           email: data.user.email,
-          full_name: data.user.user_metadata?.full_name || '',
-          role: data.user.user_metadata?.role || 'candidate'
+          full_name: finalFullName,
+          role: finalRole
         },
         data.session
       )
