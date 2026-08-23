@@ -3,7 +3,19 @@
 > **AI-Powered ATS Resume Analyzer, Tailored Interview Preparation & Career Matching Platform**  
 > Official Project: **CSE4104-7A-T05**
 
-MatchPoint AI helps candidates optimize their PDF/DOCX resumes against target job descriptions, discover high-value keyword gaps, explore AI-powered bullet rewrites, prepare with tailored mock interview questions, and discover high-alignment job opportunities in **Bangladesh** and **Abroad**.
+[![Live App](https://img.shields.io/badge/Live%20App-Vercel-black?style=for-the-badge&logo=vercel)](https://matchpointai.vercel.app)
+[![API Server](https://img.shields.io/badge/API%20Server-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://matchpointsai.onrender.com)
+[![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
+[![AI Engine](https://img.shields.io/badge/AI-LLM%20API%20Engine-6366F1?style=for-the-badge)](https://matchpointai.vercel.app)
+
+---
+
+## 🌐 Live Deployments
+
+* 🚀 **Web Application**: [https://matchpointai.vercel.app](https://matchpointai.vercel.app)
+* ⚡ **Production Backend**: [https://matchpointsai.onrender.com](https://matchpointsai.onrender.com)
+* 🩺 **API Health Check**: [https://matchpointsai.onrender.com/api/health](https://matchpointsai.onrender.com/api/health)
+* 🤖 **Service Availability**: Monitored 24/7 with zero cold-start delay via UptimeRobot
 
 ---
 
@@ -18,35 +30,47 @@ MatchPoint AI helps candidates optimize their PDF/DOCX resumes against target jo
 
 ---
 
-## ✨ Key Features & Upgrades
+## ✨ Key Features & Capabilities
 
-* 📄 **Multi-Format Resume Parser**: In-memory parsing for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero disk leakage.
-* 🎯 **Dynamic Radial "Target HUD" ATS Gauge**: Animated circular gauge providing multi-tier score classification (*e.g. Top 5% Applicant, Strong Match*).
-* 🔍 **Comprehensive Keyword & Skill Gap Matrix**: Identifies matched competencies vs. high-impact missing industry terms.
-* ✍️ **Interactive "Before vs. After" Bullet Point Optimizer**: Side-by-side comparison of unquantified drafts vs. STAR-backed achievement bullets with 1-click clipboard copy.
-* 🎙️ **Custom Mock Interview Question Bank**:
+* 📄 **Multi-Format Resume Parser**: In-memory parsing for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero disk storage leaks.
+* 🎯 **Dynamic Radial ATS Target Gauge**: Real-time circular HUD score classification (*Top 5% Applicant, Strong Match, Needs Review*).
+* 🔍 **Skill & Keyword Gap Matrix**: Live comparative breakdown between candidate competencies and target job requirements.
+* ✍️ **Interactive STAR Bullet Rewriter**: Side-by-side comparison of unquantified resume lines vs. high-impact STAR achievement rewrites with 1-click clipboard copying.
+* 🎙️ **Tailored AI Mock Interview Bank**:
   * Categorized into **Technical**, **Behavioral**, **HR & Culture**, and **Saved Questions**.
-  * Recruiter intent breakdowns, target keywords, and recommended STAR answering strategies.
+  * Recruiter intent breakdowns, target competencies, and sample STAR responses.
 * 💼 **AI Job Recommendation Engine**:
-  * Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** roles.
-  * Live search by target role with direct 1-click LinkedIn application links.
-* 🌓 **Modern UI with Light / Dark Mode**: Custom brand theme built with Tailwind CSS v4, Radix UI primitives, Lucide icons, and official neural knot branding.
-* 🛡️ **Multi-Key Gemini Failover Pool**: Automatic fallback rotation across `GEMINI_API_KEY_1..3` + deterministic local analyzer for 100% uptime.
-* 🔐 **Secure Authentication**: Clean Login & Registration with password visibility eye toggles and Supabase session management.
-* 📊 **Administrator Operations Panel**: User monitoring, system analytics, AI token tracking, service health, and audit logs.
+  * Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** opportunities.
+  * Direct 1-click application redirection to LinkedIn and company career pages.
+* 🔑 **1-Click Google OAuth & Email Authentication**:
+  * Frictionless onboarding with **"Continue with Google"** and secure Email/Password.
+  * Full password visibility toggles and customizable display names.
+* 🔒 **Self-Service Password Recovery**:
+  * Automated **Forgot Password (`/forgot-password`)** and **Reset Password (`/reset-password`)** flows via Supabase Auth email tokens.
+* 👤 **Persistent Candidate Profile**:
+  * Manage contact details, target job roles, social/portfolio links, bio, and custom skill banks.
+  * Profile changes synchronize automatically across all dashboard headers, greetings, and avatar initials.
+* 🌓 **Adaptive Light & Dark Mode**:
+  * Comprehensive responsive theming with custom slate gradients, Tailwind CSS v4, Lucide icons, and Radix UI.
+* 🛡️ **High-Availability Multi-Key AI Failover Pool**:
+  * Resilient round-robin rotation across multiple API keys with automated fallback and local heuristic processing for 100% service uptime.
+* 📊 **Role-Based Admin Console**:
+  * Admin dashboard with system metrics, user tracking, AI token analytics, and audit logs.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | React 19 / 18, Vite 8.1, Tailwind CSS v4, Radix UI, Lucide React, Axios |
-| **Backend** | Node.js 18+, Express 4.19, Multer (Memory Storage) |
-| **Document Parsers** | `pdfjs-dist` (PDF extraction), `mammoth` (DOCX extraction) |
-| **Database & Auth** | Supabase Auth & PostgreSQL (with in-memory fallback engine) |
-| **AI Intelligence** | Google Gemini API (`gemini-3.6-flash`) with Multi-Key Pool & OpenAI support |
-| **Testing** | Node test runner, Postman API Collection, automated diagnostic suites |
+| Layer | Technology | Description |
+| :--- | :--- | :--- |
+| **Frontend** | React 19, Vite 8.1, Tailwind CSS v4 | Ultra-fast client SPA with modern glassmorphism styling |
+| **Icons & Primitives** | Lucide React, Radix UI | Accessible UI components and iconography |
+| **Backend** | Node.js 18+, Express 4.19, Multer | Modular REST API with in-memory upload buffers |
+| **Document Parsers** | `pdfjs-dist`, `mammoth` | High-fidelity text extraction from PDF and Word documents |
+| **Database & Auth** | Supabase Auth & PostgreSQL | Managed relational database with Row Level Security (RLS) |
+| **AI Intelligence** | Generative AI REST API | Multi-key failover pool + local heuristic engine |
+| **Hosting & CI/CD** | Vercel (Frontend), Render (Backend) | Continuous automated deployments from GitHub `main` |
+| **Monitoring** | UptimeRobot | 24/7 health check monitoring |
 
 ---
 
@@ -59,9 +83,9 @@ Matchpoint AI/
 │   │   ├── config/          # Supabase & Database configuration
 │   │   ├── controllers/     # Analysis, Interview, Jobs, Auth & User controllers
 │   │   ├── data/            # Demo fixtures and seed data
-│   │   ├── middleware/      # Auth, error handling & upload validation
+│   │   ├── middleware/      # Auth, rate limiting & upload validation
 │   │   ├── routes/          # REST API route handlers
-│   │   ├── services/        # AI service (Gemini multi-key pool) & Parser service
+│   │   ├── services/        # AI service (Multi-key failover pool) & Parser service
 │   │   └── server.js        # Express application entrypoint
 │   ├── test/                # API integration test suite
 │   ├── .env.example
@@ -69,62 +93,72 @@ Matchpoint AI/
 ├── frontend/
 │   ├── public/              # Favicon, SVG logos & static web assets
 │   ├── src/
-│   │   ├── components/      # UI components (PageHeader, LoadingState, Brand, etc.)
+│   │   ├── components/      # UI components (AppLayout, AuthLayout, PageHeader, etc.)
 │   │   ├── context/         # AuthContext & ThemeContext
-│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Dashboard, etc.
-│   │   ├── services/        # Axios API client
-│   │   ├── App.jsx
+│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Profile, Forgot/Reset, etc.
+│   │   ├── services/        # Axios API client & error interceptors
+│   │   ├── App.jsx          # Route declarations
 │   │   └── main.jsx
 │   ├── .env.example
 │   └── package.json
-├── sample_resumes/          # PDF test resumes for quick evaluation
+├── sample_resumes/          # Sample PDF/DOCX resumes for testing
 ├── database/
-│   └── schema.sql           # Supabase PostgreSQL schema with RLS policies
-├── postman/
-│   └── MatchPoint_AI_APIs.postman_collection.json
+│   └── schema.sql           # PostgreSQL schema with tables & indexes
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## 🚀 Local Development Setup
 
 ### Prerequisites
 * **Node.js 18+** and **npm** installed.
 
-### 1. Start the Backend API
-```powershell
+### 1. Clone the Repository
+```bash
+git clone https://github.com/victormallick/cse4104-7a-t05-matchpointai.git
+cd cse4104-7a-t05-matchpointai
+```
+
+### 2. Backend Setup
+```bash
 cd backend
-npm.cmd install
-npm.cmd run dev
+npm install
+# Copy and configure environment variables
+cp .env.example .env
+npm run dev
 ```
 *Backend runs on `http://localhost:5000`.*
 
-### 2. Start the Frontend App
-Open a second terminal window:
-```powershell
+### 3. Frontend Setup
+Open a new terminal:
+```bash
 cd frontend
-npm.cmd install
-npm.cmd run dev
+npm install
+npm run dev
 ```
 *Frontend runs on `http://localhost:5173`.*
 
 ---
 
-## ⚙️ Environment Configuration
+## ⚙️ Environment Variables
 
 ### `backend/.env`
 ```dotenv
 PORT=5000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+
+# Supabase PostgreSQL & Auth
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Google Gemini Multi-Key Failover Pool
-GEMINI_API_KEY_1=your-gemini-key-1
-GEMINI_API_KEY_2=your-gemini-key-2
-GEMINI_API_KEY_3=your-gemini-key-3
+# Multi-Key AI API Failover Pool
+GEMINI_API_KEY_1=your-ai-api-key-1
+GEMINI_API_KEY_2=your-ai-api-key-2
+GEMINI_API_KEY_3=your-ai-api-key-3
 
 DEMO_MODE=false
 ```
@@ -132,21 +166,22 @@ DEMO_MODE=false
 ### `frontend/.env`
 ```dotenv
 VITE_API_BASE_URL=http://localhost:5000
+VITE_SUPABASE_URL=https://your-project.supabase.co
 ```
 
 ---
 
 ## 🧪 Verification & Health Checks
 
-Run the automated test suites:
-```powershell
+Run backend tests and verify production builds:
+```bash
 # Test Backend APIs
 cd backend
-npm.cmd test
+npm test
 
 # Verify Frontend Production Build
-cd ..\frontend
-npm.cmd run build
+cd ../frontend
+npm run build
 ```
 
 ---
