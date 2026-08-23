@@ -51,8 +51,8 @@ export default function RegisterPage() {
   return (
     <AuthLayout>
       <div>
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600">Start preparing</span>
-        <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-slate-100">Create account</h2>
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">Start preparing</span>
+        <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white">Create account</h2>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Build a focused career preparation workspace.</p>
       </div>
 
@@ -65,12 +65,12 @@ export default function RegisterPage() {
 
       <form className="mt-7 grid gap-4" onSubmit={handleSubmit}>
         <div className="grid gap-2">
-          <Label htmlFor="register-full_name">Full name</Label>
+          <Label htmlFor="register-full_name" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Full name</Label>
           <Input
             id="register-full_name"
             type="text"
             placeholder="John Doe"
-            className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+            className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
             value={form.full_name}
             onChange={updateField('full_name')}
             required
@@ -78,12 +78,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="register-email">Email</Label>
+          <Label htmlFor="register-email" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Email</Label>
           <Input
             id="register-email"
             type="email"
             placeholder="name@example.com"
-            className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+            className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
             value={form.email}
             onChange={updateField('email')}
             required
@@ -91,14 +91,14 @@ export default function RegisterPage() {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="register-password">Password</Label>
+          <Label htmlFor="register-password" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Password</Label>
           <div className="relative">
             <Input
               id="register-password"
               type={showPassword ? 'text' : 'password'}
               placeholder="At least 6 characters"
               minLength={6}
-              className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10"
+              className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 pr-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
               value={form.password}
               onChange={updateField('password')}
               required
@@ -115,14 +115,14 @@ export default function RegisterPage() {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="register-confirmPassword">Confirm password</Label>
+          <Label htmlFor="register-confirmPassword" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Confirm password</Label>
           <div className="relative">
             <Input
               id="register-confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
               placeholder="Re-enter password"
               minLength={6}
-              className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10"
+              className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 pr-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
               value={form.confirmPassword}
               onChange={updateField('confirmPassword')}
               required
@@ -139,7 +139,7 @@ export default function RegisterPage() {
         </div>
 
         <Button type="submit" className="mt-2 h-11 w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer hover:opacity-95" disabled={loading}>
-          {loading ? 'Creating account…' : <>Register <ArrowRight /></>}
+          {loading ? 'Creating account…' : <>Register <ArrowRight className="size-4 ml-1" /></>}
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">

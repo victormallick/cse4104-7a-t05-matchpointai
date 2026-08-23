@@ -62,10 +62,10 @@ export default function LandingPage() {
               <Sparkles className="size-3.5" />
               AI resume analyzer & interview preparation
             </Badge>
-            <h1 className="max-w-3xl text-5xl font-bold leading-[0.98] tracking-[-0.05em] text-slate-950 sm:text-6xl xl:text-7xl">
+            <h1 className="max-w-3xl text-5xl font-bold leading-[0.98] tracking-[-0.05em] text-slate-950 dark:text-white sm:text-6xl xl:text-7xl">
               Turn every application into a stronger match.
             </h1>
-            <p className="mt-7 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+            <p className="mt-7 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
               Upload your resume, paste a job description, receive an ATS score,
               uncover missing skills, improve weak bullets, and practice the
               questions that matter.
@@ -81,88 +81,88 @@ export default function LandingPage() {
               <Link to="/login">
                 <Button
                   variant="outline"
-                  className="h-12 rounded-xl border-blue-200 bg-white px-6 text-blue-700 cursor-pointer hover:bg-blue-50"
+                  className="h-12 rounded-xl border-blue-200 bg-white text-blue-700 cursor-pointer hover:bg-blue-50 dark:border-slate-700 dark:bg-[#0f172a] dark:text-blue-400 dark:hover:bg-slate-800"
                 >
                   Analyze resume
                 </Button>
               </Link>
             </div>
-            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500">
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
               {proofItems.map((item) => (
                 <span className="inline-flex items-center gap-1.5" key={item}>
-                  <Check className="size-4 text-emerald-600" /> {item}
+                  <Check className="size-4 text-emerald-600 dark:text-emerald-400" /> {item}
                 </span>
               ))}
             </div>
           </div>
 
           <div className="relative mx-auto w-full max-w-xl">
-            <Card className="border-0 bg-white py-0 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200/80">
+            <Card className="border-0 bg-white dark:bg-[#0f172a] py-0 shadow-2xl shadow-slate-900/10 dark:shadow-none ring-1 ring-slate-200/80 dark:ring-slate-800">
               <CardHeader className="flex-row items-center justify-between p-7 pb-0">
-                <Badge variant="secondary" className="bg-blue-50 text-blue-700">Live analysis preview</Badge>
-                <span className="grid size-11 place-items-center rounded-full border-4 border-emerald-500 text-emerald-600">
+                <Badge variant="secondary" className="bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300">Live analysis preview</Badge>
+                <span className="grid size-11 place-items-center rounded-full border-4 border-emerald-500 text-emerald-600 dark:text-emerald-400">
                   <Check className="size-5" />
                 </span>
               </CardHeader>
               <CardContent className="p-7 pt-5">
                 <div className="grid">
-                  <strong className="text-6xl font-bold tracking-tight text-slate-950">92%</strong>
-                  <span className="mt-1 font-semibold text-slate-700">ATS match score</span>
+                  <strong className="text-6xl font-bold tracking-tight text-slate-950 dark:text-white">92%</strong>
+                  <span className="mt-1 font-semibold text-slate-700 dark:text-slate-300">ATS match score</span>
                 </div>
-                <h3 className="mb-3 mt-7 font-semibold text-slate-950">Missing keywords</h3>
+                <h3 className="mb-3 mt-7 font-semibold text-slate-950 dark:text-white">Missing keywords</h3>
                 <div className="flex flex-wrap gap-2">
                   {['CI/CD', 'REST APIs', 'Unit Testing'].map((item) => (
-                    <Badge key={item} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">{item}</Badge>
+                    <Badge key={item} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/60 dark:text-blue-300">{item}</Badge>
                   ))}
                 </div>
-                <div className="mt-6 flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <Bot className="mt-0.5 size-5 shrink-0 text-violet-600" />
-                  <p className="text-sm leading-6 text-slate-600">
+                <div className="mt-6 flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60 p-4">
+                  <Bot className="mt-0.5 size-5 shrink-0 text-violet-600 dark:text-violet-400" />
+                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                     Quantify backend delivery impact and add deployment tooling aligned with the role.
                   </p>
                 </div>
               </CardContent>
             </Card>
-            <Badge className="absolute -right-4 -top-5 hidden gap-2 rounded-xl bg-white px-4 py-3 text-slate-700 shadow-xl ring-1 ring-slate-200 lg:flex">
-              <Target className="size-4 text-violet-600" /> Recruiter-style scoring
+            <Badge className="absolute -right-4 -top-5 hidden gap-2 rounded-xl bg-white dark:bg-[#0f172a] px-4 py-3 text-slate-700 dark:text-slate-200 shadow-xl ring-1 ring-slate-200 dark:ring-slate-800 lg:flex">
+              <Target className="size-4 text-violet-600 dark:text-violet-400" /> Recruiter-style scoring
             </Badge>
-            <Badge className="absolute -bottom-5 -left-4 hidden gap-2 rounded-xl bg-white px-4 py-3 text-slate-700 shadow-xl ring-1 ring-slate-200 lg:flex">
-              <Sparkles className="size-4 text-violet-600" /> Actionable rewrites
+            <Badge className="absolute -bottom-5 -left-4 hidden gap-2 rounded-xl bg-white dark:bg-[#0f172a] px-4 py-3 text-slate-700 dark:text-slate-200 shadow-xl ring-1 ring-slate-200 dark:ring-slate-800 lg:flex">
+              <Sparkles className="size-4 text-violet-600 dark:text-violet-400" /> Actionable rewrites
             </Badge>
           </div>
         </section>
 
         <section id="features" className="mx-auto w-[min(1180px,calc(100%-2rem))] py-20 sm:py-28">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600">
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">
               Everything in one preparation workspace
             </span>
-            <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+            <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
               Know the gap. Build the answer.
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
             {features.map(({ icon: Icon, title, text }) => (
-              <Card key={title} className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80">
+              <Card key={title} className="border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-800">
                 <CardHeader className="p-7 pb-2">
                   <span className="mb-4 grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-white">
                     <Icon className="size-5" />
                   </span>
-                  <CardTitle className="text-lg font-bold text-slate-950">{title}</CardTitle>
+                  <CardTitle className="text-lg font-bold text-slate-950 dark:text-white">{title}</CardTitle>
                 </CardHeader>
-                <CardContent className="px-7 pb-7 text-sm leading-6 text-slate-600">{text}</CardContent>
+                <CardContent className="px-7 pb-7 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        <section id="workflow" className="border-y border-slate-200/80 bg-gradient-to-b from-slate-100/80 via-slate-50 to-slate-100/80 text-slate-900 transition-colors duration-200 dark:border-slate-800/80 dark:bg-[#030a20] dark:text-white">
+        <section id="workflow" className="border-y border-slate-200/80 bg-slate-100/70 text-slate-900 transition-colors duration-200 dark:border-slate-800/80 dark:bg-[#030a20] dark:text-white">
           <div className="mx-auto grid w-[min(1180px,calc(100%-2rem))] gap-12 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-24">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
                 A clean three-step flow
               </span>
-              <h2 className="mt-3 max-w-md text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl dark:text-white">
+              <h2 className="mt-3 max-w-md text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
                 From document to interview room.
               </h2>
             </div>

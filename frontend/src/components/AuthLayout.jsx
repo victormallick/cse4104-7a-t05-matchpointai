@@ -6,7 +6,7 @@ import ThemeToggle from './ThemeToggle';
 
 export default function AuthLayout({ children }) {
   return (
-    <div className="grid min-h-screen bg-slate-100/70 transition-colors duration-200 dark:bg-[#070d1e] lg:grid-cols-[minmax(360px,0.85fr)_minmax(520px,1.15fr)]">
+    <div className="grid min-h-screen bg-slate-50 transition-colors duration-200 dark:bg-[#070d1e] lg:grid-cols-[minmax(360px,0.85fr)_minmax(520px,1.15fr)]">
       <section className="relative flex min-h-[420px] flex-col justify-between overflow-hidden bg-gradient-to-br from-[#060c22] via-[#09153a] to-[#04091a] p-7 text-white shadow-2xl lg:min-h-screen lg:p-14 lg:border-r lg:border-slate-800/60">
         <div className="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-blue-600/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-24 size-80 rounded-full bg-violet-600/20 blur-3xl" />
@@ -47,7 +47,7 @@ export default function AuthLayout({ children }) {
         </a>
       </section>
 
-      <section className="grid place-items-center p-4 sm:p-8">
+      <section className="grid place-items-center p-4 sm:p-8 bg-slate-50 dark:bg-[#070d1e]">
         <Card className="w-full max-w-xl rounded-3xl border border-slate-200/90 bg-white shadow-xl shadow-slate-300/40 dark:border-slate-800 dark:bg-[#0f172a] dark:shadow-none transition-all">
           <CardContent className="p-6 sm:p-9">
             <div className="mb-8 flex items-center justify-between">

@@ -40,8 +40,8 @@ export default function LoginPage() {
   return (
     <AuthLayout>
       <div>
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600">Welcome back</span>
-        <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-slate-100">Sign in</h2>
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">Welcome back</span>
+        <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white">Sign in</h2>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Continue to your MatchPoint AI workspace.</p>
       </div>
 
@@ -54,25 +54,25 @@ export default function LoginPage() {
 
       <form className="mt-7 grid gap-5" onSubmit={handleSubmit}>
         <div className="grid gap-2">
-          <Label htmlFor="login-email">Email</Label>
+          <Label htmlFor="login-email" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Email</Label>
           <Input
             id="login-email"
             type="email"
             placeholder="name@example.com"
-            className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+            className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
             value={form.email}
             onChange={(event) => setForm({ ...form, email: event.target.value })}
             required
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="login-password">Password</Label>
+          <Label htmlFor="login-password" className="text-xs font-semibold text-slate-700 dark:text-slate-200">Password</Label>
           <div className="relative">
             <Input
               id="login-password"
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
-              className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10"
+              className="h-11 bg-slate-50 dark:bg-[#0b1222] border-slate-200 dark:border-slate-800 pr-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
               value={form.password}
               onChange={(event) => setForm({ ...form, password: event.target.value })}
               required
@@ -88,7 +88,7 @@ export default function LoginPage() {
           </div>
         </div>
         <Button type="submit" className="h-11 w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-600/20 cursor-pointer hover:opacity-95" disabled={loading}>
-          {loading ? 'Signing in…' : <>Login <ArrowRight /></>}
+          {loading ? 'Signing in…' : <>Login <ArrowRight className="size-4 ml-1" /></>}
         </Button>
       </form>
 
