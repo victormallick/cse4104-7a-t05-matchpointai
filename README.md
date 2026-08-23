@@ -42,6 +42,7 @@
 * **Target Role Versatility**: Prominently guides candidates on how their target job title dynamically calibrates the ATS evaluation, interview questions, and live job searches.
 * **Skill & Keyword Gap Matrix**: Side-by-side comparison between candidate competencies and industry requirements.
 * **Interactive Google XYZ / STAR Rewriter**: High-impact bullet point rewrites with 1-click clipboard copying.
+* **Official Certified PDF Export**: 1-click export of an official ATS Assessment report featuring a unique Verification ID, audit timestamp, competency matrix, and MatchPoint AI certification seal.
 
 ### 3. 🎙️ Tailored AI Mock Interview Hub
 * **Dynamic Target Role Switcher**: Practice customized interview scenarios for any job role on demand without re-analyzing resumes.
@@ -58,6 +59,7 @@
 * **Dynamic Metric Cards**: Live latest ATS score, total completed analyses, bookmarked jobs, and recent resume reports.
 
 ### 6. 🎬 Contextual Motion & Visual Identity
+* **Slim Icon Rail Navigation System**: Space-efficient 74px desktop navigation rail with rich floating glassmorphic info cards on hover and mobile slide-over drawer.
 * **Laser Document Inspector**: Sweeping laser scanner with active section verification checkmarks.
 * **Acoustic STAR Waveform**: Equalizer soundwave animations communicating voice/question synthesis.
 * **Accessibility**: GPU-accelerated 60 FPS CSS transforms with full `prefers-reduced-motion` compliance.
