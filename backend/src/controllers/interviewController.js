@@ -471,13 +471,18 @@ const generateInterview = async (req, res) => {
     }
 
     let questions = null;
+    const targetCategory = req.body.category ? req.body.category.toLowerCase() : null;
+    const targetCount = Number(req.body.count) || null;
+
     if (isAIConfigured()) {
       questions = await generateInterviewQuestionsWithAI({
         resumeText,
         jdText,
         jobTitle,
         missingSkills,
-        existingQuestions
+        existingQuestions,
+        category: targetCategory,
+        count: targetCount
       });
 
       if (questions) {
@@ -493,16 +498,31 @@ const generateInterview = async (req, res) => {
       }
     }
 
-    if (!questions || !questions.technical || questions.technical.length === 0) {
-      questions = buildDynamicInterviewQuestions({
+    const hasQuestionsForCategory = targetCategory ? Boolean(questions?.[targetCategory]?.length) : Boolean(questions?.technical?.length);
+
+    if (!questions || !hasQuestionsForCategory) {
+      const fallbackQuestions = buildDynamicInterviewQuestions({
         jobTitle,
         company,
         missingSkills,
         resumeText,
-        offset: existingQuestions.length,
+        offset: existingQuestions.length + Math.floor(Math.random() * 5),
         existingQuestions
       });
+
+      questions = {
+        technical: questions?.technical?.length ? questions.technical : fallbackQuestions.technical,
+        behavioral: questions?.behavioral?.length ? questions.behavioral : fallbackQuestions.behavioral,
+        hr: questions?.hr?.length ? questions.hr : fallbackQuestions.hr
+      };
     }
+
+    // Ensure all 3 categories are always safe arrays
+    questions = {
+      technical: Array.isArray(questions?.technical) ? questions.technical : [],
+      behavioral: Array.isArray(questions?.behavioral) ? questions.behavioral : [],
+      hr: Array.isArray(questions?.hr) ? questions.hr : []
+    };
 
     let sessionId = randomUUID();
 
@@ -528,6 +548,11 @@ const generateInterview = async (req, res) => {
       }
     }
 
+    const totalCount =
+      (questions.technical?.length || 0) +
+      (questions.behavioral?.length || 0) +
+      (questions.hr?.length || 0);
+
     return res.status(200).json({
       success: true,
       message: isSupabaseConfigured
@@ -537,8 +562,7 @@ const generateInterview = async (req, res) => {
         session_id: sessionId,
         analysis_id: analysisId || null,
         questions,
-        total_questions:
-          questions.technical.length + questions.behavioral.length + questions.hr.length,
+        total_questions: totalCount,
         generation_mode: process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY
           ? 'ai-ready'
           : 'demo'

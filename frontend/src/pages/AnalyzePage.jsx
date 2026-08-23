@@ -90,7 +90,7 @@ export default function AnalyzePage() {
     return (
       <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
         <PageHeader title="Analyzing your resume" description="Upload complete. MatchPoint AI is comparing your experience with the target role." />
-        <LoadingState message="Building your ATS and skill-gap report…" />
+        <LoadingState type="analyze" message="Building your ATS and skill-gap report…" />
       </div>
     );
   }
@@ -169,10 +169,10 @@ export default function AnalyzePage() {
                 </>
               )}
             </div>
-            <div className="mt-5 flex gap-3 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200/80 dark:bg-[#131d35] dark:ring-slate-800">
-              <FileText className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
-              <p className="text-xs leading-5 text-slate-600 dark:text-slate-400">
-                <strong className="text-slate-800 dark:text-slate-200">AI ATS Evaluation:</strong> Your resume is processed securely to score keyword alignment, detect skill gaps, and generate customized interview questions.
+            <div className="mt-5 flex gap-3 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 p-4 ring-1 ring-blue-200/70 dark:from-blue-950/40 dark:to-indigo-950/40 dark:ring-blue-900/60">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+              <p className="text-xs leading-5 text-slate-700 dark:text-slate-300">
+                <strong className="text-slate-900 dark:text-slate-100">Versatile AI Calibration:</strong> Your mock interview questions, skill-gap analysis, and live job search engines are dynamically customized based on your target <strong>Job Title</strong>.
               </p>
             </div>
           </CardContent>
@@ -181,14 +181,20 @@ export default function AnalyzePage() {
         <Card className="border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0f172a]">
           <CardContent className="grid gap-5 p-5 sm:p-7">
             <div className="grid gap-2">
-              <Label htmlFor="job-title" className="text-slate-800 dark:text-slate-200 font-semibold">Job title</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="job-title" className="text-slate-800 dark:text-slate-200 font-semibold">Target Job Title</Label>
+                <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">Drives Interview & Jobs Hub</span>
+              </div>
               <Input
                 id="job-title"
-                className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
-                placeholder="e.g. Senior Full-Stack Software Engineer"
+                className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+                placeholder="e.g. Senior Full-Stack Developer, Growth Marketing Lead, Product Manager..."
                 value={form.job_title}
                 onChange={(event) => setForm({ ...form, job_title: event.target.value })}
               />
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                💡 <strong>Reminder:</strong> Mock interview questions, target competencies, and live career recommendations will be tailored to this role. Keep it flexible or specific to your target path.
+              </p>
             </div>
             <div className="grid gap-2">
               <div className="flex items-center justify-between">

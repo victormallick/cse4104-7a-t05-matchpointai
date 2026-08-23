@@ -16,25 +16,80 @@ import { cn } from '@/lib/utils';
 import MetricCard from '../components/MetricCard';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
-import { demoHistory } from '../data/demoData';
 import { userApi } from '../services/api';
+
+const readCombinedHistory = () => {
+  try {
+    const localHistory = JSON.parse(localStorage.getItem('matchpoint_history') || '[]');
+    const latestResult = JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
+    const list = Array.isArray(localHistory) ? [...localHistory] : [];
+
+    if (latestResult && (latestResult.analysis_id || latestResult.id || latestResult.ats_score !== undefined)) {
+      const id = latestResult.analysis_id || latestResult.id;
+      if (!id || !list.some((item) => (item.analysis_id || item.id) === id)) {
+        list.unshift(latestResult);
+      }
+    }
+    return list;
+  } catch {
+    return [];
+  }
+};
+
+const readSavedJobsCount = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('matchpoint_saved_jobs') || '[]');
+    return Array.isArray(saved) ? saved.length : 0;
+  } catch {
+    return 0;
+  }
+};
+
+const readSavedQuestionsCount = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('matchpoint_saved_questions') || '[]');
+    return Array.isArray(saved) ? saved.length : 0;
+  } catch {
+    return 0;
+  }
+};
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(readCombinedHistory);
+  const [savedJobsCount, setSavedJobsCount] = useState(readSavedJobsCount);
+  const [savedQuestionsCount, setSavedQuestionsCount] = useState(readSavedQuestionsCount);
 
   useEffect(() => {
+    const local = readCombinedHistory();
+    setHistory(local);
+    setSavedJobsCount(readSavedJobsCount());
+    setSavedQuestionsCount(readSavedQuestionsCount());
+
     userApi.history()
       .then((response) => {
-        if (response?.data && Array.isArray(response.data)) {
-          setHistory(response.data);
+        const apiRecords = response?.data || [];
+        if (Array.isArray(apiRecords) && apiRecords.length > 0) {
+          const merged = [...local];
+          for (const item of apiRecords) {
+            const id = item.analysis_id || item.id;
+            if (!merged.some((m) => (m.analysis_id || m.id) === id)) {
+              merged.push(item);
+            }
+          }
+          setHistory(merged);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn('API history fetch notice:', err);
+      });
   }, []);
 
   const historyList = Array.isArray(history) ? history : [];
-  const latestScore = historyList[0]?.ats_score ?? null;
+  // Filter for valid completed analyses
+  const validHistory = historyList.filter(item => item && (item.ats_score !== undefined || item.job_title));
+  const latestItem = validHistory[0] || null;
+  const latestScore = latestItem?.ats_score ?? null;
 
   return (
     <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
@@ -56,27 +111,27 @@ export default function DashboardPage() {
           icon={Gauge}
           label="Latest ATS score"
           value={latestScore !== null ? `${latestScore}%` : '--'}
-          detail={latestScore !== null ? "+6 points this month" : "No scans yet"}
+          detail={latestScore !== null ? `${latestItem?.job_title || 'Target Role'}` : "No scans yet"}
         />
         <MetricCard
           icon={FileText}
           label="Total analyses"
-          value={String(historyList.length)}
-          detail={historyList.length > 0 ? `${historyList.length} scans completed` : "Upload a resume to begin"}
+          value={String(validHistory.length)}
+          detail={validHistory.length > 0 ? `${validHistory.length} scan${validHistory.length > 1 ? 's' : ''} completed` : "Upload a resume to begin"}
           tone="purple"
         />
         <MetricCard
           icon={Bookmark}
           label="Saved jobs"
-          value="0"
-          detail="Explore recommendations"
+          value={String(savedJobsCount)}
+          detail={savedJobsCount > 0 ? `${savedJobsCount} role${savedJobsCount > 1 ? 's' : ''} bookmarked` : "Explore recommendations"}
           tone="green"
         />
         <MetricCard
           icon={MessageSquareText}
           label="Interview practice"
-          value={historyList.length > 0 ? "Active" : "0 Qs"}
-          detail={historyList.length > 0 ? "Practice questions ready" : "Ready when you are"}
+          value={savedQuestionsCount > 0 ? `${savedQuestionsCount} Qs` : (validHistory.length > 0 ? "Active" : "0 Qs")}
+          detail={validHistory.length > 0 ? "Practice questions ready" : "Ready when you are"}
           tone="orange"
         />
       </section>
@@ -88,7 +143,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600 dark:text-violet-400">Career Trajectory</span>
               <CardTitle className="mt-1 text-2xl font-bold text-slate-950 dark:text-slate-100">Recent Resume Analyses</CardTitle>
             </div>
-            {historyList.length > 0 && (
+            {validHistory.length > 0 && (
               <Link to="/history">
                 <Button variant="ghost" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold cursor-pointer">
                   View all <ArrowRight className="size-4 ml-1" />
@@ -97,7 +152,7 @@ export default function DashboardPage() {
             )}
           </CardHeader>
           <CardContent className="grid gap-3 p-6 pt-3 sm:p-7 sm:pt-3">
-            {historyList.length === 0 ? (
+            {validHistory.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#131d35]/50 my-2">
                 <FileText className="size-10 text-blue-600 dark:text-blue-400 mb-3 opacity-80" />
                 <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">No Resume Analyses Yet</h4>
@@ -111,7 +166,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
             ) : (
-              historyList.slice(0, 4).map((item) => {
+              validHistory.slice(0, 4).map((item) => {
                 const score = item.ats_score || 85;
                 const isTop = score >= 85;
                 const isGood = score >= 70;
@@ -119,8 +174,9 @@ export default function DashboardPage() {
                 return (
                   <Link
                     className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/50 dark:border-slate-800/80 dark:bg-[#131d35] dark:hover:border-blue-900/60 dark:hover:bg-blue-950/40 group"
-                    to="/history"
-                    key={item.analysis_id || item.id}
+                    to="/result"
+                    state={{ result: item }}
+                    key={item.analysis_id || item.id || `${item.job_title}-${item.created_at || Math.random()}`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-100/80 text-blue-600 shadow-xs dark:bg-blue-950/80 dark:text-blue-400">

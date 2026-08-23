@@ -1,20 +1,21 @@
 # MatchPoint AI 🎯
 
-> **AI-Powered ATS Resume Analyzer, Tailored Interview Preparation & Career Matching Platform**  
+> **AI-Powered ATS Resume Analyzer, Tailored Interview Preparation & Real-Time Career Intelligence Platform**  
 > Official Project: **CSE4104-7A-T05**
 
 [![Live App](https://img.shields.io/badge/Live%20App-Vercel-black?style=for-the-badge&logo=vercel)](https://matchpointai.vercel.app)
-[![API Server](https://img.shields.io/badge/API%20Server-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://matchpointsai.onrender.com)
+[![API Server](https://img.shields.io/badge/API%20Server-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://matchpointai.onrender.com)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
-[![AI Engine](https://img.shields.io/badge/AI-LLM%20API%20Engine-6366F1?style=for-the-badge)](https://matchpointai.vercel.app)
+[![E2E Tests](https://img.shields.io/badge/E2E%20Tests-Playwright%20100%25%20Passing-emerald?style=for-the-badge&logo=playwright)](https://playwright.dev)
+[![Security Audit](https://img.shields.io/badge/Security-Hardened%20%26%20Audited-blue?style=for-the-badge&logo=shield)](https://matchpointai.vercel.app)
 
 ---
 
 ## 🌐 Live Deployments
 
 * 🚀 **Web Application**: [https://matchpointai.vercel.app](https://matchpointai.vercel.app)
-* ⚡ **Production Backend**: [https://matchpointsai.onrender.com](https://matchpointsai.onrender.com)
-* 🩺 **API Health Check**: [https://matchpointsai.onrender.com/api/health](https://matchpointsai.onrender.com/api/health)
+* ⚡ **Production Backend**: [https://matchpointai.onrender.com](https://matchpointai.onrender.com)
+* 🩺 **API Health Check**: [https://matchpointai.onrender.com/api/health](https://matchpointai.onrender.com/api/health)
 * 🤖 **Service Availability**: Monitored 24/7 with zero cold-start delay via UptimeRobot
 
 ---
@@ -32,30 +33,40 @@
 
 ## ✨ Key Features & Capabilities
 
-* 📄 **Multi-Format Resume Parser**: In-memory parsing for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) with zero disk storage leaks.
-* 🎯 **Dynamic Radial ATS Target Gauge**: Real-time circular HUD score classification (*Top 5% Applicant, Strong Match, Needs Review*).
-* 🔍 **Skill & Keyword Gap Matrix**: Live comparative breakdown between candidate competencies and target job requirements.
-* ✍️ **Interactive STAR Bullet Rewriter**: Side-by-side comparison of unquantified resume lines vs. high-impact STAR achievement rewrites with 1-click clipboard copying.
-* 🎙️ **Tailored AI Mock Interview Bank**:
-  * Categorized into **Technical**, **Behavioral**, **HR & Culture**, and **Saved Questions**.
-  * Recruiter intent breakdowns, target competencies, and sample STAR responses.
-* 💼 **AI Job Recommendation Engine**:
-  * Dual-market filtering for **🇧🇩 Bangladesh Tech** and **🌍 Global Remote** opportunities.
-  * Direct 1-click application redirection to LinkedIn and company career pages.
-* 🔑 **1-Click Google OAuth & Email Authentication**:
-  * Frictionless onboarding with **"Continue with Google"** and secure Email/Password.
-  * Full password visibility toggles and customizable display names.
-* 🔒 **Self-Service Password Recovery**:
-  * Automated **Forgot Password (`/forgot-password`)** and **Reset Password (`/reset-password`)** flows via Supabase Auth email tokens.
-* 👤 **Persistent Candidate Profile**:
-  * Manage contact details, target job roles, social/portfolio links, bio, and custom skill banks.
-  * Profile changes synchronize automatically across all dashboard headers, greetings, and avatar initials.
-* 🌓 **Adaptive Light & Dark Mode**:
-  * Comprehensive responsive theming with custom slate gradients, Tailwind CSS v4, Lucide icons, and Radix UI.
-* 🛡️ **High-Availability Multi-Key AI Failover Pool**:
-  * Resilient round-robin rotation across multiple API keys with automated fallback and local heuristic processing for 100% service uptime.
-* 📊 **Role-Based Admin Console**:
-  * Admin dashboard with system metrics, user tracking, AI token analytics, and audit logs.
+### 1. 📄 Multi-Format Resume Parser & Guardrails
+* **In-Memory Streaming**: High-fidelity text extraction for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) without disk traversal risks.
+* **Non-Resume Content Guardrail**: Identifies non-resume uploads (recipes, research papers, essays) and safely displays a clear warning card with a 0% ATS score.
+
+### 2. 🎯 Dynamic ATS Scoring & Target Role Calibration
+* **Radial ATS Target Gauge**: Real-time HUD scoring (*Top 5% Applicant, Strong Match, Needs Review*).
+* **Target Role Versatility**: Prominently guides candidates on how their target job title dynamically calibrates the ATS evaluation, interview questions, and live job searches.
+* **Skill & Keyword Gap Matrix**: Side-by-side comparison between candidate competencies and industry requirements.
+* **Interactive Google XYZ / STAR Rewriter**: High-impact bullet point rewrites with 1-click clipboard copying.
+
+### 3. 🎙️ Tailored AI Mock Interview Hub
+* **Dynamic Target Role Switcher**: Practice customized interview scenarios for any job role on demand without re-analyzing resumes.
+* **Multi-Domain Categories**: Behavioral STAR scenarios, System Architecture & Technical challenges, and HR/Culture questions.
+* **Recruiter Intent Insights**: Breakdown of what hiring managers look for, target keywords, and ideal STAR answers.
+
+### 4. 💼 Real-Time Live Job Search Hub
+* **Verified Search Launchers**: Pre-filtered 1-click launchers for **LinkedIn Jobs** and **Google Jobs** with zero click dead-zones.
+* **Dual-Market Ecosystem**: Instant toggling between **🇧🇩 Bangladesh Tech Market** and **🌍 Global Remote Worldwide**.
+* **Target Role Search Calibrator**: Search and calibrate live job engine queries for any desired role on demand.
+
+### 5. 📊 Live Synchronized Dashboard
+* **Real-Time Data Sync**: Merges active session records with Supabase backend history.
+* **Dynamic Metric Cards**: Live latest ATS score, total completed analyses, bookmarked jobs, and recent resume reports.
+
+### 6. 🎬 Contextual Motion & Visual Identity
+* **Laser Document Inspector**: Sweeping laser scanner with active section verification checkmarks.
+* **Acoustic STAR Waveform**: Equalizer soundwave animations communicating voice/question synthesis.
+* **Accessibility**: GPU-accelerated 60 FPS CSS transforms with full `prefers-reduced-motion` compliance.
+
+### 7. 🛡️ Enterprise Security & Hardening
+* **JWT Cryptographic Verification**: Supabase Auth verification with RBAC protection.
+* **Prompt Injection Defenses**: XML tag demarcation (`<security_directive>`) treats all candidate inputs strictly as untrusted raw document data.
+* **Multi-Tier Rate Limiting**: Layered `express-rate-limit` guards against DDoS and credential scraping.
+* **Dependency Auditing**: Patched against known vulnerabilities with `npm audit`.
 
 ---
 
@@ -63,12 +74,13 @@
 
 | Layer | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite 8.1, Tailwind CSS v4 | Ultra-fast client SPA with modern glassmorphism styling |
-| **Icons & Primitives** | Lucide React, Radix UI | Accessible UI components and iconography |
-| **Backend** | Node.js 18+, Express 4.19, Multer | Modular REST API with in-memory upload buffers |
+| **Frontend** | React 19, Vite 8.1, Tailwind CSS v4 | High-performance SPA with modern glassmorphic styling |
+| **Icons & Primitives** | Lucide React, Radix UI, Base UI | Accessible UI components and iconography |
+| **Backend** | Node.js 18+, Express 4.19, Multer | REST API with in-memory upload buffers |
 | **Document Parsers** | `pdfjs-dist`, `mammoth` | High-fidelity text extraction from PDF and Word documents |
 | **Database & Auth** | Supabase Auth & PostgreSQL | Managed relational database with Row Level Security (RLS) |
 | **AI Intelligence** | Generative AI REST API | Multi-key failover pool + local heuristic engine |
+| **Testing** | Playwright (Python E2E Automation) | Full end-to-end automated testing across all user flows |
 | **Hosting & CI/CD** | Vercel (Frontend), Render (Backend) | Continuous automated deployments from GitHub `main` |
 | **Monitoring** | UptimeRobot | 24/7 health check monitoring |
 
@@ -93,9 +105,9 @@ Matchpoint AI/
 ├── frontend/
 │   ├── public/              # Favicon, SVG logos & static web assets
 │   ├── src/
-│   │   ├── components/      # UI components (AppLayout, AuthLayout, PageHeader, etc.)
+│   │   ├── components/      # UI components (AppLayout, LoadingState, PageHeader, etc.)
 │   │   ├── context/         # AuthContext & ThemeContext
-│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Profile, Forgot/Reset, etc.
+│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Dashboard, Profile, etc.
 │   │   ├── services/        # Axios API client & error interceptors
 │   │   ├── App.jsx          # Route declarations
 │   │   └── main.jsx
@@ -114,6 +126,7 @@ Matchpoint AI/
 
 ### Prerequisites
 * **Node.js 18+** and **npm** installed.
+* **Python 3.10+** (optional, for Playwright E2E test automation).
 
 ### 1. Clone the Repository
 ```bash
@@ -171,17 +184,24 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 
 ---
 
-## 🧪 Verification & Health Checks
+## 🧪 Verification & Automated Testing
 
-Run backend tests and verify production builds:
+### 1. Backend Unit & API Tests
 ```bash
-# Test Backend APIs
 cd backend
 npm test
+```
 
-# Verify Frontend Production Build
-cd ../frontend
+### 2. Frontend Production Build Verification
+```bash
+cd frontend
 npm run build
+```
+
+### 3. Automated Playwright E2E Test Suite
+```bash
+# Run headless browser automation across all user flows
+python scratch/e2e_test_suite.py
 ```
 
 ---

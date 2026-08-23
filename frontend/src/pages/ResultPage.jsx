@@ -552,23 +552,35 @@ export default function ResultPage() {
 
       {/* Navigation Next Step Action Bar */}
       <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <Link to="/interview" state={{ result }}>
-          <Button className="h-11 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 font-semibold text-xs text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer gap-2">
-            <MessageSquare className="size-4" />
-            <span>Prepare Interview Questions</span>
-            <ArrowRight className="size-3.5" />
-          </Button>
-        </Link>
+        {isInvalid ? (
+          <Link to="/analyze">
+            <Button className="h-11 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 font-semibold text-xs text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer gap-2">
+              <RotateCcw className="size-4" />
+              <span>Upload a Valid Resume to Unlock Interview & Jobs</span>
+              <ArrowRight className="size-3.5" />
+            </Button>
+          </Link>
+        ) : (
+          <>
+            <Link to="/interview" state={{ result }}>
+              <Button className="h-11 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-6 font-semibold text-xs text-white shadow-md shadow-blue-600/20 hover:opacity-95 cursor-pointer gap-2">
+                <MessageSquare className="size-4" />
+                <span>Prepare Interview Questions</span>
+                <ArrowRight className="size-3.5" />
+              </Button>
+            </Link>
 
-        <Link to="/jobs" state={{ result }}>
-          <Button
-            variant="outline"
-            className="h-11 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer gap-2"
-          >
-            <Briefcase className="size-4 text-blue-600" />
-            <span>Explore Matched Jobs (BD & Abroad)</span>
-          </Button>
-        </Link>
+            <Link to="/jobs" state={{ result }}>
+              <Button
+                variant="outline"
+                className="h-11 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer gap-2"
+              >
+                <Briefcase className="size-4 text-blue-600" />
+                <span>Explore Matched Jobs (BD & Abroad)</span>
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
 
       <SkillRoadmapModal
