@@ -56,48 +56,10 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 // 4. Rate Limiters (DDoS & Abuse Prevention)
 const isProd = process.env.NODE_ENV === 'production';
 
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: isProd ? 150 : 1000,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many requests from this IP. Please try again later.' }
-});
+// Trust reverse proxy headers on Render / cloud deployments
+app.set('trust proxy', 1);
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: isProd ? 30 : 200,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many authentication attempts. Please wait 15 minutes.' }
-});
-
-const aiAnalysisLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: isProd ? 45 : 300,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'AI evaluation quota limit reached. Please wait a few minutes before scanning again.' }
-});
-
-app.use(globalLimiter);
-
-app.use((req, res, next) => {
-  if (process.env.NODE_ENV !== 'test') {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
-  }
-  next();
-});
-
-// Mounted Routes with Layered Rate Limiting
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/upload', aiAnalysisLimiter, uploadRoutes);
-app.use('/api/analysis', aiAnalysisLimiter, analysisRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/interview', aiAnalysisLimiter, interviewRoutes);
-app.use('/api/jobs', jobsRoutes);
-app.use('/api/admin', adminRoutes);
-
+// Health check endpoints (placed BEFORE rate limiters so Render health checks & pings never get 429)
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
@@ -120,6 +82,48 @@ app.get('/api/health', (req, res) => {
     }
   });
 });
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 300 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests from this IP. Please try again later.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 60 : 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many authentication attempts. Please wait 15 minutes.' }
+});
+
+const aiAnalysisLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 60 : 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'AI evaluation quota limit reached. Please wait a few minutes before scanning again.' }
+});
+
+app.use(globalLimiter);
+
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  }
+  next();
+});
+
+// Mounted Routes with Layered Rate Limiting
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/upload', aiAnalysisLimiter, uploadRoutes);
+app.use('/api/analysis', aiAnalysisLimiter, analysisRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/interview', aiAnalysisLimiter, interviewRoutes);
+app.use('/api/jobs', jobsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
