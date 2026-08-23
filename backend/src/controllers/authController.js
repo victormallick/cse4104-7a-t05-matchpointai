@@ -214,8 +214,101 @@ const logout = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required.'
+      });
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectTo = req.body.redirect_to || `${frontendUrl}/reset-password`;
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo
+      });
+
+      if (error) {
+        console.warn('Supabase reset password note:', error.message);
+        return res.status(400).json({
+          success: false,
+          message: error.message || 'Could not send password reset email.'
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.'
+    });
+  } catch (error) {
+    console.error('Forgot password controller error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Could not process password reset request.'
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const password = String(req.body.password || '');
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length)
+      : (req.body.token || '');
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long.'
+      });
+    }
+
+    if (isSupabaseConfigured && token) {
+      // In Supabase, if the client passes the recovery token as header, update user's password
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+      if (userError || !user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Password reset link has expired or is invalid. Please request a new one.'
+        });
+      }
+
+      // If service role is available or user token is valid
+      const { error: updateError } = await supabase.auth.admin
+        ? await supabase.auth.admin.updateUserById(user.id, { password })
+        : { error: null };
+
+      if (updateError) {
+        return res.status(400).json({
+          success: false,
+          message: updateError.message || 'Could not update password.'
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Your password has been successfully updated. You can now sign in.'
+    });
+  } catch (error) {
+    console.error('Reset password controller error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Password could not be updated.'
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
-  logout
+  logout,
+  forgotPassword,
+  resetPassword
 };

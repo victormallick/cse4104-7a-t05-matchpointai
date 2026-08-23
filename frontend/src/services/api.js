@@ -63,7 +63,13 @@ if (typeof window !== 'undefined') {
 export const authApi = {
   login: (payload) => api.post('/api/auth/login', payload).then((response) => response.data),
   register: (payload) => api.post('/api/auth/register', payload).then((response) => response.data),
-  logout: () => api.post('/api/auth/logout').then((response) => response.data)
+  logout: () => api.post('/api/auth/logout').then((response) => response.data),
+  forgotPassword: (payload) => api.post('/api/auth/forgot-password', payload).then((response) => response.data),
+  resetPassword: (payload, token) => api.post(
+    '/api/auth/reset-password',
+    payload,
+    token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+  ).then((response) => response.data)
 };
 
 export const userApi = {
