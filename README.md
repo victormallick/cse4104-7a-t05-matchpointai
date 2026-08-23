@@ -156,9 +156,9 @@ SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Multi-Key AI API Failover Pool
-GEMINI_API_KEY_1=your-ai-api-key-1
-GEMINI_API_KEY_2=your-ai-api-key-2
-GEMINI_API_KEY_3=your-ai-api-key-3
+AI_API_KEY_1=your-ai-api-key-1
+AI_API_KEY_2=your-ai-api-key-2
+AI_API_KEY_3=your-ai-api-key-3
 
 DEMO_MODE=false
 ```

@@ -3,6 +3,12 @@ const OpenAI = require('openai');
 
 const getGeminiKeys = () => {
   const keys = [];
+  if (process.env.AI_API_KEYS) {
+    keys.push(...process.env.AI_API_KEYS.split(',').map((k) => k.trim()).filter(Boolean));
+  }
+  if (process.env.AI_API_KEY) {
+    keys.push(...process.env.AI_API_KEY.split(',').map((k) => k.trim()).filter(Boolean));
+  }
   if (process.env.GEMINI_API_KEYS) {
     keys.push(...process.env.GEMINI_API_KEYS.split(',').map((k) => k.trim()).filter(Boolean));
   }
@@ -10,7 +16,7 @@ const getGeminiKeys = () => {
     keys.push(...process.env.GEMINI_API_KEY.split(',').map((k) => k.trim()).filter(Boolean));
   }
   for (let i = 1; i <= 20; i++) {
-    const k = process.env[`GEMINI_API_KEY_${i}`];
+    const k = process.env[`AI_API_KEY_${i}`] || process.env[`GEMINI_API_KEY_${i}`];
     if (k && k.trim()) keys.push(k.trim());
   }
   return [...new Set(keys)];
