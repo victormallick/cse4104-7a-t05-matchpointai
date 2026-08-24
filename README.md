@@ -35,7 +35,7 @@
 
 ### 1. 📄 Multi-Format Resume Parser & Guardrails
 * **In-Memory Streaming**: High-fidelity text extraction for **PDF** (`pdfjs-dist`) and **DOCX** (`mammoth`) without disk traversal risks.
-* **Non-Resume Content Guardrail**: Identifies non-resume uploads (recipes, research papers, essays) and safely displays a clear warning card with a 0% ATS score.
+* **Non-Resume Content Guardrail**: Identifies non-resume uploads (recipes, research papers, essays, invoices) and safely displays a clear warning card with a 0% ATS score.
 
 ### 2. 🎯 Dynamic ATS Scoring & Target Role Calibration
 * **Radial ATS Target Gauge**: Real-time HUD scoring (*Top 5% Applicant, Strong Match, Needs Review*).
@@ -44,32 +44,32 @@
 * **Interactive Google XYZ / STAR Rewriter**: High-impact bullet point rewrites with 1-click clipboard copying.
 * **Official Certified PDF Export**: 1-click export of an official ATS Assessment report featuring a unique Verification ID, audit timestamp, competency matrix, and MatchPoint AI certification seal.
 
-### 3. 🎙️ Tailored AI Mock Interview Hub
-* **Dynamic Target Role Switcher**: Practice customized interview scenarios for any job role on demand without re-analyzing resumes.
-* **Multi-Domain Categories**: Behavioral STAR scenarios, System Architecture & Technical challenges, and HR/Culture questions.
-* **Recruiter Intent Insights**: Breakdown of what hiring managers look for, target keywords, and ideal STAR answers.
+### 3. 🎙️ Role-Calibrated AI Mock Interview Simulator
+* **Deep Domain Taxonomies**: Dedicated question synthesis across **AI / Machine Learning & Python**, **Marketing & Growth**, **HR & Talent**, **Finance & Accounting**, **Product Design (UI/UX)**, and **Software Engineering**.
+* **3 Specialized Question Categories**:
+  - 💻 **Technical Scenarios**: Architecture trade-offs, system scalability, and focus skills directly addressing the candidate's ATS gaps.
+  - ⭐ **Behavioral & STAR**: Workplace challenges, crisis mitigation, and leadership scenarios structured around Situation, Task, Action, and Result.
+  - 🤝 **Recruiter & HR**: Career trajectory, cultural alignment, 30-60-90 day impact roadmap, and compensation framing.
+* **Interactive Answer Evaluator**: Instant AI scoring (0–100), STAR alignment audit, identified strengths, and actionable coaching tips.
+* **Anti-Duplication Blacklist**: Generates novel, non-repeating questions on every single click.
 
 ### 4. 💼 Real-Time Live Job Search Hub
-* **Verified Search Launchers**: Pre-filtered 1-click launchers for **LinkedIn Jobs** and **Google Jobs** with zero click dead-zones.
+* **Verified Search Launchers**: Pre-filtered 1-click launchers for **LinkedIn Jobs**, **BDJobs**, **Glassdoor**, and **Google Jobs** with zero dead-zones.
 * **Dual-Market Ecosystem**: Instant toggling between **🇧🇩 Bangladesh Tech Market** and **🌍 Global Remote Worldwide**.
 * **Target Role Search Calibrator**: Search and calibrate live job engine queries for any desired role on demand.
 
-### 5. 📊 Live Synchronized Dashboard
-* **Real-Time Data Sync**: Merges active session records with Supabase backend history.
-* **Dynamic Metric Cards**: Live latest ATS score, total completed analyses, bookmarked jobs, and recent resume reports.
+### 5. 📊 Synchronized Intelligence Dashboard & History
+* **Single-Table JSONB Architecture**: Complete persistence via `public.user_scans(user_id, scan_data)` with Row Level Security (RLS).
+* **Exact Scorecard Metrics**: Peak/Latest ATS score, total verified scans completed, Live Career Engines status, and Bookmarked Question Bank.
+* **Automatic Deduplication**: Chronological scan history synchronized 1-to-1 between Dashboard and History tables.
 
-### 6. 🎬 Contextual Motion & Visual Identity
-* **Slim Icon Rail Navigation System**: Space-efficient 74px desktop navigation rail with rich floating glassmorphic info cards on hover and mobile slide-over drawer.
-* **Laser Document Inspector**: Sweeping laser scanner with active section verification checkmarks.
-* **Acoustic STAR Waveform**: Equalizer soundwave animations communicating voice/question synthesis.
-* **Accessibility**: GPU-accelerated 60 FPS CSS transforms with full `prefers-reduced-motion` compliance.
-
-### 7. 🛡️ Enterprise Security & Hardening
+### 6. 🛡️ Enterprise Security & Multi-User Isolation
+* **Supabase UUID Account Isolation**: User A and User B data are strictly segregated at both the database level (RLS) and client storage layer.
+* **Zero Demo Bleed**: Authenticated sessions strictly reflect real user identity and profile metadata.
 * **JWT Cryptographic Verification**: Supabase Auth verification with RBAC protection.
-* **Self-Service Password Recovery**: Secure email magic reset link workflow powered by Supabase Auth (`/forgot-password` and `/reset-password`).
+* **Self-Service Password Recovery**: Secure email reset link workflow powered by Supabase Auth (`/forgot-password` and `/reset-password`).
 * **Prompt Injection Defenses**: XML tag demarcation (`<security_directive>`) treats all candidate inputs strictly as untrusted raw document data.
-* **Multi-Tier Rate Limiting**: Layered `express-rate-limit` guards against DDoS and credential scraping.
-* **Dependency Auditing**: Patched against known vulnerabilities with `npm audit`.
+* **Multi-Tier Rate Limiting**: Layered `express-rate-limit` guards against DDoS and brute-force scraping.
 
 ---
 
@@ -81,8 +81,8 @@
 | **Icons & Primitives** | Lucide React, Radix UI, Base UI | Accessible UI components and iconography |
 | **Backend** | Node.js 18+, Express 4.19, Multer | REST API with in-memory upload buffers |
 | **Document Parsers** | `pdfjs-dist`, `mammoth` | High-fidelity text extraction from PDF and Word documents |
-| **Database & Auth** | Supabase Auth & PostgreSQL | Managed relational database with Row Level Security (RLS) |
-| **AI Intelligence** | Generative AI REST API | Multi-key failover pool + local heuristic engine |
+| **Database & Auth** | Supabase Auth & PostgreSQL | Managed relational database with JSONB document storage & RLS |
+| **AI Intelligence** | Google Gemini & OpenAI API Pool | Multi-key failover pool + local heuristic engine |
 | **Testing** | Playwright (Python E2E Automation) | Full end-to-end automated testing across all user flows |
 | **Hosting & CI/CD** | Vercel (Frontend), Render (Backend) | Continuous automated deployments from GitHub `main` |
 | **Monitoring** | UptimeRobot | 24/7 health check monitoring |
@@ -95,10 +95,10 @@
 Matchpoint AI/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # Supabase & Database configuration
+│   │   ├── config/          # Supabase, Database configuration & schema.sql
 │   │   ├── controllers/     # Analysis, Interview, Jobs, Auth & User controllers
-│   │   ├── data/            # Demo fixtures and seed data
-│   │   ├── middleware/      # Auth, rate limiting & upload validation
+│   │   ├── data/            # Demo fixtures and domain taxonomies
+│   │   ├── middleware/      # Auth (JWT verification), rate limiting & upload validation
 │   │   ├── routes/          # REST API route handlers
 │   │   ├── services/        # AI service (Multi-key failover pool) & Parser service
 │   │   └── server.js        # Express application entrypoint
@@ -110,14 +110,13 @@ Matchpoint AI/
 │   ├── src/
 │   │   ├── components/      # UI components (AppLayout, LoadingState, PageHeader, etc.)
 │   │   ├── context/         # AuthContext & ThemeContext
-│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Dashboard, Profile, etc.
+│   │   ├── pages/           # Analyze, Result, Interview, Jobs, Dashboard, Profile, History
 │   │   ├── services/        # Axios API client & error interceptors
+│   │   ├── utils/           # User-namespaced storage & deduplication engine
 │   │   ├── App.jsx          # Route declarations
 │   │   └── main.jsx
 │   ├── .env.example
 │   └── package.json
-├── database/
-│   └── schema.sql           # PostgreSQL schema with tables & indexes
 ├── screenshots/             # Application UI screenshots and preview captures
 ├── .gitignore
 └── README.md
@@ -199,12 +198,6 @@ npm test
 ```bash
 cd frontend
 npm run build
-```
-
-### 3. Automated Playwright E2E Test Suite
-```bash
-# Run headless browser automation across all user flows
-python scratch/e2e_test_suite.py
 ```
 
 ---

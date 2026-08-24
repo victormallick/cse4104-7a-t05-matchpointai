@@ -11,21 +11,16 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import PageHeader from '../components/PageHeader';
-
-const readLatestResult = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
-  } catch {
-    return null;
-  }
-};
+import { useAuth } from '../context/AuthContext';
+import { userApi } from '../services/api';
+import { getLatestResult, setLatestResult } from '../utils/storage';
 
 const getPortalEngines = (jobTitle = '', region = 'bangladesh') => {
   const query = encodeURIComponent(jobTitle || 'Software Engineer');
@@ -120,17 +115,37 @@ const getPortalEngines = (jobTitle = '', region = 'bangladesh') => {
 };
 
 export default function JobsPage() {
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const latestResult = location.state?.result || readLatestResult();
 
+  const [currentResult, setCurrentResult] = useState(() => location.state?.result || getLatestResult(user?.id) || null);
   const [region, setRegion] = useState('bangladesh');
-  const [activeJobTitle, setActiveJobTitle] = useState(latestResult?.job_title || 'Software Engineer');
+  const [activeJobTitle, setActiveJobTitle] = useState(() => currentResult?.job_title || 'Software Engineer');
   const [roleSearchInput, setRoleSearchInput] = useState('');
 
-  const currentResult = location.state?.result || readLatestResult();
+  useEffect(() => {
+    const immediate = location.state?.result || getLatestResult(user?.id);
+    if (immediate) {
+      setCurrentResult(immediate);
+      if (immediate.job_title) setActiveJobTitle(immediate.job_title);
+      return;
+    }
+
+    if (user?.id) {
+      userApi.history().then((res) => {
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          const first = res.data[0];
+          setCurrentResult(first);
+          setLatestResult(first, user.id);
+          if (first.job_title) setActiveJobTitle(first.job_title);
+        }
+      }).catch(() => {});
+    }
+  }, [user?.id, location.state]);
+
   const isInvalidUpload = currentResult?.is_valid_resume === false || (currentResult?.ats_score === 0 && Boolean(currentResult?.document_warning));
-  const hasValidResume = Boolean(currentResult && currentResult.analysis_id && !isInvalidUpload);
+  const hasValidResume = Boolean(currentResult && (currentResult.analysis_id || currentResult.id || currentResult.job_title || currentResult.ats_score !== undefined) && !isInvalidUpload);
 
   if (!hasValidResume) {
     return (
@@ -200,14 +215,14 @@ export default function JobsPage() {
     navigate('/interview', {
       state: {
         result: {
-          ...latestResult,
+          ...currentResult,
           job_title: activeJobTitle
         }
       }
     });
   };
 
-  const candidateSkills = latestResult?.skills || latestResult?.identified_skills || [
+  const candidateSkills = currentResult?.skills || currentResult?.identified_skills || [
     'Strategy & Planning', 'Core Competencies', 'Industry Best Practices', 'Execution & Delivery'
   ];
   const portals = getPortalEngines(activeJobTitle, region);

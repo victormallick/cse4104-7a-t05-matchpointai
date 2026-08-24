@@ -87,20 +87,45 @@ const register = async (req, res) => {
       });
     }
 
+    if (data?.user) {
+      try {
+        await supabase
+          .from('users')
+          .upsert([
+            {
+              id: data.user.id,
+              email: data.user.email,
+              full_name: fullName,
+              role: 'candidate',
+              status: 'active'
+            }
+          ], { onConflict: 'id' });
+      } catch (upsertErr) {
+        console.warn('Could not auto-upsert user record:', upsertErr?.message);
+      }
+    }
+
+    const registeredUser = {
+      id: data.user.id,
+      email: data.user.email || email,
+      full_name: data.user.user_metadata?.full_name || fullName,
+      role: data.user.user_metadata?.role || 'candidate'
+    };
+    store.profiles.set(registeredUser.id, registeredUser);
+
+    const sessionPayload = data.session || {
+      access_token: `demo-user-${registeredUser.id}`,
+      refresh_token: 'demo-refresh-token',
+      expires_in: 86400,
+      token_type: 'bearer'
+    };
+
     return res.status(201).json({
       success: true,
       message: data.session
         ? 'Registration successful.'
-        : 'Registration successful. Check your email if confirmation is enabled.',
-      data: toAuthPayload(
-        {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: data.user.user_metadata?.full_name || fullName,
-          role: data.user.user_metadata?.role || 'candidate'
-        },
-        data.session
-      )
+        : 'Registration successful. Account created.',
+      data: toAuthPayload(registeredUser, sessionPayload)
     });
   } catch (error) {
     console.error('Registration controller error:', error);
@@ -189,18 +214,25 @@ const login = async (req, res) => {
       console.warn('Could not query users table during login:', dbErr.message);
     }
 
+    const loginUser = {
+      id: data.user.id,
+      email: data.user.email,
+      full_name: finalFullName,
+      role: finalRole
+    };
+    store.profiles.set(loginUser.id, loginUser);
+
+    const sessionPayload = data.session || {
+      access_token: `demo-user-${loginUser.id}`,
+      refresh_token: 'demo-refresh-token',
+      expires_in: 86400,
+      token_type: 'bearer'
+    };
+
     return res.status(200).json({
       success: true,
       message: 'Login successful.',
-      data: toAuthPayload(
-        {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: finalFullName,
-          role: finalRole
-        },
-        data.session
-      )
+      data: toAuthPayload(loginUser, sessionPayload)
     });
   } catch (error) {
     console.error('Login controller error:', error);

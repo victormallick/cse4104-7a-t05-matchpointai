@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -15,40 +16,42 @@ import {
 } from '@/components/ui/table';
 import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
+import { useAuth } from '../context/AuthContext';
 import { userApi } from '../services/api';
-
-const readLocalHistory = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_history') || '[]');
-  } catch {
-    return [];
-  }
-};
+import { deduplicateHistory, getUserHistory, setLatestResult, setUserHistory } from '../utils/storage';
 
 export default function HistoryPage() {
-  const [history, setHistory] = useState(readLocalHistory);
+  const { user } = useAuth();
+  const [history, setHistory] = useState(() => deduplicateHistory(getUserHistory(user?.id)));
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user?.id) {
+      setHistory([]);
+      return;
+    }
+    const local = deduplicateHistory(getUserHistory(user.id));
+    setHistory(local);
+
+    setLoading(true);
     userApi.history()
       .then((response) => {
-        const apiRecords = response?.data || [];
-        const local = readLocalHistory();
-        const merged = [...local];
-        for (const item of apiRecords) {
-          const id = item.analysis_id || item.id;
-          if (!merged.some((m) => (m.analysis_id || m.id) === id)) {
-            merged.push(item);
-          }
+        const apiRecords = response?.data;
+        if (Array.isArray(apiRecords)) {
+          const clean = deduplicateHistory(apiRecords);
+          setHistory(clean);
+          setUserHistory(clean, user.id);
         }
-        setHistory(merged);
       })
       .catch((err) => {
         console.warn('API history fetch notice:', err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, []);
+  }, [user?.id]);
 
   const filtered = useMemo(() => {
     const query = search.toLowerCase();
@@ -60,11 +63,12 @@ export default function HistoryPage() {
   const viewResult = (item) => {
     const result = {
       ...item,
+      user_id: user?.id,
       missing_keywords: item.missing_keywords || [],
       missing_skills: item.missing_skills || [],
       improvement_suggestions: item.improvement_suggestions || []
     };
-    localStorage.setItem('matchpoint_latest_result', JSON.stringify(result));
+    setLatestResult(result, user?.id);
     navigate('/result', { state: { result } });
   };
 
@@ -121,8 +125,17 @@ export default function HistoryPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Badge className={item.ats_score >= 75 ? "bg-emerald-100 text-emerald-800" : item.ats_score >= 40 ? "bg-violet-100 text-violet-800" : "bg-rose-100 text-rose-800"}>
-                        {item.ats_score}%
+                      <Badge className={cn(
+                        "text-xs font-bold px-2.5 py-1 text-white shadow-xs",
+                        (item.ats_score ?? 0) >= 85
+                          ? "bg-emerald-600 shadow-emerald-600/30"
+                          : (item.ats_score ?? 0) >= 70
+                            ? "bg-blue-600 shadow-blue-600/30"
+                            : (item.ats_score ?? 0) < 40
+                              ? "bg-rose-600 shadow-rose-600/30"
+                              : "bg-amber-600 shadow-amber-600/30"
+                      )}>
+                        {item.ats_score ?? item.match_rate ?? 0}%
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

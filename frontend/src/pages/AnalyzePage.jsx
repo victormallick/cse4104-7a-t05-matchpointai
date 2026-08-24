@@ -12,6 +12,7 @@ import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
 import { analysisApi } from '../services/api';
+import { getUserHistory, setLatestResult, setUserHistory } from '../utils/storage';
 
 export default function AnalyzePage() {
   const { user } = useAuth();
@@ -29,9 +30,9 @@ export default function AnalyzePage() {
 
   const chooseFile = (selected) => {
     if (!selected) return;
-    const extension = selected.name.split('.').pop().toLowerCase();
-    if (!['pdf', 'docx'].includes(extension)) {
-      setError('Choose a PDF or DOCX resume.');
+    const name = selected.name.toLowerCase();
+    if (!name.endsWith('.pdf') && !name.endsWith('.docx')) {
+      setError('Only PDF and DOCX documents are supported.');
       return;
     }
     if (selected.size > 10 * 1024 * 1024) {
@@ -40,6 +41,11 @@ export default function AnalyzePage() {
     }
     setFile(selected);
     setError('');
+  };
+
+  const clearFile = () => {
+    setFile(null);
+    if (fileInput.current) fileInput.current.value = '';
   };
 
   const handleDrop = (event) => {
@@ -64,16 +70,19 @@ export default function AnalyzePage() {
         resume_id: upload.data?.resume_id,
         ...form
       });
-      const analysisData = analysis.data;
-      localStorage.setItem('matchpoint_latest_result', JSON.stringify(analysisData));
+      const analysisData = {
+        ...analysis.data,
+        user_id: user?.id || 'demo-user'
+      };
+      setLatestResult(analysisData, user?.id);
 
       try {
-        const existingHistory = JSON.parse(localStorage.getItem('matchpoint_history') || '[]');
+        const existingHistory = getUserHistory(user?.id);
         const updatedHistory = [
           analysisData,
-          ...existingHistory.filter((item) => item.analysis_id !== analysisData.analysis_id)
+          ...existingHistory.filter((item) => (item.analysis_id || item.id) !== (analysisData.analysis_id || analysisData.id))
         ];
-        localStorage.setItem('matchpoint_history', JSON.stringify(updatedHistory));
+        setUserHistory(updatedHistory, user?.id);
       } catch (err) {
         console.warn('Local history save error:', err);
       }

@@ -26,31 +26,18 @@ import { cn } from '@/lib/utils';
 import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
 import SkillRoadmapModal from '../components/SkillRoadmapModal';
+import { useAuth } from '../context/AuthContext';
 import { demoQuestions } from '../data/demoData';
-import { analysisApi } from '../services/api';
+import { analysisApi, userApi } from '../services/api';
+import { getLatestResult, getSavedQuestions, setLatestResult } from '../utils/storage';
 
 const MAX_QUESTIONS_PER_SECTION = 10;
 
-const readLatestResult = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
-  } catch {
-    return null;
-  }
-};
-
-const getInterviewStorageKey = (result, targetRole) => {
-  const keyPart = result?.analysis_id || result?.resume_id || (result?.created_at || 'latest');
+const getInterviewStorageKey = (result, targetRole, userId) => {
+  const keyPart = result?.analysis_id || result?.id || result?.resume_id || (result?.created_at || 'latest');
   const safeRole = (targetRole || result?.job_title || 'default').toLowerCase().replace(/\s+/g, '_');
-  return `matchpoint_interview_questions_${keyPart}_${safeRole}`;
-};
-
-const readSavedQuestions = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_saved_questions') || '[]');
-  } catch {
-    return [];
-  }
+  const userPart = userId ? `${userId}_` : '';
+  return `matchpoint_interview_questions_${userPart}${keyPart}_${safeRole}`;
 };
 
 const categoryMeta = {
@@ -60,13 +47,13 @@ const categoryMeta = {
     style: 'bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400'
   },
   behavioral: {
-    label: 'Behavioral',
+    label: 'Behavioral & STAR',
     icon: Users,
     style: 'bg-violet-100 dark:bg-violet-950/80 text-violet-600 dark:text-violet-400'
   },
   hr: {
-    label: 'HR & Culture',
-    icon: Briefcase,
+    label: 'Recruiter & HR',
+    icon: HelpCircle,
     style: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400'
   },
   saved: {
@@ -77,25 +64,26 @@ const categoryMeta = {
 };
 
 export default function InterviewPage() {
+  const { user } = useAuth();
   const location = useLocation();
-  const latestResult = location.state?.result || readLatestResult();
-  const [activeJobTitle, setActiveJobTitle] = useState(latestResult?.job_title || 'Software Engineer');
+
+  const [currentResult, setCurrentResult] = useState(() => location.state?.result || getLatestResult(user?.id) || null);
+  const [activeJobTitle, setActiveJobTitle] = useState(() => currentResult?.job_title || 'Software Engineer');
   const [roleSearchInput, setRoleSearchInput] = useState('');
   const [questions, setQuestions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generatingMore, setGeneratingMore] = useState(false);
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [activeCategory, setActiveCategory] = useState('technical');
-  const [savedQuestions, setSavedQuestions] = useState(readSavedQuestions);
+  const [savedQuestions, setSavedQuestions] = useState(() => getSavedQuestions(user?.id));
   const [limitWarning, setLimitWarning] = useState(null);
   const [selectedRoadmapSkill, setSelectedRoadmapSkill] = useState(null);
 
-  const company = latestResult?.company || '';
-  const focusSkills = latestResult?.missing_skills || latestResult?.missing_keywords || [];
+  const company = currentResult?.company || '';
+  const focusSkills = currentResult?.missing_skills || currentResult?.missing_keywords || [];
 
   const persistQuestionsToStorage = (updatedQuestions, targetRole = activeJobTitle) => {
-    const result = location.state?.result || readLatestResult();
-    const storageKey = getInterviewStorageKey(result, targetRole);
+    const storageKey = getInterviewStorageKey(currentResult, targetRole, user?.id);
     try {
       localStorage.setItem(storageKey, JSON.stringify(updatedQuestions));
     } catch (err) {
@@ -103,10 +91,10 @@ export default function InterviewPage() {
     }
   };
 
-  const loadQuestions = async (targetRole = activeJobTitle, forceRefresh = false) => {
-    const result = location.state?.result || readLatestResult();
+  const loadQuestions = async (targetRole = activeJobTitle, forceRefresh = false, activeRes = currentResult) => {
+    const result = activeRes || location.state?.result || getLatestResult(user?.id);
     const isInvalidUpload = result?.is_valid_resume === false || (result?.ats_score === 0 && Boolean(result?.document_warning));
-    const hasValidResume = Boolean(result && result.analysis_id && !isInvalidUpload);
+    const hasValidResume = Boolean(result && (result.analysis_id || result.id || result.job_title || result.ats_score !== undefined) && !isInvalidUpload);
 
     if (!hasValidResume) {
       setQuestions(null);
@@ -114,14 +102,15 @@ export default function InterviewPage() {
       return;
     }
 
-    const storageKey = getInterviewStorageKey(result, targetRole);
+    const storageKey = getInterviewStorageKey(result, targetRole, user?.id);
 
     if (!forceRefresh) {
       try {
         const cached = localStorage.getItem(storageKey);
         if (cached) {
           const parsed = JSON.parse(cached);
-          if (parsed && (parsed.technical?.length > 0 || parsed.behavioral?.length > 0 || parsed.hr?.length > 0)) {
+          const isStaleDemo = parsed.technical?.[0]?.question?.includes('React dashboard') && !(targetRole || '').toLowerCase().includes('react');
+          if (!isStaleDemo && parsed && (parsed.technical?.length > 0 || parsed.behavioral?.length > 0 || parsed.hr?.length > 0)) {
             setQuestions(parsed);
             if (parsed.technical?.length > 0) setActiveQuestion(parsed.technical[0]);
             setLoading(false);
@@ -136,11 +125,11 @@ export default function InterviewPage() {
     setLoading(true);
     try {
       const response = await analysisApi.interview({
-        analysis_id: result?.analysis_id,
+        analysis_id: result?.analysis_id || result?.id,
         resume_id: result?.resume_id,
         resume_text: result?.resume_text || '',
         jd_text: result?.jd_text || '',
-        job_title: targetRole || 'Software Engineer',
+        job_title: targetRole || result?.job_title || 'Software Engineer',
         company: result?.company || '',
         missing_skills: result?.missing_skills || result?.missing_keywords || []
       });
@@ -166,10 +155,35 @@ export default function InterviewPage() {
   };
 
   useEffect(() => {
-    const role = location.state?.result?.job_title || latestResult?.job_title || 'Software Engineer';
-    setActiveJobTitle(role);
-    loadQuestions(role);
-  }, [location.state?.result?.analysis_id, location.state?.result?.resume_id, location.state?.result?.job_title]);
+    const immediate = location.state?.result || getLatestResult(user?.id);
+    if (immediate) {
+      setCurrentResult(immediate);
+      const role = immediate.job_title || 'Software Engineer';
+      setActiveJobTitle(role);
+      loadQuestions(role, false, immediate);
+      return;
+    }
+
+    if (user?.id) {
+      setLoading(true);
+      userApi.history().then((res) => {
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          const first = res.data[0];
+          setCurrentResult(first);
+          setLatestResult(first, user.id);
+          const role = first.job_title || 'Software Engineer';
+          setActiveJobTitle(role);
+          loadQuestions(role, false, first);
+        } else {
+          setLoading(false);
+        }
+      }).catch(() => {
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [user?.id, location.state]);
 
   const handleSearchNewRole = (e) => {
     if (e) e.preventDefault();
@@ -319,9 +333,8 @@ export default function InterviewPage() {
     );
   }
 
-  const currentResult = location.state?.result || readLatestResult();
   const isInvalidUpload = currentResult?.is_valid_resume === false || (currentResult?.ats_score === 0 && Boolean(currentResult?.document_warning));
-  const hasValidResume = Boolean(currentResult && currentResult.analysis_id && !isInvalidUpload);
+  const hasValidResume = Boolean(currentResult && (currentResult.analysis_id || currentResult.id || currentResult.job_title || currentResult.ats_score !== undefined) && !isInvalidUpload);
 
   if (!hasValidResume) {
     return (

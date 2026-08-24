@@ -1,8 +1,10 @@
 import {
   ArrowRight,
   Bookmark,
+  Briefcase,
   FileText,
   Gauge,
+  Globe,
   MessageSquareText,
   Plus,
   Sparkles,
@@ -19,89 +21,59 @@ import MetricCard from '../components/MetricCard';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
 import { userApi } from '../services/api';
-
-const readCombinedHistory = () => {
-  try {
-    const localHistory = JSON.parse(localStorage.getItem('matchpoint_history') || '[]');
-    const latestResult = JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
-    const list = Array.isArray(localHistory) ? [...localHistory] : [];
-
-    if (latestResult && (latestResult.analysis_id || latestResult.id || latestResult.ats_score !== undefined)) {
-      const id = latestResult.analysis_id || latestResult.id;
-      if (!id || !list.some((item) => (item.analysis_id || item.id) === id)) {
-        list.unshift(latestResult);
-      }
-    }
-    return list;
-  } catch {
-    return [];
-  }
-};
-
-const readSavedJobsCount = () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem('matchpoint_saved_jobs') || '[]');
-    return Array.isArray(saved) ? saved.length : 0;
-  } catch {
-    return 0;
-  }
-};
-
-const readSavedQuestionsCount = () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem('matchpoint_saved_questions') || '[]');
-    return Array.isArray(saved) ? saved.length : 0;
-  } catch {
-    return 0;
-  }
-};
+import {
+  deduplicateHistory,
+  getLatestResult,
+  getSavedQuestions,
+  getUserHistory,
+  setUserHistory
+} from '../utils/storage';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [history, setHistory] = useState(readCombinedHistory);
-  const [savedJobsCount, setSavedJobsCount] = useState(readSavedJobsCount);
-  const [savedQuestionsCount, setSavedQuestionsCount] = useState(readSavedQuestionsCount);
+  const [history, setHistory] = useState(() => getUserHistory(user?.id));
+  const [savedQuestionsCount, setSavedQuestionsCount] = useState(() => getSavedQuestions(user?.id).length);
 
   useEffect(() => {
-    const local = readCombinedHistory();
-    setHistory(local);
-    setSavedJobsCount(readSavedJobsCount());
-    setSavedQuestionsCount(readSavedQuestionsCount());
+    if (!user?.id) {
+      setHistory([]);
+      return;
+    }
 
+    // Initialize with local cache strictly belonging to this user
+    const local = getUserHistory(user.id);
+    setHistory(local);
+    setSavedQuestionsCount(getSavedQuestions(user.id).length);
+
+    // Fetch authoritative database records for this user from backend
     userApi.history()
       .then((response) => {
-        const apiRecords = response?.data || [];
-        if (Array.isArray(apiRecords) && apiRecords.length > 0) {
-          const merged = [...local];
-          for (const item of apiRecords) {
-            const id = item.analysis_id || item.id;
-            if (!merged.some((m) => (m.analysis_id || m.id) === id)) {
-              merged.push(item);
-            }
-          }
-          setHistory(merged);
+        const apiRecords = response?.data;
+        if (Array.isArray(apiRecords)) {
+          const deduplicated = deduplicateHistory(apiRecords);
+          setHistory(deduplicated);
+          setUserHistory(deduplicated, user.id);
         }
       })
       .catch((err) => {
         console.warn('API history fetch notice:', err);
       });
-  }, []);
+  }, [user?.id]);
 
   const historyList = Array.isArray(history) ? history : [];
   // Filter for valid completed analyses
   const validHistory = historyList.filter(item => item && (item.ats_score !== undefined || item.job_title));
-  const latestItem = validHistory[0] || null;
-  const latestScore = latestItem?.ats_score ?? null;
+  const latestItem = validHistory[0] || getLatestResult(user?.id);
+  const latestScore = latestItem?.ats_score ?? latestItem?.match_rate ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] p-4 pt-6 sm:p-8 lg:p-10 xl:p-12">
-      {/* Top MatchPoint AI Branding Bar */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
+    <div className="mx-auto w-full max-w-[1480px] p-4 pt-20 sm:p-8 lg:p-10 xl:p-12">
+      {/* Top Welcome Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-3">
-          <Brand className="text-2xl font-black" />
-          <Badge variant="secondary" className="hidden sm:inline-flex rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-semibold text-xs px-3 py-0.5 border border-blue-200 dark:border-blue-800/60 shadow-xs">
-            <Sparkles className="size-3 mr-1 text-blue-600 dark:text-blue-400" /> Enterprise ATS Engine
-          </Badge>
+          <Brand size="sm" showBadge={false} />
+          <span className="text-slate-300 dark:text-slate-700">/</span>
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Intelligence Dashboard</span>
         </div>
 
         <div className="flex items-center gap-2.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 shadow-xs">
@@ -138,17 +110,17 @@ export default function DashboardPage() {
           tone="purple"
         />
         <MetricCard
-          icon={Bookmark}
-          label="Saved jobs"
-          value={String(savedJobsCount)}
-          detail={savedJobsCount > 0 ? `${savedJobsCount} role${savedJobsCount > 1 ? 's' : ''} bookmarked` : "Explore recommendations"}
+          icon={Briefcase}
+          label="Live Career Engines"
+          value="BD & Global"
+          detail="Real-time verified portals"
           tone="green"
         />
         <MetricCard
-          icon={MessageSquareText}
-          label="Interview practice"
+          icon={Bookmark}
+          label="Question Bank"
           value={savedQuestionsCount > 0 ? `${savedQuestionsCount} Qs` : (validHistory.length > 0 ? "Active" : "0 Qs")}
-          detail={validHistory.length > 0 ? "Practice questions ready" : "Ready when you are"}
+          detail={savedQuestionsCount > 0 ? `${savedQuestionsCount} questions saved` : (validHistory.length > 0 ? "Practice questions ready" : "Ready when you are")}
           tone="orange"
         />
       </section>
@@ -184,9 +156,10 @@ export default function DashboardPage() {
               </div>
             ) : (
               validHistory.slice(0, 4).map((item) => {
-                const score = item.ats_score || 85;
+                const score = item.ats_score ?? item.match_rate ?? 0;
                 const isTop = score >= 85;
                 const isGood = score >= 70;
+                const isWarning = score < 40;
 
                 return (
                   <Link
@@ -216,15 +189,21 @@ export default function DashboardPage() {
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50"
                           : isGood
                             ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50"
-                            : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
+                            : isWarning
+                              ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50"
+                              : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
                       )}>
-                        {isTop ? '⚡ Ready to Apply' : isGood ? '✓ Competitive' : '⚠️ Gaps Detected'}
+                        {isTop ? '⚡ Ready to Apply' : isGood ? '✓ Competitive' : isWarning ? '⚠️ Needs Review' : '⚠️ Gaps Detected'}
                       </span>
                       <Badge className={cn(
-                        "text-xs font-bold px-2.5 py-1",
+                        "text-xs font-bold px-2.5 py-1 text-white shadow-xs",
                         isTop
-                          ? "bg-emerald-600 text-white shadow-xs shadow-emerald-600/30"
-                          : "bg-blue-600 text-white shadow-xs shadow-blue-600/30"
+                          ? "bg-emerald-600 shadow-emerald-600/30"
+                          : isGood
+                            ? "bg-blue-600 shadow-blue-600/30"
+                            : isWarning
+                              ? "bg-rose-600 shadow-rose-600/30"
+                              : "bg-amber-600 shadow-amber-600/30"
                       )}>
                         {score}%
                       </Badge>

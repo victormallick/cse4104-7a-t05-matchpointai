@@ -32,19 +32,12 @@ import PageHeader from '../components/PageHeader';
 import SkillRoadmapModal from '../components/SkillRoadmapModal';
 import { useAuth } from '../context/AuthContext';
 import { generateAtsReportPdf } from '../utils/pdfExport';
-
-const readStoredResult = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
-  } catch {
-    return null;
-  }
-};
+import { getLatestResult } from '../utils/storage';
 
 export default function ResultPage() {
   const { user } = useAuth();
   const location = useLocation();
-  const result = location.state?.result || readStoredResult();
+  const result = location.state?.result || getLatestResult(user?.id);
 
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [selectedBulletIndex, setSelectedBulletIndex] = useState(0);

@@ -6,6 +6,7 @@ import {
   Building,
   CheckCircle2,
   ExternalLink,
+  FileText,
   Globe,
   Layers,
   Link as LinkIcon,
@@ -36,30 +37,15 @@ import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
 import { userApi } from '../services/api';
+import { getLatestResult, getSavedQuestions, getUserHistory } from '../utils/storage';
 
-const readLatestResult = () => {
-  try {
-    return JSON.parse(localStorage.getItem('matchpoint_latest_result') || 'null');
-  } catch {
-    return null;
-  }
-};
-
-const readSavedJobsCount = () => {
-  try {
-    const list = JSON.parse(localStorage.getItem('matchpoint_saved_jobs') || '[]');
-    return Array.isArray(list) ? list.length : 0;
-  } catch {
-    return 0;
-  }
-};
-
-const readPracticedCount = () => {
+const readPracticedCount = (userId) => {
   try {
     let total = 0;
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('matchpoint_interview_answers_')) {
+        if (userId && !key.includes(userId)) continue;
         const answers = JSON.parse(localStorage.getItem(key) || '{}');
         total += Object.keys(answers).length;
       }
@@ -80,7 +66,8 @@ const domainSkillSuggestions = {
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
-  const latestResult = readLatestResult();
+  const latestResult = getLatestResult(user?.id);
+  const userScans = getUserHistory(user?.id);
 
   const [profile, setProfile] = useState({
     full_name: user?.full_name || '',
@@ -99,8 +86,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [savedCount] = useState(readSavedJobsCount);
-  const [practicedCount] = useState(readPracticedCount);
+  const [savedQuestionsCount] = useState(() => getSavedQuestions(user?.id).length);
+  const [scansCount] = useState(() => userScans.length);
 
   useEffect(() => {
     userApi.profile()
@@ -112,7 +99,7 @@ export default function ProfilePage() {
             ...prev,
             ...response.data,
             full_name: effectiveName,
-            email: response.data.email ?? user?.email ?? prev.email,
+            email: user?.email || (response.data.email && response.data.email !== 'amina.rahman@example.com' ? response.data.email : prev.email),
             location: response.data.location ?? '',
             target_job_role: response.data.target_job_role ?? '',
             bio: response.data.bio ?? '',
@@ -258,14 +245,14 @@ export default function ProfilePage() {
         <Card className="border-0 bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-[#0f172a] dark:ring-slate-800">
           <CardContent className="p-5 flex items-center gap-4">
             <span className="grid size-12 place-items-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
-              <MessageSquare className="size-6" />
+              <FileText className="size-6" />
             </span>
             <div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{practicedCount}</span>
-                <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Answers</span>
+                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{scansCount}</span>
+                <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Scans</span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Interviews Practiced</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Resumes Analyzed</p>
             </div>
           </CardContent>
         </Card>
@@ -277,10 +264,10 @@ export default function ProfilePage() {
             </span>
             <div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{savedCount}</span>
-                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Roles</span>
+                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">{savedQuestionsCount}</span>
+                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Questions</span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Saved Opportunities</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Saved Question Bank</p>
             </div>
           </CardContent>
         </Card>

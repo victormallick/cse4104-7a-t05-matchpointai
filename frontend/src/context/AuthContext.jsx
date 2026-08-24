@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authApi, userApi } from '../services/api';
+import { clearUserStorage } from '../utils/storage';
 
 const AuthContext = createContext(null);
 
@@ -48,6 +49,14 @@ const handleOAuthRedirect = () => {
       const refreshToken = params.get('refresh_token');
       const payload = parseJwt(accessToken);
       if (payload) {
+        const nextUserId = payload.sub || payload.id;
+        try {
+          const prevSession = JSON.parse(localStorage.getItem('matchpoint_session') || 'null');
+          if (prevSession?.user?.id && prevSession.user.id !== nextUserId) {
+            clearUserStorage();
+          }
+        } catch {}
+
         const userMeta = payload.user_metadata || {};
         let initialFullName = userMeta.full_name || userMeta.name || payload.email?.split('@')[0] || 'Candidate';
         try {
@@ -61,7 +70,7 @@ const handleOAuthRedirect = () => {
           token: accessToken,
           refresh_token: refreshToken,
           user: {
-            id: payload.sub || payload.id,
+            id: nextUserId,
             email: payload.email || userMeta.email || '',
             full_name: initialFullName,
             role: userMeta.role || 'candidate',
@@ -130,10 +139,18 @@ export function AuthProvider({ children }) {
   }, [session?.token, updateUser]);
 
   const saveResponse = (response) => {
+    const nextUserId = response.data.user_id;
+    try {
+      const prevSession = JSON.parse(localStorage.getItem('matchpoint_session') || 'null');
+      if (prevSession?.user?.id && prevSession.user.id !== nextUserId) {
+        clearUserStorage();
+      }
+    } catch {}
+
     const nextSession = {
       token: response.data.session?.access_token || 'demo-user-token',
       user: {
-        id: response.data.user_id,
+        id: nextUserId,
         email: response.data.email,
         full_name: response.data.full_name,
         role: response.data.role || 'candidate'
@@ -158,6 +175,7 @@ export function AuthProvider({ children }) {
       await authApi.logout();
     } finally {
       localStorage.removeItem('matchpoint_session');
+      clearUserStorage();
       setSession(null);
     }
   };

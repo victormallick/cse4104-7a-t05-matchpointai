@@ -14,6 +14,21 @@ const {
 
 const getRoleDomainSkills = (jobTitle = '') => {
   const t = (jobTitle || '').toLowerCase();
+  if (t.includes('ai') || t.includes('machine learning') || t.includes('ml') || t.includes('data science') || t.includes('deep learning') || t.includes('nlp') || t.includes('vision') || t.includes('llm') || t.includes('python')) {
+    return [
+      'Distributed Neural Network Training (PyTorch/DistributedDataParallel)',
+      'High-Performance Model Inference Optimization (TensorRT/ONNX/vLLM)',
+      'Feature Engineering & High-Throughput Data Pipeline Orchestration',
+      'Automated CI/CD for Model Deployment & MLOps (MLflow/Kubeflow)',
+      'Model Evaluation Metrics (Precision/Recall/F1/AUC-ROC/Latency)',
+      'Handling Data Drift, Concept Drift & Model Performance Monitoring',
+      'Transformer Architecture & LLM Fine-Tuning (PEFT/LoRA)',
+      'Vector Databases & Retrieval-Augmented Generation (RAG)',
+      'Unit Testing & Test-Driven ML Development (pytest/Hypothesis)',
+      'Asynchronous Data Ingestion & Batch Prediction Pipelines',
+      'Model Quantization, Pruning & Memory Footprint Reduction'
+    ];
+  }
   if (t.includes('market') || t.includes('growth') || t.includes('seo') || t.includes('digital marketing')) {
     return [
       'Campaign Analytics & Execution', 'Conversion Rate Optimization (CRO)', 'Multi-Channel Funnel Attribution',

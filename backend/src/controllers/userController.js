@@ -13,56 +13,48 @@ const getUserHistory = async (req, res) => {
     if (isSupabaseConfigured) {
       try {
         const { data, error } = await supabase
-          .from('analysis_records')
-          .select(`
-            id,
-            ats_score,
-            missing_keywords,
-            missing_skills,
-            improved_bullets,
-            analyzed_at,
-            resumes (id, file_path, uploaded_at),
-            job_descriptions (id, title, company, jd_text, created_at)
-          `)
+          .from('user_scans')
+          .select('id, scan_data, created_at')
           .eq('user_id', userId)
-          .order('analyzed_at', { ascending: false });
+          .order('created_at', { ascending: false });
 
-        if (!error && data && data.length > 0) {
-          history = data.map((record) => ({
-            analysis_id: record.id,
-            job_title: record.job_descriptions?.title || 'Target role',
-            company: record.job_descriptions?.company || '',
-            ats_score: record.ats_score,
-            missing_keywords: record.missing_keywords || [],
-            missing_skills: record.missing_skills || [],
-            improvement_suggestions: record.improved_bullets || [],
-            analyzed_at: record.analyzed_at,
-            resume: record.resumes
-              ? {
-                  id: record.resumes.id,
-                  file_name: record.resumes.file_path,
-                  uploaded_at: record.resumes.uploaded_at
-                }
-              : null
-          }));
+        if (!error && Array.isArray(data)) {
+          history = data.map((record) => {
+            const scan = record.scan_data || {};
+            return {
+              analysis_id: record.id,
+              job_title: scan.job_title || 'Target role',
+              company: scan.company || '',
+              ats_score: scan.ats_score ?? 0,
+              match_rate: scan.match_rate ?? scan.ats_score ?? 0,
+              missing_keywords: scan.missing_keywords || [],
+              missing_skills: scan.missing_skills || [],
+              extracted_skills: scan.skills || scan.extracted_skills || [],
+              strengths: scan.strengths || [],
+              weaknesses: scan.weaknesses || [],
+              improvement_suggestions: scan.suggestions || scan.improved_bullets || scan.actionable_fixes || [],
+              category_scores: scan.category_scores || {},
+              analyzed_at: scan.analyzed_at || record.created_at,
+              ...scan
+            };
+          });
+
+          return res.status(200).json({
+            success: true,
+            message: 'Analysis history loaded successfully from Supabase.',
+            data: history
+          });
         }
       } catch (err) {
-        console.warn('Supabase history fetch fallback:', err.message);
+        console.warn('Supabase user_scans history fetch note:', err.message);
       }
     }
 
     const memoryItems = store.history.filter((item) => item.user_id === userId);
-    for (const mem of memoryItems) {
-      if (!history.some((h) => h.analysis_id === mem.analysis_id)) {
-        history.push(mem);
-      }
-    }
-    history.sort((a, b) => new Date(b.analyzed_at || 0) - new Date(a.analyzed_at || 0));
-
     return res.status(200).json({
       success: true,
       message: 'Analysis history loaded successfully.',
-      data: history
+      data: memoryItems
     });
   } catch (error) {
     console.error('User history controller error:', error);
@@ -173,10 +165,16 @@ const getUserProfile = async (req, res) => {
 
     if (error || !data) {
       const stored = store.profiles.get(userId);
+      const fallback = stored ? { ...cleanDefault, ...stored } : cleanDefault;
       return res.status(200).json({
         success: true,
         message: 'Profile loaded.',
-        data: stored || cleanDefault
+        data: {
+          ...cleanDefault,
+          ...fallback,
+          email: userEmail || fallback.email,
+          full_name: oauthFullName || fallback.full_name
+        }
       });
     }
 
@@ -186,6 +184,7 @@ const getUserProfile = async (req, res) => {
       data: {
         ...cleanDefault,
         ...data,
+        email: data.email || userEmail,
         full_name: data.full_name || oauthFullName
       }
     });

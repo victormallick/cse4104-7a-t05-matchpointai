@@ -545,65 +545,43 @@ const runGapAnalysis = async (req, res) => {
       }
     }
     const analysisId = randomUUID();
-    const analyzedAt = now();
-    let jobDescriptionId = null;
-
-    let savedInSupabase = false;
-    if (isSupabaseConfigured) {
-      try {
-        const { data: jobDescription, error: jobError } = await supabase
-          .from('job_descriptions')
-          .insert([
-            {
-              user_id: userId,
-              title: jobTitle,
-              company,
-              jd_text: jdText
-            }
-          ])
-          .select()
-          .single();
-
-        if (!jobError && jobDescription) {
-          jobDescriptionId = jobDescription.id;
-          const { data: savedAnalysis, error: analysisError } = await supabase
-            .from('analysis_records')
-            .insert([
-              {
-                user_id: userId,
-                resume_id: resumeId || null,
-                jd_id: jobDescriptionId,
-                ats_score: result.ats_score,
-                missing_keywords: result.missing_keywords,
-                missing_skills: result.missing_skills,
-                improved_bullets: result.improved_bullets
-              }
-            ])
-            .select()
-            .single();
-
-          if (!analysisError && savedAnalysis) {
-            result.analysis_id = savedAnalysis.id;
-            result.analyzed_at = savedAnalysis.analyzed_at;
-            savedInSupabase = true;
-          }
-        }
-      } catch (dbErr) {
-        console.warn('Supabase analysis insert fallback:', dbErr.message);
-      }
-    }
+    const currentTimestamp = new Date().toISOString();
 
     const record = {
       analysis_id: result.analysis_id || analysisId,
       user_id: userId,
       resume_id: resumeId || null,
       job_title: jobTitle,
-      company,
+      company: company || '',
       resume_text: resumeText,
       jd_text: jdText,
       ...result,
-      analyzed_at: result.analyzed_at || analyzedAt
+      analyzed_at: result.analyzed_at || currentTimestamp
     };
+
+    if (isSupabaseConfigured) {
+      try {
+        const { data: savedScan, error: scanErr } = await supabase
+          .from('user_scans')
+          .insert([{
+            user_id: userId,
+            scan_data: record
+          }])
+          .select()
+          .single();
+
+        if (!scanErr && savedScan) {
+          record.analysis_id = savedScan.id;
+          result.analysis_id = savedScan.id;
+          result.analyzed_at = savedScan.created_at || currentTimestamp;
+        } else if (scanErr) {
+          console.warn('Supabase user_scans insert notice:', scanErr.message);
+        }
+      } catch (dbErr) {
+        console.warn('Supabase user_scans fallback:', dbErr.message);
+      }
+    }
+
     store.analyses.set(record.analysis_id, record);
     store.history.unshift(record);
 
@@ -613,9 +591,10 @@ const runGapAnalysis = async (req, res) => {
         ? 'Resume analysis completed successfully.'
         : 'Resume analysis completed with the local demo engine.',
       data: {
+        analysis_id: record.analysis_id,
         user_id: userId,
         resume_id: resumeId || null,
-        job_description_id: jobDescriptionId,
+        job_description_id: null,
         job_title: jobTitle,
         company,
         resume_text: resumeText,
