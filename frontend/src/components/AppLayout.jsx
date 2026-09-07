@@ -161,7 +161,7 @@ function SlimRailNavigation({ sections }) {
                 to={to}
                 end={end}
                 className={({ isActive }) => cn(
-                  'flex size-11 items-center justify-center rounded-2xl transition-all duration-200 cursor-pointer',
+                  'flex size-11 items-center justify-center rounded-2xl transition-[transform,background-color,color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.92] cursor-pointer',
                   isActive
                     ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20'
                     : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white'
@@ -176,7 +176,7 @@ function SlimRailNavigation({ sections }) {
               </NavLink>
 
               {/* Rich Floating Glassmorphic Tooltip Card on Hover */}
-              <div className="pointer-events-none absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 min-w-[230px] max-w-[270px] flex flex-col rounded-2xl border border-slate-200/90 bg-white p-3.5 text-left shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] z-[9999] ring-1 ring-black/5 dark:ring-white/5">
+              <div className="pointer-events-none absolute left-[calc(100%+14px)] top-1/2 -translate-y-1/2 opacity-0 scale-[0.96] origin-left group-hover:opacity-100 group-hover:scale-100 translate-x-1 group-hover:translate-x-0 transition-[opacity,transform] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] min-w-[230px] max-w-[270px] flex flex-col rounded-2xl border border-slate-200/90 bg-white p-3.5 text-left shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] z-[9999] ring-1 ring-black/5 dark:ring-white/5">
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     {section.title}
@@ -232,7 +232,7 @@ function MobileDrawerNavigation({ sections, onNavigate }) {
                 end={end}
                 onClick={onNavigate}
                 className={({ isActive }) => cn(
-                  'group relative flex items-center justify-between min-h-11 rounded-xl px-3.5 text-sm font-semibold transition-all duration-200 cursor-pointer',
+                  'group relative flex items-center justify-between min-h-11 rounded-xl px-3.5 text-sm font-semibold transition-[transform,background-color,color] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] cursor-pointer',
                   isActive
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/8 dark:hover:text-white'

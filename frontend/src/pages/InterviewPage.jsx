@@ -16,7 +16,7 @@ import {
   Trash2,
   Users
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +27,6 @@ import LoadingState from '../components/LoadingState';
 import PageHeader from '../components/PageHeader';
 import SkillRoadmapModal from '../components/SkillRoadmapModal';
 import { useAuth } from '../context/AuthContext';
-import { demoQuestions } from '../data/demoData';
 import { analysisApi, userApi } from '../services/api';
 import { getLatestResult, getSavedQuestions, setLatestResult } from '../utils/storage';
 
@@ -35,9 +34,82 @@ const MAX_QUESTIONS_PER_SECTION = 10;
 
 const getInterviewStorageKey = (result, targetRole, userId) => {
   const keyPart = result?.analysis_id || result?.id || result?.resume_id || (result?.created_at || 'latest');
-  const safeRole = (targetRole || result?.job_title || 'default').toLowerCase().replace(/\s+/g, '_');
+  const safeRole = (typeof targetRole === 'string' ? targetRole : (result?.job_title || 'default')).toLowerCase().replace(/\s+/g, '_');
   const userPart = userId ? `${userId}_` : '';
   return `matchpoint_interview_questions_${userPart}${keyPart}_${safeRole}`;
+};
+
+const synthesizeRoleFallback = (role = 'Specialist') => {
+  const r = role || 'Specialist';
+  return {
+    technical: [
+      {
+        id: `tech-${Date.now()}-1`,
+        topic: `${r} Execution Strategy`,
+        difficulty: 'Medium',
+        focus_skill: `${r} Core Execution`,
+        question: `In your role as a ${r}, walk us through your methodology for designing, measuring, and executing core initiatives from inception to delivery.`,
+        expected_keywords: ['Methodology', 'KPIs', 'Cross-functional alignment', 'Execution', 'Trade-offs'],
+        sample_answer: `A strong response outlines end-to-end strategy, stakeholder buy-in, key performance indicators, risk mitigation, and quantifiable outcome metrics.`
+      },
+      {
+        id: `tech-${Date.now()}-2`,
+        topic: 'Performance & Optimization',
+        difficulty: 'Hard',
+        focus_skill: 'Analytics & Optimization',
+        question: `What specific KPIs and data-driven benchmarks do you prioritize to diagnose bottlenecks and optimize ROI as a ${r}?`,
+        expected_keywords: ['Benchmarking', 'ROI', 'Data analysis', 'Optimization', 'Continuous improvement'],
+        sample_answer: `Explain core metrics, tooling used to detect friction or inefficiencies, experimentation frameworks, and measurable improvements achieved.`
+      },
+      {
+        id: `tech-${Date.now()}-3`,
+        topic: 'Strategic Trade-offs',
+        difficulty: 'Medium',
+        focus_skill: 'Decision Making',
+        question: `Describe a challenging technical or operational trade-off you navigated as a ${r}. What constraints guided your final decision?`,
+        expected_keywords: ['Trade-offs', 'Prioritization', 'Constraints', 'Impact', 'Long-term value'],
+        sample_answer: `Detail the business context, competing options, trade-off criteria (cost, speed, quality), and the resulting business impact.`
+      }
+    ],
+    behavioral: [
+      {
+        id: `beh-${Date.now()}-1`,
+        topic: 'Cross-Functional Leadership',
+        difficulty: 'Medium',
+        framework: 'STAR',
+        question: `Tell me about a time you had to align cross-functional stakeholders or leadership on a high-stakes ${r} initiative (STAR format).`,
+        key_points: ['Stakeholder alignment', 'Data-driven advocacy', 'Measurable outcome'],
+        sample_answer: `Describe the Situation, the conflicting views, the Action you took to build consensus through data, and the positive Result.`
+      },
+      {
+        id: `beh-${Date.now()}-2`,
+        topic: 'Overcoming Roadblocks',
+        difficulty: 'Hard',
+        framework: 'STAR',
+        question: `Describe an unexpected roadblock, resource constraint, or deadline compression you faced as a ${r} and how you adapted your plan.`,
+        key_points: ['Agility', 'Root-cause mitigation', 'Delivery'],
+        sample_answer: `Explain the roadblock, your rapid re-prioritization, clear communication with stakeholders, and how you ensured successful delivery.`
+      }
+    ],
+    hr: [
+      {
+        id: `hr-${Date.now()}-1`,
+        topic: 'Role Motivation & Career Trajectory',
+        difficulty: 'Easy',
+        question: `What specifically attracts you to advancing your career as a ${r}, and how does this opportunity fit your long-term goals?`,
+        intent: 'Evaluates authentic motivation, self-awareness, and career trajectory.',
+        tip: 'Connect your demonstrated strengths to the company mission and future growth.'
+      },
+      {
+        id: `hr-${Date.now()}-2`,
+        topic: 'Collaboration & Culture Fit',
+        difficulty: 'Easy',
+        question: `What kind of team environment and leadership style enables you to deliver your highest quality work as a ${r}?`,
+        intent: 'Assesses culture alignment, autonomy expectations, and team communication habits.',
+        tip: 'Speak to transparency, psychological safety, and clear mutual expectations.'
+      }
+    ]
+  };
 };
 
 const categoryMeta = {
@@ -78,6 +150,7 @@ export default function InterviewPage() {
   const [savedQuestions, setSavedQuestions] = useState(() => getSavedQuestions(user?.id));
   const [limitWarning, setLimitWarning] = useState(null);
   const [selectedRoadmapSkill, setSelectedRoadmapSkill] = useState(null);
+  const inFlightRef = useRef(false);
 
   const company = currentResult?.company || '';
   const focusSkills = currentResult?.missing_skills || currentResult?.missing_keywords || [];
@@ -91,7 +164,11 @@ export default function InterviewPage() {
     }
   };
 
-  const loadQuestions = async (targetRole = activeJobTitle, forceRefresh = false, activeRes = currentResult) => {
+  const loadQuestions = async (targetRoleArg = activeJobTitle, forceRefreshArg = false, activeRes = currentResult) => {
+    const targetRole = typeof targetRoleArg === 'string' && targetRoleArg !== 'true' && targetRoleArg !== 'false'
+      ? targetRoleArg
+      : activeJobTitle || 'Software Engineer';
+    const forceRefresh = typeof targetRoleArg === 'boolean' ? targetRoleArg : Boolean(forceRefreshArg);
     const result = activeRes || location.state?.result || getLatestResult(user?.id);
     const isInvalidUpload = result?.is_valid_resume === false || (result?.ats_score === 0 && Boolean(result?.document_warning));
     const hasValidResume = Boolean(result && (result.analysis_id || result.id || result.job_title || result.ats_score !== undefined) && !isInvalidUpload);
@@ -110,7 +187,9 @@ export default function InterviewPage() {
         if (cached) {
           const parsed = JSON.parse(cached);
           const isStaleDemo = parsed.technical?.[0]?.question?.includes('React dashboard') && !(targetRole || '').toLowerCase().includes('react');
-          if (!isStaleDemo && parsed && (parsed.technical?.length > 0 || parsed.behavioral?.length > 0 || parsed.hr?.length > 0)) {
+          if (isStaleDemo) {
+            try { localStorage.removeItem(storageKey); } catch (_) {}
+          } else if (parsed && (parsed.technical?.length > 0 || parsed.behavioral?.length > 0 || parsed.hr?.length > 0)) {
             setQuestions(parsed);
             if (parsed.technical?.length > 0) setActiveQuestion(parsed.technical[0]);
             setLoading(false);
@@ -122,6 +201,8 @@ export default function InterviewPage() {
       }
     }
 
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setLoading(true);
     try {
       const response = await analysisApi.interview({
@@ -142,14 +223,17 @@ export default function InterviewPage() {
           setActiveQuestion(incoming.technical[0]);
         }
       } else {
-        setQuestions(demoQuestions);
-        if (demoQuestions.technical?.length > 0) setActiveQuestion(demoQuestions.technical[0]);
+        const fallback = synthesizeRoleFallback(targetRole);
+        setQuestions(fallback);
+        if (fallback.technical?.length > 0) setActiveQuestion(fallback.technical[0]);
       }
     } catch (error) {
       console.error('Interview load error:', error);
-      setQuestions(demoQuestions);
-      if (demoQuestions.technical?.length > 0) setActiveQuestion(demoQuestions.technical[0]);
+      const fallback = synthesizeRoleFallback(targetRole);
+      setQuestions(fallback);
+      if (fallback.technical?.length > 0) setActiveQuestion(fallback.technical[0]);
     } finally {
+      inFlightRef.current = false;
       setLoading(false);
     }
   };
@@ -204,21 +288,21 @@ export default function InterviewPage() {
     }
 
     setGeneratingMore(true);
-    const result = location.state?.result || readLatestResult();
-
-    const existingList = [
-      ...(questions?.technical || []),
-      ...(questions?.behavioral || []),
-      ...(questions?.hr || [])
-    ].map((q) => (typeof q === 'string' ? q : q.question || ''));
-
     try {
+      const result = location.state?.result || currentResult || getLatestResult(user?.id);
+
+      const existingList = [
+        ...(questions?.technical || []),
+        ...(questions?.behavioral || []),
+        ...(questions?.hr || [])
+      ].map((q) => (typeof q === 'string' ? q : q.question || ''));
+
       const response = await analysisApi.interview({
         analysis_id: result?.analysis_id,
         resume_id: result?.resume_id,
         resume_text: result?.resume_text || '',
         jd_text: result?.jd_text || '',
-        job_title: result?.job_title || 'Target Role',
+        job_title: activeJobTitle || result?.job_title || 'Target Role',
         company: result?.company || '',
         missing_skills: result?.missing_skills || result?.missing_keywords || [],
         existing_questions: existingList,
@@ -474,7 +558,7 @@ export default function InterviewPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => loadQuestions(true)}
+              onClick={() => loadQuestions(activeJobTitle, true)}
               className="h-11 border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 gap-1.5 font-medium cursor-pointer"
               title="Regenerate all questions from scratch"
             >
@@ -528,7 +612,7 @@ export default function InterviewPage() {
                 else setActiveQuestion(null);
               }}
               className={cn(
-                'flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all duration-200 cursor-pointer',
+                'flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-[transform,background-color,color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] cursor-pointer',
                 isActive
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                   : 'bg-white dark:bg-[#0f172a] text-slate-600 dark:text-slate-300 ring-1 ring-slate-200/80 dark:ring-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
@@ -553,10 +637,10 @@ export default function InterviewPage() {
 
       {/* Main Questions Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 animate-fade-in-up">
-        {/* Left Questions List (7 cols) */}
-        <div className="space-y-4 lg:col-span-7">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+        {/* Left: Questions List (5 cols) */}
+        <div className="space-y-3 lg:col-span-6 xl:col-span-5">
+          <div className="flex items-center justify-between pb-1">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
               <ActiveCategoryIcon className="size-4 text-blue-600" />
               <span>{activeMeta.label} Questions ({categoryQuestions.length})</span>
             </h3>
@@ -583,7 +667,7 @@ export default function InterviewPage() {
                   key={q.id || idx}
                   onClick={() => setActiveQuestion(q)}
                   className={cn(
-                    'border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 transition-all duration-200 cursor-pointer',
+                    'border-0 bg-white dark:bg-[#0f172a] shadow-sm ring-1 transition-[transform,box-shadow,background-color] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.99] cursor-pointer',
                     isSelected
                       ? 'ring-2 ring-blue-600 shadow-md bg-blue-50/20 dark:bg-blue-950/20'
                       : 'ring-slate-200/80 dark:ring-slate-800 hover:ring-blue-300 dark:hover:ring-blue-700/60'

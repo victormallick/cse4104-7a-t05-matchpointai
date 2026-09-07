@@ -62,63 +62,63 @@ const getAIClient = () => {
   return null;
 };
 
-const withTimeout = (promise, ms = 25000) => {
+const withTimeout = (promise, ms = 6000) => {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error('AI request timed out')), ms))
   ]);
 };
 
-const callGeminiWithRetry = async (client, prompt, retries = 1) => {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await withTimeout(client.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json'
-        }
-      }), 25000);
-      return response;
-    } catch (err) {
-      if (attempt < retries && (err.status === 503 || String(err.message).includes('high demand') || String(err.message).includes('timed out'))) {
-        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
-        continue;
-      }
-      throw err;
+const callGeminiWithTimeout = async (client, prompt, timeoutMs = 5000) => {
+  return withTimeout(client.models.generateContent({
+    model: 'gemini-3.6-flash',
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json'
     }
-  }
+  }), timeoutMs);
 };
 
-const executeWithGeminiPool = async (prompt) => {
+const executeWithGeminiPool = async (prompt, maxWaitMs = 8000) => {
   const keys = getGeminiKeys();
   if (keys.length === 0) return null;
 
   const totalKeys = keys.length;
+  const startTime = Date.now();
   for (let attempt = 0; attempt < totalKeys; attempt++) {
+    const elapsed = Date.now() - startTime;
+    if (elapsed >= maxWaitMs) {
+      console.warn(`[AI Pool] Gemini pool time budget reached (${elapsed}ms). Switching to dynamic engine.`);
+      return null;
+    }
+
     const keyIndex = (currentGeminiIndex + attempt) % totalKeys;
     const apiKey = keys[keyIndex];
+    const remainingMs = Math.max(2000, maxWaitMs - elapsed);
+    const keyTimeout = Math.min(5000, remainingMs);
+
     try {
       const client = new GoogleGenAI({ apiKey });
-      const response = await callGeminiWithRetry(client, prompt);
-      currentGeminiIndex = keyIndex;
+      const response = await callGeminiWithTimeout(client, prompt, keyTimeout);
+      currentGeminiIndex = (keyIndex + 1) % totalKeys;
       return parseAIJson(response.text);
     } catch (err) {
-      const isRateLimit =
+      const isThrottled =
         err.status === 429 ||
         err.status === 403 ||
         err.status === 503 ||
         String(err.message).toLowerCase().includes('rate limit') ||
         String(err.message).toLowerCase().includes('resource_exhausted') ||
         String(err.message).toLowerCase().includes('quota') ||
-        String(err.message).toLowerCase().includes('too many requests');
+        String(err.message).toLowerCase().includes('timed out');
 
-      if (isRateLimit && totalKeys > 1) {
-        console.warn(`[AI Pool] Gemini Key #${keyIndex + 1}/${totalKeys} rate limited. Auto-switching to next key...`);
+      if (isThrottled && totalKeys > 1) {
+        currentGeminiIndex = (keyIndex + 1) % totalKeys;
+        console.warn(`[AI Pool] Gemini Key #${keyIndex + 1}/${totalKeys} ${err.message?.includes('timed out') ? 'timed out' : 'throttled'}. Trying next key...`);
         continue;
       }
       if (attempt === totalKeys - 1) {
-        console.error(`[AI Pool] All ${totalKeys} Gemini key(s) exhausted:`, err.message);
+        console.error(`[AI Pool] Gemini key(s) exhausted (${totalKeys} keys):`, err.message);
         return null;
       }
     }
@@ -396,11 +396,11 @@ ${Array.isArray(missingSkills) ? missingSkills.join(', ') : 'Key domain competen
 </focus_gaps>
 
 <generation_rules>
-1. RESUME GROUNDING: Every Technical and Behavioral question MUST be directly anchored in the candidate's actual projects, tools, metrics, and experiences listed in <candidate_resume>.
-2. TECHNICAL DEPTH: Probe system architecture, trade-offs, scaling limits, edge cases, and failure modes for tools they claim in their resume.
-3. BEHAVIORAL EXCELLENCE: Use the STAR methodology (Situation, Task, Action, Result) to test ownership, cross-team conflict resolution, and execution under ambiguity.
-4. HR & LEADERSHIP: Test culture alignment, learning velocity, and long-term career ambition.
-5. Provide a comprehensive "sample_answer" for each question illustrating how a Principal/Staff-level engineer would answer.
+1. RESUME GROUNDING: Every Technical and Behavioral question MUST be directly anchored in the candidate's actual projects, tools, metrics, or domain skills for "${jobTitle || 'Target Role'}".
+2. TECHNICAL DEPTH: Probe core execution, trade-offs, metrics, and problem-solving relevant to "${jobTitle || 'Target Role'}".
+3. BEHAVIORAL: Use STAR methodology testing ownership, problem-solving, and cross-team execution.
+4. HR & LEADERSHIP: Test culture alignment, motivation, and career trajectory.
+5. Provide exactly 3 technical questions, 2 behavioral questions, and 2 HR questions. Keep sample answers insightful yet concise (2-3 sentences).
 </generation_rules>
 
 <output_format>
@@ -408,28 +408,28 @@ Respond ONLY with a valid, raw JSON object:
 {
   "technical": [
     {
-      "question": "Deep technical scenario directly referencing candidate's resume projects, tools, or architectural decisions",
+      "question": "Realistic scenario question tailored to role and resume",
       "difficulty": "Medium",
-      "expected_keywords": ["SpecificTool", "Scalability", "TradeOff"],
-      "topic": "Specific Topic from Resume",
-      "focus_skill": "Skill name",
-      "sample_answer": "Structured model answer highlighting architectural rationale, metrics, and best practices"
+      "expected_keywords": ["Keyword1", "Keyword2"],
+      "topic": "Core Topic",
+      "focus_skill": "Primary Skill",
+      "sample_answer": "Concise high-impact answer demonstrating mastery"
     }
   ],
   "behavioral": [
     {
-      "question": "Behavioral question probing a real challenge relevant to candidate background using the STAR format",
-      "context": "Scenario context",
+      "question": "STAR behavioral challenge question relevant to role",
+      "context": "Context scenario",
       "framework": "STAR",
-      "key_points": ["Key Point 1", "Key Point 2"],
-      "sample_answer": "Model STAR response (Situation, Task, Action, Result)"
+      "key_points": ["Point 1", "Point 2"],
+      "sample_answer": "Concise STAR answer with Situation, Action, Result"
     }
   ],
   "hr": [
     {
-      "question": "HR / Culture question evaluating career goals and team collaboration",
-      "intent": "What is evaluated",
-      "tip": "How to answer"
+      "question": "Role motivation or culture fit question",
+      "intent": "Recruiter intent",
+      "tip": "Actionable answering tip"
     }
   ]
 }

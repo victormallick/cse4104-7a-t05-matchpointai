@@ -104,10 +104,7 @@ export const analysisApi = {
     return api.post('/api/upload', form).then((response) => response.data);
   },
   analyze: (payload) => api.post('/api/analysis/gap-analysis', payload).then((response) => response.data),
-  interview: (payload) => dataOrFallback(
-    () => api.post('/api/interview/generate', payload),
-    { questions: demoQuestions }
-  ),
+  interview: (payload) => api.post('/api/interview/generate', payload).then((response) => response.data),
   evaluateAnswer: (payload) => api.post('/api/interview/evaluate', payload).then((response) => response.data),
   getReadinessReport: (payload) => api.post('/api/interview/readiness-report', payload).then((response) => response.data)
 };

@@ -151,16 +151,16 @@ export default function SkillRoadmapModal({ skill, open, onOpenChange }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop with blur */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-scale-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
         onClick={() => onOpenChange?.(false)}
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative z-10 w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] sm:p-7 animate-scale-in">
+      <div className="relative z-10 w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-[#0f172a] sm:p-7 animate-scale-in origin-center">
         {/* Close Button */}
         <button
           onClick={() => onOpenChange?.(false)}
-          className="absolute right-5 top-5 grid size-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer transition"
+          className="absolute right-5 top-5 grid size-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 active:scale-[0.92] cursor-pointer transition-[transform,background-color,color] duration-150 ease-out"
         >
           <X className="size-4.5" />
         </button>

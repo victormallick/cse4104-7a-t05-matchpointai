@@ -13,7 +13,7 @@ const {
 } = require('../services/aiService');
 
 const getRoleDomainSkills = (jobTitle = '') => {
-  const t = (jobTitle || '').toLowerCase();
+  const t = (typeof jobTitle === 'string' ? jobTitle : '').toLowerCase();
   if (t.includes('ai') || t.includes('machine learning') || t.includes('ml') || t.includes('data science') || t.includes('deep learning') || t.includes('nlp') || t.includes('vision') || t.includes('llm') || t.includes('python')) {
     return [
       'Distributed Neural Network Training (PyTorch/DistributedDataParallel)',
@@ -461,7 +461,10 @@ const generateInterview = async (req, res) => {
     const userId = req.body.user_id || req.user?.id || DEMO_USER_ID;
     const analysis = analysisId ? store.analyses.get(analysisId) : null;
     const missingSkills = req.body.missing_skills || analysis?.missing_skills || analysis?.missing_keywords || [];
-    const jobTitle = req.body.job_title || analysis?.job_title || 'Software Engineer';
+    const rawJobTitle = req.body.job_title || analysis?.job_title;
+    const jobTitle = typeof rawJobTitle === 'string' && rawJobTitle.trim() && rawJobTitle !== 'true' && rawJobTitle !== 'false'
+      ? rawJobTitle.trim()
+      : 'Software Engineer';
     const company = req.body.company || analysis?.company || '';
     const jdText = req.body.jd_text || analysis?.jd_text || '';
     const existingQuestions = req.body.existing_questions || [];

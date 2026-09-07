@@ -250,7 +250,7 @@ export default function JobsPage() {
               <button
                 onClick={() => setRegion('bangladesh')}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-[transform,background-color,color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] cursor-pointer",
                   region === 'bangladesh'
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -263,7 +263,7 @@ export default function JobsPage() {
               <button
                 onClick={() => setRegion('abroad')}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition-[transform,background-color,color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] cursor-pointer",
                   region === 'abroad'
                     ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -389,7 +389,7 @@ export default function JobsPage() {
           <Card
             key={portal.id}
             className={cn(
-              "group relative overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+              "group relative overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-6 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 transition-[transform,box-shadow,border-color] duration-180 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.99]",
               portal.border,
               portal.glow
             )}
@@ -436,7 +436,7 @@ export default function JobsPage() {
                 target="_blank"
                 rel="noreferrer"
                 className={cn(
-                  "w-full inline-flex items-center justify-center gap-2 rounded-2xl py-4 px-6 font-bold text-xs shadow-md transition-all hover:opacity-95 hover:scale-[1.01] active:scale-[0.98] cursor-pointer select-none",
+                  "w-full inline-flex items-center justify-center gap-2 rounded-2xl py-4 px-6 font-bold text-xs shadow-md transition-[transform,opacity,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] hover:opacity-95 hover:scale-[1.01] active:scale-[0.97] cursor-pointer select-none",
                   portal.btnClass
                 )}
               >

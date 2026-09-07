@@ -124,7 +124,7 @@ export default function AnalyzePage() {
           <CardContent className="p-5 sm:p-7">
             <div
               className={cn(
-                'grid min-h-[390px] cursor-pointer place-items-center content-center rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200',
+                'grid min-h-[390px] cursor-pointer place-items-center content-center rounded-2xl border-2 border-dashed p-8 text-center transition-[transform,border-color,background-color] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.995]',
                 dragging && 'border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/40 scale-[1.01]',
                 file
                   ? 'border-emerald-400 bg-emerald-50/50 dark:border-emerald-700/60 dark:bg-emerald-950/20'

@@ -81,6 +81,11 @@
   --sidebar-accent-foreground: oklch(0.99 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.62 0.19 264);
+
+  /* Emil Kowalski High-Craft Easing Tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .dark {
@@ -328,10 +333,19 @@ html.dark .bg-indigo-100 {
   animation: radar-ripple 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -350,28 +364,32 @@ html.dark .bg-indigo-100 {
   }
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.18s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fadeInUp 0.22s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: scaleIn 0.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 .stagger-1 {
-  animation-delay: 60ms;
+  animation-delay: 40ms;
 }
 
 .stagger-2 {
-  animation-delay: 120ms;
+  animation-delay: 80ms;
 }
 
 .stagger-3 {
-  animation-delay: 180ms;
+  animation-delay: 120ms;
 }
 
 .stagger-4 {
-  animation-delay: 240ms;
+  animation-delay: 160ms;
 }
 
 /* Dual Orbital Resonance Animation */
