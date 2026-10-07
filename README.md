@@ -20,7 +20,7 @@
 
 ---
 
-## 👥 Project Team (T05)
+## 👥 Project Team
 
 | Member | Student ID | Role |
 | :--- | :--- | :--- |
